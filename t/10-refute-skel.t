@@ -4,9 +4,9 @@ use strict;
 use warnings;
 use Test::More;
 
-use Assert::Contract qw();
+use Assert::Contract::Exec;
 
-my $c = Assert::Contract->new;
+my $c = Assert::Contract::Exec->new;
 
 ok $c->is_passing, "passing: empty = ok";
 is $c->count, 0, "0 tests run";

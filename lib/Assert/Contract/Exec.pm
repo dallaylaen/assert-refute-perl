@@ -1,4 +1,4 @@
-package Assert::Contract;
+package Assert::Contract::Exec;
 
 use 5.006;
 use strict;
@@ -11,16 +11,14 @@ Assert::Contract - The great new Assert::Contract!
 
 =head1 SYNOPSIS
 
-Quick summary of what the module does.
+    my $c = Assert::Contract::Exec;
+    $c->refute ( $cond, $message );
+    $c->refute ( $cond2, $message2 );
+    # .......
 
-Perhaps a little code snippet.
-
-    use Assert::Contract;
-
-    my $foo = Assert::Contract->new();
-    ...
-
-=head1 EXPORTED FUNCTIONS
+    $c->count;      # how many tests were run
+    $c->is_passing; # did any of them fail?
+    $c->as_tap;     # return printable summary in familiar format
 
 =cut
 
@@ -30,7 +28,7 @@ use Carp;
 
 =head2 new
 
-    Assert::Contract->new( %options );
+    Assert::Contract::Exec->new( %options );
 
 %options may include:
 
@@ -152,7 +150,7 @@ automatically be notified of progress on your bug as I make changes.
 
 You can find documentation for this module with the C<perldoc> command.
 
-    perldoc Assert::Contract
+    perldoc Assert::Contract::Exec
 
 You can also look for information at:
 
@@ -223,4 +221,4 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =cut
 
-1; # End of Assert::Contract
+1; # End of Assert::Contract::Exec
