@@ -14,7 +14,8 @@ BEGIN {
             allow_words => [qw[
                 Konstantin Uvarin
                 github metacpan annocpan CPAN
-                diag
+                regex
+                diag isnt ok qr
             ]],
         }
     );
