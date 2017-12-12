@@ -2,7 +2,7 @@ package Assert::Contract::T::Basic;
 
 use strict;
 use warnings;
-our $VERSION = 0.01;
+our $VERSION = 0.0101;
 
 =head1 NAME
 
@@ -41,7 +41,7 @@ use Carp;
 use Scalar::Util qw(blessed looks_like_number);
 use parent qw(Exporter);
 
-use Assert::Contract::Engine::Build;
+use Assert::Contract::Build;
 our @EXPORT = qw(diag note);
 
 =head2 is $got, $expected, "explanation"

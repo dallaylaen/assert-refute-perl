@@ -2,7 +2,7 @@ package Assert::Contract::Build::Util;
 
 use strict;
 use warnings;
-our $VERSION = 0.01;
+our $VERSION = 0.0101;
 
 =head1 NAME
 
@@ -10,7 +10,7 @@ Assert::Contract::Build::Util - utility functions for Assert::Contract
 
 =head1 DESCRIPTION
 
-See L<Assert::Contract> and L<Assert::Contract::Engine::Build>.
+See L<Assert::Contract> and L<Assert::Contract::Build>.
 Nothing of interest here.
 
 =head1 FUNCTIONS

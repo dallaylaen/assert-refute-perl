@@ -11,7 +11,7 @@ BEGIN {
     package Foo;
     use base qw(Exporter);
 
-    use Assert::Contract::Engine::Build;
+    use Assert::Contract::Build;
 
     build_refute my_is => sub {
         my ($got, $exp) = @_;

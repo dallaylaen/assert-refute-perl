@@ -1,4 +1,4 @@
-package Assert::Contract::Engine::Build;
+package Assert::Contract::Build;
 
 use strict;
 use warnings;
@@ -6,7 +6,7 @@ our $VERSION = 0.0102;
 
 =head1 NAME
 
-Assert::Contract::Engine::Build - tool for extending Assert::Contract suite
+Assert::Contract::Build - tool for extending Assert::Contract suite
 
 =head1 DESCRIPTION
 
@@ -38,7 +38,7 @@ Hence this module.
 Extending the test suite goes as follows:
 
     package My::Package;
-    use Assert::Contract::Engine::Build;
+    use Assert::Contract::Build;
     use parent qw(Exporter);
 
     build_refute is_everything => sub {

@@ -2,7 +2,7 @@ package Assert::Contract::T::Deep;
 
 use strict;
 use warnings;
-our $VERSION = 0.03;
+our $VERSION = 0.0301;
 
 =head1 NAME
 
@@ -17,7 +17,7 @@ Add C<is_deeply> method to L<Assert::Contract> and L<Assert::Contract>.
 use Scalar::Util qw(refaddr);
 use parent qw(Exporter);
 
-use Assert::Contract::Engine::Build;
+use Assert::Contract::Build;
 
 our @EXPORT_OK = qw(deep_diff);
 
