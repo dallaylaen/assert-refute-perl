@@ -3,7 +3,7 @@ package Assert::Refute::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0105;
+our $VERSION = 0.0107;
 
 =head1 NAME
 
@@ -108,39 +108,6 @@ sub note {
     $self->_croak( $ERROR_DONE )
         if $self->{done};
     $self->log_message( 2, join " ", map { to_scalar($_) } @_ );
-};
-
-=head3 log_message( $level, $message )
-
-Append a message to execution log.
-Levels are:
-
-=over
-
-=item -2 - something totally horrible
-
-=item -1 - a failing test
-
-=item 0 - a passing test
-
-=item 1 - a diagnostic message, think C<Test::More/diag>
-
-=item 2+ - a normally ignored verbose message, think L<Test::More/note>
-
-=back
-
-=cut
-
-sub log_message {
-    my ($self, $level, @parts) = @_;
-
-    $self->_croak( $ERROR_DONE )
-        if $self->{done};
-    foreach (@parts) {
-        push @{ $self->{mess} }, [$level, $_];
-    };
-
-    return $self;
 };
 
 =head3 done_testing
@@ -312,6 +279,43 @@ sub _croak {
 
     croak "$where[0]->$fun: $mess";
 };
+
+=head2 DEVELOPMENT PRIMITIVES
+
+=head3 log_message( $level, $message )
+
+Append a message to execution log.
+Levels are:
+
+=over
+
+=item -2 - something totally horrible
+
+=item -1 - a failing test
+
+=item 0 - a passing test
+
+=item 1 - a diagnostic message, think C<Test::More/diag>
+
+=item 2+ - a normally ignored verbose message, think L<Test::More/note>
+
+=back
+
+=cut
+
+sub log_message {
+    my ($self, $level, @parts) = @_;
+
+    $self->_croak( $ERROR_DONE )
+        if $self->{done};
+    foreach (@parts) {
+        push @{ $self->{mess} }, [$level, $_];
+    };
+
+    return $self;
+};
+
+
 
 =head1 LICENSE AND COPYRIGHT
 
