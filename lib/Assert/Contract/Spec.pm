@@ -3,7 +3,7 @@ package Assert::Contract::Spec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0101;
+our $VERSION = 0.0103;
 
 =head1 NAME
 
@@ -37,15 +37,22 @@ our $ENGINE;
 
 =cut
 
+my %new_arg;
+$new_arg{$_}++ for qw(code want_self);
+
 sub new {
     my ($class, %opt) = @_;
 
     UNIVERSAL::isa($opt{code}, 'CODE')
         or croak "code argument is required";
+    my @extra = grep { !$new_arg{$_} } keys %opt;
+    croak "Unknown options: @extra"
+        if @extra;
 
     bless {
-        code   => $opt{code},
-        engine => 'Assert::Contract::Exec',
+        code      => $opt{code},
+        engine    => 'Assert::Contract::Exec',
+        want_self => $opt{want_self} ? 1 : 0,
     }, $class;
 };
 
@@ -61,7 +68,7 @@ sub exec {
     my $c = $self->{engine}->new;
     # TODO plan argcheck etc
 
-    unshift @args, $c;
+    unshift @args, $c if $self->{want_self};
     local $ENGINE = $c;
     eval {
         $self->{code}->( @args );

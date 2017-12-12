@@ -3,7 +3,7 @@ package Assert::Contract;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0101;
+our $VERSION = 0.0102;
 
 =head1 NAME
 
@@ -51,7 +51,22 @@ our @EXPORT = qw(contract current_contract);
 
 =head2 contract { ... }
 
+Create a contract specification object for future use.
+The form is
 
+    my $spec = contract {
+        my @args = @_;
+    };
+
+    my $spec = contract {
+        my ($contract, @args) = @_;
+    } want_self => 1;
+
+The want_self form may be preferable if one doesn't want to pollute the
+main namespace with test functions (C<is>, C<ok>, C<like> etc)
+and instead intends to use object-oriented interface.
+
+Other options are TBD.
 
 =cut
 

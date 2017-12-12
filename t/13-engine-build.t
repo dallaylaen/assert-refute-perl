@@ -23,7 +23,6 @@ BEGIN {
 };
 
 my $spec = contract {
-    my $c = shift; # TODO remove
     my_is shift, 137, "Fine";
 };
 
