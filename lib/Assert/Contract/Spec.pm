@@ -3,7 +3,7 @@ package Assert::Contract::Spec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.01;
+our $VERSION = 0.0101;
 
 =head1 NAME
 
@@ -18,6 +18,8 @@ Assert::Contract::Spec - The great new Assert::Contract!
 use Carp;
 
 use Assert::Contract::Exec;
+
+our $ENGINE;
 
 =head1 OBJECT-ORIENTED INTERFACE
 
@@ -59,8 +61,10 @@ sub exec {
     my $c = $self->{engine}->new;
     # TODO plan argcheck etc
 
+    unshift @args, $c;
+    local $ENGINE = $c;
     eval {
-        $self->{code}->( $c, @args );
+        $self->{code}->( @args );
         1;
     } || do {
         # TODO fail plan via special call
@@ -68,6 +72,19 @@ sub exec {
     };
 
     return $c;
+};
+
+=head2 current_contract
+
+Returns the contract object being executed.
+Dies if no contract is being executed at the time.
+
+=cut
+
+sub current_contract() { ## nocritic
+    croak "Not currently testing anything"
+        unless $ENGINE;
+    return $ENGINE;
 };
 
 =head1 BUGS

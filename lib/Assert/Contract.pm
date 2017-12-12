@@ -3,7 +3,7 @@ package Assert::Contract;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.01;
+our $VERSION = 0.0101;
 
 =head1 NAME
 
@@ -47,7 +47,7 @@ use Exporter;
 use Assert::Contract::Spec;
 
 our @ISA = qw(Exporter);
-our @EXPORT = qw(contract);
+our @EXPORT = qw(contract current_contract);
 
 =head2 contract { ... }
 
@@ -62,6 +62,20 @@ sub contract (&@) { ## no critic
     $opt{code} = $todo;
     return Assert::Contract::Spec->new( %opt );
 };
+
+=head2 current_contract
+
+Returns the contract object being executed.
+Dies if no contract is being executed at the time.
+
+This is actually a clone of L<Assert::Contract::Spec/current_contract>.
+
+=cut
+
+{
+    no warnings 'once'; ## no critic
+    *current_contract = \&Assert::Contract::Spec::current_contract;
+}
 
 =head1 BUGS
 
