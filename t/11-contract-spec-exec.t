@@ -4,9 +4,9 @@ use strict;
 use warnings;
 use Test::More;
 
-use Assert::Contract;
+use Assert::Contract::Spec;
 
-my $spec = Assert::Contract->new( code => sub {
+my $spec = Assert::Contract::Spec->new( code => sub {
     my $c = shift;
     $c->refute( shift, shift );
     die if shift;
