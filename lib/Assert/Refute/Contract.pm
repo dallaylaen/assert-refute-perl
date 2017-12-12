@@ -3,15 +3,35 @@ package Assert::Refute::Contract;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0105;
+our $VERSION = 0.0106;
 
 =head1 NAME
 
-Assert::Refute::Contract - The great new Assert::Refute!
+Assert::Refute::Contract - Contract specification class for Assert::Refute
 
 =head1 SYNOPSIS
 
-=head1 EXPORT
+    use Assert::Refute::Contract;
+
+    my $contract = Assert::Refute::Contract->new(
+        code => sub {
+            my ($c, $life) = @_;
+            $c->is( $life, 42 );
+        },
+        want_self => 1,
+    );
+
+    # much later
+    my $result = $contract->execute( 137 );
+    $result->count;      # 1
+    $result->is_passing; # 0
+    $result->as_tap;     # Test::More-like summary
+
+=head1 DESCRIPTION
+
+This is a contract B<specification> class.
+See L<Assert::Refute::Exec> for execution log.
+See L<Assert::Refute/contract> for convenient interface.
 
 =cut
 
@@ -97,45 +117,11 @@ sub current_contract() { ## nocritic
     return $ENGINE;
 };
 
-=head1 BUGS
-
-Please report any bugs or feature requests to C<bug-assert-contract at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Assert-Refute>.  I will be notified, and then you'll
-automatically be notified of progress on your bug as I make changes.
-
-=head1 SUPPORT
-
-You can find documentation for this module with the C<perldoc> command.
-
-    perldoc Assert::Refute
-
-You can also look for information at:
-
-=over 4
-
-=item * C<RT>: CPAN's request tracker (report bugs here)
-
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Assert-Refute>
-
-=item * AnnoCPAN: Annotated CPAN documentation
-
-L<http://annocpan.org/dist/Assert-Refute>
-
-=item * CPAN Ratings
-
-L<http://cpanratings.perl.org/d/Assert-Refute>
-
-=item * Search CPAN
-
-L<http://search.cpan.org/dist/Assert-Refute/>
-
-=back
-
-
 =head1 ACKNOWLEDGEMENTS
 
-
 =head1 LICENSE AND COPYRIGHT
+
+This module is part of L<Assert::Refute> suite.
 
 Copyright 2017 Konstantin S. Uvarin. C<< <khedin at gmail.com> >>
 
@@ -174,7 +160,6 @@ YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT HOLDER OR
 CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR
 CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT OF THE USE OF THE PACKAGE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 
 =cut
 
