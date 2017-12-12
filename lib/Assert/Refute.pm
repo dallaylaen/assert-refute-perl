@@ -3,7 +3,7 @@ package Assert::Refute;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0105;
+our $VERSION = 0.0106;
 
 =head1 NAME
 
@@ -73,7 +73,7 @@ C<contract_is>, C<is_deeply>, C<note>, C<diag>.
 
 See L<Assert::Refute::T::Basic> and L<Assert::Refute::T::Deep> for more.
 
-Use L<Assert::Refute::Spec> if you insist on no exports and purely
+Use L<Assert::Refute::Contract> if you insist on no exports and purely
 object-oriented interface.
 
 =cut
@@ -81,7 +81,7 @@ object-oriented interface.
 use Carp;
 use Exporter;
 
-use Assert::Refute::Spec;
+use Assert::Refute::Contract;
 use Assert::Refute::T::Basic;
 use Assert::Refute::T::Deep;
 
@@ -125,7 +125,7 @@ sub contract (&@) { ## no critic
 
     # TODO check
     $opt{code} = $todo;
-    return Assert::Refute::Spec->new( %opt );
+    return Assert::Refute::Contract->new( %opt );
 };
 
 =head2 refute( $condition, $message )
@@ -147,13 +147,13 @@ sub refute ($$) { ## no critic
 Returns the contract object being executed.
 Dies if no contract is being executed at the time.
 
-This is actually a clone of L<Assert::Refute::Spec/current_contract>.
+This is actually a clone of L<Assert::Refute::Contract/current_contract>.
 
 =cut
 
 {
     no warnings 'once'; ## no critic
-    *current_contract = \&Assert::Refute::Spec::current_contract;
+    *current_contract = \&Assert::Refute::Contract::current_contract;
 }
 
 =head1 BUGS

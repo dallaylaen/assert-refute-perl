@@ -1,13 +1,13 @@
-package Assert::Refute::Spec;
+package Assert::Refute::Contract;
 
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0104;
+our $VERSION = 0.0105;
 
 =head1 NAME
 
-Assert::Refute::Spec - The great new Assert::Refute!
+Assert::Refute::Contract - The great new Assert::Refute!
 
 =head1 SYNOPSIS
 
@@ -25,7 +25,7 @@ our $ENGINE;
 
 =head2 new
 
-    Assert::Refute::Spec->new( %options );
+    Assert::Refute::Contract->new( %options );
 
 %options may include:
 

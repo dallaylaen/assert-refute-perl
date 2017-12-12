@@ -2,7 +2,7 @@ package Assert::Refute::Build;
 
 use strict;
 use warnings;
-our $VERSION = 0.0102;
+our $VERSION = 0.0103;
 
 =head1 NAME
 
@@ -77,7 +77,7 @@ use Scalar::Util qw(weaken blessed set_prototype looks_like_number refaddr);
 use parent qw(Exporter);
 our @EXPORT = qw(build_refute current_contract to_scalar);
 
-use Assert::Refute::Spec;
+use Assert::Refute::Contract;
 use Assert::Refute::Build::Util qw(to_scalar);
 
 =head2 build_refute name => CODE, %options
@@ -189,7 +189,7 @@ sub build_refute(@) { ## no critic # Moose-like DSL for the win!
     };
     if ($todo_carp_not) {
         no warnings 'once';
-        push @{ $target."::CARP_NOT" }, "Assert::Refute::Spec", $class;
+        push @{ $target."::CARP_NOT" }, "Assert::Refute::Contract", $class;
     };
 
     # magic ends here
@@ -202,13 +202,13 @@ sub build_refute(@) { ## no critic # Moose-like DSL for the win!
 Returns the contract object being executed.
 Dies if no contract is being executed at the time.
 
-This is actually a clone of L<Assert::Refute::Spec/current_contract>.
+This is actually a clone of L<Assert::Refute::Contract/current_contract>.
 
 =cut
 
 {
     no warnings 'once'; ## no critic
-    *current_contract = \&Assert::Refute::Spec::current_contract;
+    *current_contract = \&Assert::Refute::Contract::current_contract;
 }
 
 =head1 LICENSE AND COPYRIGHT
