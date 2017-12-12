@@ -4,6 +4,9 @@ use strict;
 use warnings;
 use Test::More;
 
+use Assert::Contract;
+
+# emulate use Foo;
 BEGIN {
     package Foo;
     use base qw(Exporter);
@@ -13,11 +16,11 @@ BEGIN {
     build_refute my_is => sub {
         my ($got, $exp) = @_;
         return $got eq $exp ? '' : to_scalar ($got) ." ne ".to_scalar ($exp);
-    }, args => 2;
+    }, args => 2, export => 1;
 };
-
-use Assert::Contract;
-Foo->import;
+BEGIN {
+    Foo->import;
+};
 
 my $spec = contract {
     my $c = shift; # TODO remove

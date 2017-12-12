@@ -2,7 +2,7 @@ package Assert::Contract::Engine::Build;
 
 use strict;
 use warnings;
-our $VERSION = 0.0101;
+our $VERSION = 0.0102;
 
 =head1 NAME
 
@@ -138,8 +138,10 @@ sub build_refute(@) { ## no critic # Moose-like DSL for the win!
     croak "build_refute(): list and args options are mutually exclusive"
         if $opt{list} and defined $opt{args};
 
-    my @caller = caller(1);
+    my @caller = caller(0);
     my $target = $opt{target} || $caller[0];
+
+    confess "Too bad (@caller)" if !$target or $target eq __PACKAGE__;
 
     my $nargs = $opt{args} || 0;
     $nargs = 9**9**9 if $opt{list};
