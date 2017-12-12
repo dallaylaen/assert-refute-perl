@@ -3,11 +3,11 @@ package Assert::Refute::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0104;
+our $VERSION = 0.0105;
 
 =head1 NAME
 
-Assert::Refute - The great new Assert::Refute!
+Assert::Refute - Contrace execution log for Assert::Refute
 
 =head1 SYNOPSIS
 
@@ -15,6 +15,7 @@ Assert::Refute - The great new Assert::Refute!
     $c->refute ( $cond, $message );
     $c->refute ( $cond2, $message2 );
     # .......
+    $c->done_testing; # no more refute after this
 
     $c->count;      # how many tests were run
     $c->is_passing; # did any of them fail?
@@ -312,45 +313,9 @@ sub _croak {
     croak "$where[0]->$fun: $mess";
 };
 
-=head1 BUGS
-
-Please report any bugs or feature requests to C<bug-assert-contract at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Assert-Refute>.  I will be notified, and then you'll
-automatically be notified of progress on your bug as I make changes.
-
-=head1 SUPPORT
-
-You can find documentation for this module with the C<perldoc> command.
-
-    perldoc Assert::Refute::Exec
-
-You can also look for information at:
-
-=over 4
-
-=item * C<RT>: CPAN's request tracker (report bugs here)
-
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Assert-Refute>
-
-=item * AnnoCPAN: Annotated CPAN documentation
-
-L<http://annocpan.org/dist/Assert-Refute>
-
-=item * CPAN Ratings
-
-L<http://cpanratings.perl.org/d/Assert-Refute>
-
-=item * Search CPAN
-
-L<http://search.cpan.org/dist/Assert-Refute/>
-
-=back
-
-
-=head1 ACKNOWLEDGEMENTS
-
-
 =head1 LICENSE AND COPYRIGHT
+
+This module is part of L<Refute::Assert> suite.
 
 Copyright 2017 Konstantin S. Uvarin. C<< <khedin at gmail.com> >>
 
@@ -389,7 +354,6 @@ YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT HOLDER OR
 CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR
 CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT OF THE USE OF THE PACKAGE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 
 =cut
 
