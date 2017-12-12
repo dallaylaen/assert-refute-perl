@@ -3,7 +3,7 @@ package Assert::Contract;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0103;
+our $VERSION = 0.0104;
 
 =head1 NAME
 
@@ -52,7 +52,7 @@ my @basic = (
     @Assert::Contract::T::Basic::EXPORT,
     @Assert::Contract::T::Deep::EXPORT,
 );
-my @core  = qw(contract current_contract);
+my @core  = qw(contract current_contract refute);
 
 our @ISA = qw(Exporter);
 our @EXPORT = (@core, @basic);
@@ -89,6 +89,20 @@ sub contract (&@) { ## no critic
     # TODO check
     $opt{code} = $todo;
     return Assert::Contract::Spec->new( %opt );
+};
+
+=head2 refute( $condition, $message )
+
+Test a condition using the current contract.
+If no contract is being executed, dies.
+
+The test passes if the $condition is I<false>,
+and fails otherwise.
+
+=cut
+
+sub refute ($$) { ## no critic
+    current_contract()->refute(@_);
 };
 
 =head2 current_contract

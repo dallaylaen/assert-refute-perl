@@ -3,7 +3,7 @@ package Assert::Contract::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0102;
+our $VERSION = 0.0103;
 
 =head1 NAME
 
@@ -26,6 +26,8 @@ use Carp;
 
 use Assert::Contract::Build::Util qw(to_scalar);
 
+my $ERROR_DONE = "done_testing was called, no more changes may be added";
+
 =head1 OBJECT-ORIENTED INTERFACE
 
 =head2 new
@@ -47,7 +49,9 @@ sub new {
     }, $class;
 };
 
-=head2 refute( $condition, $message )
+=head2 RUNNING PRIMITIVES
+
+=head3 refute( $condition, $message )
 
 An inverted assertion. That is, it B<passes> if C<$condition> is B<false>.
 
@@ -56,7 +60,8 @@ An inverted assertion. That is, it B<passes> if C<$condition> is B<false>.
 sub refute {
     my ($self, $cond, $msg) = @_;
 
-    croak "foo" if $self->{lock};
+    $self->_croak( $ERROR_DONE )
+        if $self->{done};
 
     $msg = $msg ? " - $msg" : '';
     my $n = ++$self->{count};
@@ -68,17 +73,18 @@ sub refute {
         return 0;
     } else {
         $self->log_message( 0, "ok $n$msg" );
+        return 1;
     };
 };
 
-=head2 diag
+=head3 diag
 
     diag "Message", \%reference, ...;
 
 Add human-readable diagnostic message to report.
 References are explained to depth 1.
 
-=head2 note
+=head3 note
 
     diag "Message", \%reference, ...;
 
@@ -90,16 +96,20 @@ References are explained to depth 1.
 sub diag {
     my $self = shift;
 
+    $self->_croak( $ERROR_DONE )
+        if $self->{done};
     $self->log_message( 1, join " ", map { to_scalar($_) } @_ );
 };
 
 sub note {
     my $self = shift;
 
+    $self->_croak( $ERROR_DONE )
+        if $self->{done};
     $self->log_message( 2, join " ", map { to_scalar($_) } @_ );
 };
 
-=head2 log_message( $level, $message )
+=head3 log_message( $level, $message )
 
 Append a message to execution log.
 Levels are:
@@ -122,11 +132,46 @@ Levels are:
 
 sub log_message {
     my ($self, $level, @parts) = @_;
+
+    $self->_croak( $ERROR_DONE )
+        if $self->{done};
     foreach (@parts) {
         push @{ $self->{mess} }, [$level, $_];
     };
+
     return $self;
 };
+
+=head3 done_testing
+
+Stop testing.
+After this call, no more writes (including done_testing)
+can be performed on this contract.
+This happens by default at the end of C<contract{ ... }> block.
+
+If an argument is given, it is considered to be the exception
+that interrupted the contract execution,
+resulting in an unconditionally failed contract.
+
+=cut
+
+sub done_testing {
+    my ($self, $exception) = @_;
+
+    if ($exception) {
+        delete $self->{done};
+        $self->{last_error} = $exception;
+        # Make sure there *is* a failing test on the outside
+        $self->refute( $exception, "unexpected exception: $exception" )
+    } elsif ($self->{done}) {
+        $self->_croak( $ERROR_DONE )
+    };
+
+    $self->{done}++;
+    return $self;
+};
+
+=head2 INSPECTION PRIMITIVES
 
 =head3 as_tap
 
@@ -167,23 +212,104 @@ Tell whether the contract is passing or not.
 
 sub is_passing {
     my $self = shift;
-    return !%{ $self->{fail} };
+
+    return !%{ $self->{fail} } && !$self->{last_error};
+};
+
+=head3 result( $n )
+
+Returns result of $n-th test, dies if such test was never performed.
+The result is false for passing tests and whatever the reason for failure was
+for failing ones.
+
+=cut
+
+sub result {
+    my ($self, $n) = @_;
+
+    $self->_croak( "Test $n has never been performed" )
+        unless $n =~ /^[1-9][0-9]*$/ and $n <= $self->{count};
+
+    return $self->{fail}{$n} || 0;
+};
+
+=head3 is_done
+
+Tells whether done_testing was seen.
+
+=cut
+
+sub is_done {
+    my $self = shift;
+    return $self->{done} || 0;
+};
+
+=head3 has_died
+
+Returns true if contract execution was ever interrupted by exception.
+
+=cut
+
+# TODO like, do we need this if we have last_error?
+*has_died = *has_died = \&last_error;
+
+=head3 last_error
+
+Return last error that was recorded during contract execution,
+or false if there was none.
+
+=cut
+
+sub last_error {
+    my $self = shift;
+    return $self->{last_error} || '';
 };
 
 =head3 signature
 
 Produce a comparable string-based representation.
 
-The format is C<"t...^^"> where dots denote passing tests and C<^>-s
-failing ones.
+The format is C<"t...^^[Erd]">.
+
+=over
+
+=item C<t> is always present at the start;
+
+=item C<.> stands for passing test;
+
+=item C<^> stands for failing test;
+
+=item C<r> stands for a running contract;
+
+=item C<E> stands for a interrupted execution;
+
+=item C<d> stands for a contract that is done.
+
+=back
 
 =cut
+
+# TODO maybe chess-like: t5F2d meaning "5 passes, 1 fail, 2 passes"
 
 sub signature {
     my $self = shift;
 
-    return join "", "t", map { $self->{fail}{$_} ? "^" : "." }
+    my @t = map { $self->{fail}{$_} ? "^" : "." }
         1 .. $self->{count};
+    my $d = $self->last_error ? 'E' : $self->{done} ? 'd' : 'r';
+    return join '', "t", @t, $d;
+};
+
+sub _croak {
+    my ($self, $mess) = @_;
+    my @where = caller 0;
+
+    my $fun = $where[3];
+    $fun =~ s/.*:://;
+    $mess ||= "Something terrible happened";
+    $mess =~ s/\n+$//s;
+
+    croak "$where[0]->$fun: $mess";
 };
 
 =head1 BUGS

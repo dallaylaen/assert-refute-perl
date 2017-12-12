@@ -3,7 +3,7 @@ package Assert::Contract::Spec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0103;
+our $VERSION = 0.0104;
 
 =head1 NAME
 
@@ -72,12 +72,15 @@ sub exec {
     local $ENGINE = $c;
     eval {
         $self->{code}->( @args );
+        $c->done_testing
+            unless $c->is_done;
         1;
     } || do {
-        # TODO fail plan via special call
-        $c->refute( $@ || 'something went wrong', 'Contract live through' );
+        $c->done_testing($@ || "Unexpected end of tests");
     };
 
+    # At this point, done_testing *has* been called unless of course
+    #    it is broken and dies, in which case tests will fail.
     return $c;
 };
 
