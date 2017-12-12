@@ -1,4 +1,4 @@
-package Assert::Contract::Build::Util;
+package Assert::Refute::Build::Util;
 
 use strict;
 use warnings;
@@ -6,11 +6,11 @@ our $VERSION = 0.0101;
 
 =head1 NAME
 
-Assert::Contract::Build::Util - utility functions for Assert::Contract
+Assert::Refute::Build::Util - utility functions for Assert::Refute
 
 =head1 DESCRIPTION
 
-See L<Assert::Contract> and L<Assert::Contract::Build>.
+See L<Assert::Refute> and L<Assert::Refute::Build>.
 Nothing of interest here.
 
 =head1 FUNCTIONS
@@ -82,7 +82,7 @@ sub to_scalar {
 
 =head1 LICENSE AND COPYRIGHT
 
-This module is part of L<Assert::Contract> suite.
+This module is part of L<Assert::Refute> suite.
 
 Copyright 2017 Konstantin S. Uvarin. C<< <khedin at gmail.com> >>
 

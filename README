@@ -1,4 +1,4 @@
-Assert-Contract
+Assert-Refute
 
 Test-script like compound assertions in your production code.
 
@@ -16,21 +16,21 @@ SUPPORT AND DOCUMENTATION
 After installing, you can find documentation for this module with the
 perldoc command.
 
-    perldoc Assert::Contract
+    perldoc Assert::Refute
 
 You can also look for information at:
 
     RT, CPAN's request tracker (report bugs here)
-        http://rt.cpan.org/NoAuth/Bugs.html?Dist=Assert-Contract
+        http://rt.cpan.org/NoAuth/Bugs.html?Dist=Assert-Refute
 
     AnnoCPAN, Annotated CPAN documentation
-        http://annocpan.org/dist/Assert-Contract
+        http://annocpan.org/dist/Assert-Refute
 
     CPAN Ratings
-        http://cpanratings.perl.org/d/Assert-Contract
+        http://cpanratings.perl.org/d/Assert-Refute
 
     Search CPAN
-        http://search.cpan.org/dist/Assert-Contract/
+        http://search.cpan.org/dist/Assert-Refute/
 
 
 LICENSE AND COPYRIGHT

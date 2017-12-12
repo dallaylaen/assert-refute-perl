@@ -4,11 +4,11 @@ use strict;
 use warnings;
 use Test::More;
 
-use Assert::Contract qw(:core);
+use Assert::Refute qw(:core);
 {
     package Foo;
-    use Assert::Contract::T::Basic;
-    use Assert::Contract::T::Deep;
+    use Assert::Refute::T::Basic;
+    use Assert::Refute::T::Deep;
 }
 
 my $report;

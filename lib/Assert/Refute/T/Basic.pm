@@ -1,4 +1,4 @@
-package Assert::Contract::T::Basic;
+package Assert::Refute::T::Basic;
 
 use strict;
 use warnings;
@@ -6,14 +6,14 @@ our $VERSION = 0.0102;
 
 =head1 NAME
 
-Assert::Contract::T::Basic - a set of most common tests for Assert::Contract::T suite
+Assert::Refute::T::Basic - a set of most common tests for Assert::Refute::T suite
 
 =head1 DESCRIPTION
 
 This module contains most common test conditions similar to those in
 L<Test::More>, like C<is $got, $expected;> or C<like $got, qr/.../;>.
 
-Using L<Assert::Contract::T::Unit> would imply being inside a unit test script,
+Using L<Assert::Refute::T::Unit> would imply being inside a unit test script,
 whereas this module would just export some testing functions.
 
 =head1 FUNCTIONS
@@ -26,14 +26,14 @@ exported by default. Scalar context is imposed onto arguments, so
 would actually compare arrays by length.
 
 If a C<contract { ... }> is in action, the results of each assertion
-will be recorded there. See L<Assert::Contract::T> for more.
-If L<Assert::Contract::T::Unit>/L<Test::More> is in action,
+will be recorded there. See L<Assert::Refute::T> for more.
+If L<Assert::Refute::T::Unit>/L<Test::More> is in action,
 a unit testing script is assumed.
 If neither is true, an exception is thrown.
 
-In addition, a C<Assert::Contract::T-E<gt>function_name> method with
+In addition, a C<Assert::Refute::T-E<gt>function_name> method with
 the same signature is generated for each of them
-(see L<Assert::Contract::T::Engine::Build>).
+(see L<Assert::Refute::T::Engine::Build>).
 
 =cut
 
@@ -41,7 +41,7 @@ use Carp;
 use Scalar::Util qw(blessed looks_like_number);
 use parent qw(Exporter);
 
-use Assert::Contract::Build;
+use Assert::Refute::Build;
 our @EXPORT = qw(diag note);
 
 =head2 is $got, $expected, "explanation"
@@ -283,7 +283,7 @@ build_refute contract_is => sub {
         };
     };
 
-    croak "Impossible: contract_is broken. File a bug in Assert::Contract::T immediately!"
+    croak "Impossible: contract_is broken. File a bug in Assert::Refute::T immediately!"
         if !@fail;
     return join "\n", @fail;
 }, args => 2, export => 1;

@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Test::More;
 
-use Assert::Contract qw(:core);
+use Assert::Refute qw(:core);
 
 my $spec = contract {
     current_contract->refute( 0, "fine" );

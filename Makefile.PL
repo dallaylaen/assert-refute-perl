@@ -4,10 +4,10 @@ use warnings;
 use ExtUtils::MakeMaker;
 
 WriteMakefile(
-    NAME             => 'Assert::Contract',
+    NAME             => 'Assert::Refute',
     AUTHOR           => q{Konstantin S. Uvarin <khedin@gmail.com>},
-    VERSION_FROM     => 'lib/Assert/Contract.pm',
-    ABSTRACT_FROM    => 'lib/Assert/Contract.pm',
+    VERSION_FROM     => 'lib/Assert/Refute.pm',
+    ABSTRACT_FROM    => 'lib/Assert/Refute.pm',
     LICENSE          => 'artistic_2',
     PL_FILES         => {},
     MIN_PERL_VERSION => '5.006',
@@ -22,5 +22,5 @@ WriteMakefile(
         #'Foo::Bar::Module' => '5.0401',
     },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
-    clean => { FILES => 'Assert-Contract-*' },
+    clean => { FILES => 'Assert-Refute-*' },
 );

@@ -4,14 +4,14 @@ use strict;
 use warnings;
 use Test::More;
 
-use Assert::Contract qw(:core);
+use Assert::Refute qw(:core);
 
 # emulate use Foo;
 BEGIN {
     package Foo;
     use base qw(Exporter);
 
-    use Assert::Contract::Build;
+    use Assert::Refute::Build;
 
     build_refute my_is => sub {
         my ($got, $exp) = @_;

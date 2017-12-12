@@ -1,4 +1,4 @@
-package Assert::Contract;
+package Assert::Refute;
 
 use 5.006;
 use strict;
@@ -7,11 +7,11 @@ our $VERSION = 0.0104;
 
 =head1 NAME
 
-Assert::Contract - Test::More-like assertions in your production code
+Assert::Refute - Test::More-like assertions in your production code
 
 =head1 SYNOPSIS
 
-    use Assert::Contract;
+    use Assert::Refute;
 
     my $spec = contract {
         my ($foo, $bar) = @_;
@@ -36,7 +36,7 @@ or printed out as TAP if needed.
 =head1 EXPORT
 
 All functions in this module are exportable and exported by default.
-See L<Assert::Contract::Spec> for object-oriented interface
+See L<Assert::Refute::Spec> for object-oriented interface
 if you insist on leaving the namespace clean.
 
 =cut
@@ -44,13 +44,13 @@ if you insist on leaving the namespace clean.
 use Carp;
 use Exporter;
 
-use Assert::Contract::Spec;
-use Assert::Contract::T::Basic;
-use Assert::Contract::T::Deep;
+use Assert::Refute::Spec;
+use Assert::Refute::T::Basic;
+use Assert::Refute::T::Deep;
 
 my @basic = (
-    @Assert::Contract::T::Basic::EXPORT,
-    @Assert::Contract::T::Deep::EXPORT,
+    @Assert::Refute::T::Basic::EXPORT,
+    @Assert::Refute::T::Deep::EXPORT,
 );
 my @core  = qw(contract current_contract refute);
 
@@ -88,7 +88,7 @@ sub contract (&@) { ## no critic
 
     # TODO check
     $opt{code} = $todo;
-    return Assert::Contract::Spec->new( %opt );
+    return Assert::Refute::Spec->new( %opt );
 };
 
 =head2 refute( $condition, $message )
@@ -110,26 +110,26 @@ sub refute ($$) { ## no critic
 Returns the contract object being executed.
 Dies if no contract is being executed at the time.
 
-This is actually a clone of L<Assert::Contract::Spec/current_contract>.
+This is actually a clone of L<Assert::Refute::Spec/current_contract>.
 
 =cut
 
 {
     no warnings 'once'; ## no critic
-    *current_contract = \&Assert::Contract::Spec::current_contract;
+    *current_contract = \&Assert::Refute::Spec::current_contract;
 }
 
 =head1 BUGS
 
 Please report any bugs or feature requests to C<bug-assert-contract at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Assert-Contract>.  I will be notified, and then you'll
+the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Assert-Refute>.  I will be notified, and then you'll
 automatically be notified of progress on your bug as I make changes.
 
 =head1 SUPPORT
 
 You can find documentation for this module with the C<perldoc> command.
 
-    perldoc Assert::Contract
+    perldoc Assert::Refute
 
 You can also look for information at:
 
@@ -137,19 +137,19 @@ You can also look for information at:
 
 =item * C<RT>: CPAN's request tracker (report bugs here)
 
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Assert-Contract>
+L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Assert-Refute>
 
 =item * AnnoCPAN: Annotated CPAN documentation
 
-L<http://annocpan.org/dist/Assert-Contract>
+L<http://annocpan.org/dist/Assert-Refute>
 
 =item * CPAN Ratings
 
-L<http://cpanratings.perl.org/d/Assert-Contract>
+L<http://cpanratings.perl.org/d/Assert-Refute>
 
 =item * Search CPAN
 
-L<http://search.cpan.org/dist/Assert-Contract/>
+L<http://search.cpan.org/dist/Assert-Refute/>
 
 =back
 
@@ -200,4 +200,4 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =cut
 
-1; # End of Assert::Contract
+1; # End of Assert::Refute

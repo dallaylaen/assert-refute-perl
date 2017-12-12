@@ -1,4 +1,4 @@
-package Assert::Contract::Spec;
+package Assert::Refute::Spec;
 
 use 5.006;
 use strict;
@@ -7,7 +7,7 @@ our $VERSION = 0.0104;
 
 =head1 NAME
 
-Assert::Contract::Spec - The great new Assert::Contract!
+Assert::Refute::Spec - The great new Assert::Refute!
 
 =head1 SYNOPSIS
 
@@ -17,7 +17,7 @@ Assert::Contract::Spec - The great new Assert::Contract!
 
 use Carp;
 
-use Assert::Contract::Exec;
+use Assert::Refute::Exec;
 
 our $ENGINE;
 
@@ -25,7 +25,7 @@ our $ENGINE;
 
 =head2 new
 
-    Assert::Contract::Spec->new( %options );
+    Assert::Refute::Spec->new( %options );
 
 %options may include:
 
@@ -51,7 +51,7 @@ sub new {
 
     bless {
         code      => $opt{code},
-        engine    => 'Assert::Contract::Exec',
+        engine    => 'Assert::Refute::Exec',
         want_self => $opt{want_self} ? 1 : 0,
     }, $class;
 };
@@ -100,14 +100,14 @@ sub current_contract() { ## nocritic
 =head1 BUGS
 
 Please report any bugs or feature requests to C<bug-assert-contract at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Assert-Contract>.  I will be notified, and then you'll
+the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Assert-Refute>.  I will be notified, and then you'll
 automatically be notified of progress on your bug as I make changes.
 
 =head1 SUPPORT
 
 You can find documentation for this module with the C<perldoc> command.
 
-    perldoc Assert::Contract
+    perldoc Assert::Refute
 
 You can also look for information at:
 
@@ -115,19 +115,19 @@ You can also look for information at:
 
 =item * C<RT>: CPAN's request tracker (report bugs here)
 
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Assert-Contract>
+L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Assert-Refute>
 
 =item * AnnoCPAN: Annotated CPAN documentation
 
-L<http://annocpan.org/dist/Assert-Contract>
+L<http://annocpan.org/dist/Assert-Refute>
 
 =item * CPAN Ratings
 
-L<http://cpanratings.perl.org/d/Assert-Contract>
+L<http://cpanratings.perl.org/d/Assert-Refute>
 
 =item * Search CPAN
 
-L<http://search.cpan.org/dist/Assert-Contract/>
+L<http://search.cpan.org/dist/Assert-Refute/>
 
 =back
 
@@ -178,4 +178,4 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =cut
 
-1; # End of Assert::Contract
+1; # End of Assert::Refute

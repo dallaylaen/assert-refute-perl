@@ -1,4 +1,4 @@
-package Assert::Contract::Build;
+package Assert::Refute::Build;
 
 use strict;
 use warnings;
@@ -6,11 +6,11 @@ our $VERSION = 0.0102;
 
 =head1 NAME
 
-Assert::Contract::Build - tool for extending Assert::Contract suite
+Assert::Refute::Build - tool for extending Assert::Refute suite
 
 =head1 DESCRIPTION
 
-Unfortunately, extending L<Assert::Contract> is not completely straightforward.
+Unfortunately, extending L<Assert::Refute> is not completely straightforward.
 
 In order to create a new test function, one needs to:
 
@@ -21,9 +21,9 @@ and a brief description of the problem on failure
 (e.g. C<"$got != $expected">);
 
 =item * build an exportable wrapper around it that would talk to
-the most up-to-date L<Assert::Contract> instance;
+the most up-to-date L<Assert::Refute> instance;
 
-=item * add a method with the same name to L<Assert::Contract>
+=item * add a method with the same name to L<Assert::Refute>
 so that object-oriented and functional interfaces
 are as close to each other as possible.
 
@@ -38,7 +38,7 @@ Hence this module.
 Extending the test suite goes as follows:
 
     package My::Package;
-    use Assert::Contract::Build;
+    use Assert::Refute::Build;
     use parent qw(Exporter);
 
     build_refute is_everything => sub {
@@ -50,7 +50,7 @@ Extending the test suite goes as follows:
 
 This can be later used either inside production code to check a condition:
 
-    use Assert::Contract;
+    use Assert::Refute;
     use My::Package;
     my $c = contract {
         is_everything( $foo );
@@ -77,13 +77,13 @@ use Scalar::Util qw(weaken blessed set_prototype looks_like_number refaddr);
 use parent qw(Exporter);
 our @EXPORT = qw(build_refute current_contract to_scalar);
 
-use Assert::Contract::Spec;
-use Assert::Contract::Build::Util qw(to_scalar);
+use Assert::Refute::Spec;
+use Assert::Refute::Build::Util qw(to_scalar);
 
 =head2 build_refute name => CODE, %options
 
-Create a function in calling package and a method in L<Assert::Contract>.
-As a side effect, Assert::Contract's internals are added to the caller's
+Create a function in calling package and a method in L<Assert::Refute>.
+As a side effect, Assert::Refute's internals are added to the caller's
 C<@CARP_NOT> array so that carp/croak points to actual outside usage.
 
 B<NOTE> One needs to use Exporter explicitly if either C<export>
@@ -99,7 +99,7 @@ Options may include:
 =item * C<export_ok> => 1 - add function to @EXPORT_OK (don't export by default).
 
 =item * C<no_create> => 1 - don't generate a function at all, just add to
-L<Assert::Contract>'s methods.
+L<Assert::Refute>'s methods.
 
 =item * C<args> => C<nnn> - number of arguments.
 This will generate a prototyped function
@@ -127,7 +127,7 @@ $known{$_}++ for qw(args list block no_proto
 sub build_refute(@) { ## no critic # Moose-like DSL for the win!
     my ($name, $cond, %opt) = @_;
 
-    my $class = "Assert::Contract::Exec";
+    my $class = "Assert::Refute::Exec";
 
     if (my $backend = ( $class->can($name) ? $class : $Backend{$name} ) ) {
         croak "build_refute(): '$name' already registered by $backend";
@@ -189,7 +189,7 @@ sub build_refute(@) { ## no critic # Moose-like DSL for the win!
     };
     if ($todo_carp_not) {
         no warnings 'once';
-        push @{ $target."::CARP_NOT" }, "Assert::Contract::Spec", $class;
+        push @{ $target."::CARP_NOT" }, "Assert::Refute::Spec", $class;
     };
 
     # magic ends here
@@ -202,18 +202,18 @@ sub build_refute(@) { ## no critic # Moose-like DSL for the win!
 Returns the contract object being executed.
 Dies if no contract is being executed at the time.
 
-This is actually a clone of L<Assert::Contract::Spec/current_contract>.
+This is actually a clone of L<Assert::Refute::Spec/current_contract>.
 
 =cut
 
 {
     no warnings 'once'; ## no critic
-    *current_contract = \&Assert::Contract::Spec::current_contract;
+    *current_contract = \&Assert::Refute::Spec::current_contract;
 }
 
 =head1 LICENSE AND COPYRIGHT
 
-This module is part of L<Assert::Contract> suite.
+This module is part of L<Assert::Refute> suite.
 
 Copyright 2017 Konstantin S. Uvarin. C<< <khedin at gmail.com> >>
 

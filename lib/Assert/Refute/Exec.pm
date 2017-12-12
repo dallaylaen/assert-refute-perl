@@ -1,4 +1,4 @@
-package Assert::Contract::Exec;
+package Assert::Refute::Exec;
 
 use 5.006;
 use strict;
@@ -7,11 +7,11 @@ our $VERSION = 0.0104;
 
 =head1 NAME
 
-Assert::Contract - The great new Assert::Contract!
+Assert::Refute - The great new Assert::Refute!
 
 =head1 SYNOPSIS
 
-    my $c = Assert::Contract::Exec;
+    my $c = Assert::Refute::Exec;
     $c->refute ( $cond, $message );
     $c->refute ( $cond2, $message2 );
     # .......
@@ -24,7 +24,7 @@ Assert::Contract - The great new Assert::Contract!
 
 use Carp;
 
-use Assert::Contract::Build::Util qw(to_scalar);
+use Assert::Refute::Build::Util qw(to_scalar);
 
 my $ERROR_DONE = "done_testing was called, no more changes may be added";
 
@@ -32,7 +32,7 @@ my $ERROR_DONE = "done_testing was called, no more changes may be added";
 
 =head2 new
 
-    Assert::Contract::Exec->new( %options );
+    Assert::Refute::Exec->new( %options );
 
 %options may include:
 
@@ -315,14 +315,14 @@ sub _croak {
 =head1 BUGS
 
 Please report any bugs or feature requests to C<bug-assert-contract at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Assert-Contract>.  I will be notified, and then you'll
+the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Assert-Refute>.  I will be notified, and then you'll
 automatically be notified of progress on your bug as I make changes.
 
 =head1 SUPPORT
 
 You can find documentation for this module with the C<perldoc> command.
 
-    perldoc Assert::Contract::Exec
+    perldoc Assert::Refute::Exec
 
 You can also look for information at:
 
@@ -330,19 +330,19 @@ You can also look for information at:
 
 =item * C<RT>: CPAN's request tracker (report bugs here)
 
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Assert-Contract>
+L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Assert-Refute>
 
 =item * AnnoCPAN: Annotated CPAN documentation
 
-L<http://annocpan.org/dist/Assert-Contract>
+L<http://annocpan.org/dist/Assert-Refute>
 
 =item * CPAN Ratings
 
-L<http://cpanratings.perl.org/d/Assert-Contract>
+L<http://cpanratings.perl.org/d/Assert-Refute>
 
 =item * Search CPAN
 
-L<http://search.cpan.org/dist/Assert-Contract/>
+L<http://search.cpan.org/dist/Assert-Refute/>
 
 =back
 
@@ -393,4 +393,4 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =cut
 
-1; # End of Assert::Contract::Exec
+1; # End of Assert::Refute::Exec
