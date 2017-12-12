@@ -3,7 +3,7 @@ package Assert::Contract;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0102;
+our $VERSION = 0.0103;
 
 =head1 NAME
 
@@ -45,9 +45,22 @@ use Carp;
 use Exporter;
 
 use Assert::Contract::Spec;
+use Assert::Contract::T::Basic;
+use Assert::Contract::T::Deep;
+
+my @basic = (
+    @Assert::Contract::T::Basic::EXPORT,
+    @Assert::Contract::T::Deep::EXPORT,
+);
+my @core  = qw(contract current_contract);
 
 our @ISA = qw(Exporter);
-our @EXPORT = qw(contract current_contract);
+our @EXPORT = (@core, @basic);
+
+our %EXPORT_TAGS = (
+    basic => \@basic,
+    core  => \@core,
+);
 
 =head2 contract { ... }
 

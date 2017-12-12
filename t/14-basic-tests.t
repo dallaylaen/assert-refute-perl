@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Test::More;
 
-use Assert::Contract;
+use Assert::Contract qw(:core);
 {
     package Foo;
     use Assert::Contract::T::Basic;
