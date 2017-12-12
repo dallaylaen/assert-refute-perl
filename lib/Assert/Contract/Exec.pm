@@ -3,7 +3,7 @@ package Assert::Contract::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0101;
+our $VERSION = 0.0102;
 
 =head1 NAME
 
@@ -43,7 +43,7 @@ sub new {
 
     bless {
         fail  => {},
-        tests => 0,
+        count => 0,
     }, $class;
 };
 
@@ -59,7 +59,7 @@ sub refute {
     croak "foo" if $self->{lock};
 
     $msg = $msg ? " - $msg" : '';
-    my $n = ++$self->{tests};
+    my $n = ++$self->{count};
 
     if ($cond) {
         $self->{fail}{$n} = $cond;
@@ -148,6 +148,17 @@ sub as_tap {
     return join "\n", @str, '';
 };
 
+=head3 count
+
+How many tests have been executed.
+
+=cut
+
+sub count {
+    my $self = shift;
+    return $self->{count};
+};
+
 =head3 is_passing
 
 Tell whether the contract is passing or not.
@@ -159,15 +170,20 @@ sub is_passing {
     return !%{ $self->{fail} };
 };
 
-=head3 count
+=head3 signature
 
-How many tests have been executed.
+Produce a comparable string-based representation.
+
+The format is C<"t...^^"> where dots denote passing tests and C<^>-s
+failing ones.
 
 =cut
 
-sub count {
+sub signature {
     my $self = shift;
-    return $self->{tests};
+
+    return join "", "t", map { $self->{fail}{$_} ? "^" : "." }
+        1 .. $self->{count};
 };
 
 =head1 BUGS

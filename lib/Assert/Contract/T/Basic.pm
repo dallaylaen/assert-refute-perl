@@ -2,7 +2,7 @@ package Assert::Contract::T::Basic;
 
 use strict;
 use warnings;
-our $VERSION = 0.0101;
+our $VERSION = 0.0102;
 
 =head1 NAME
 
@@ -249,11 +249,10 @@ sub _isa_ok {
 
 =head2 contract_is $contract, "signature", ["message"]
 
-Check that a contract has been executed to exactly the specified extent.
+Check that a contract has been fullfilled to exactly the specified extent.
 
-Signature format is "[01]*d", where t is just there to avoid accidental
-numeric comparison, string of 01's represents individual tests, and 'd'
-appears if no more tests may be performed (i.e. done_testing called).
+The signature format is "t" followed by dots for passing tests and C<^>s for
+failing ones. This MAY change in the future.
 
 B<EXPERIMENTAL>. The signature MAY change in the future.
 
