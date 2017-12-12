@@ -2,7 +2,7 @@ package Assert::Contract::Engine::Build;
 
 use strict;
 use warnings;
-our $VERSION = 0.01;
+our $VERSION = 0.0101;
 
 =head1 NAME
 
@@ -78,6 +78,7 @@ use parent qw(Exporter);
 our @EXPORT = qw(build_refute current_contract to_scalar);
 
 use Assert::Contract::Spec;
+use Assert::Contract::Build::Util qw(to_scalar);
 
 =head2 build_refute name => CODE, %options
 
@@ -207,60 +208,6 @@ This is actually a clone of L<Assert::Contract::Spec/current_contract>.
     no warnings 'once'; ## no critic
     *current_contract = \&Assert::Contract::Spec::current_contract;
 }
-
-=head2 to_scalar
-
-=over
-
-=item * C<to_scalar( undef )> # returns C<'(undef)'>
-
-=item * C<to_scalar( string )> # returns the string as is in quotes
-
-=item * C<to_scalar( \%ref || \@array, $depth )>
-
-Represent structure as string.
-Only goes C<$depth> levels deep. Default depth is 1.
-
-=back
-
-Convert an unknown data type to a human-readable string.
-
-Hashes/arrays are only penetrated 1 level deep.
-
-C<undef> is returned as C<"(undef)"> so it can't be confused with other types.
-
-Strings are quoted unless numeric.
-
-Refs returned as C<My::Module/1a2c3f>
-
-=cut
-
-my %replace = ( "\n" => "n", "\\" => "\\", '"' => '"', "\0" => "0", "\t" => "t" );
-sub to_scalar {
-    my ($data, $depth) = @_;
-    $depth = 1 unless defined $depth;
-
-    return '(undef)' unless defined $data;
-    if (!ref $data) {
-        return $data if looks_like_number($data);
-        $data =~ s/([\0"\n\t\\])/\\$replace{$1}/g;
-        $data =~ s/([^\x20-\xFF])/sprintf "\\x%02x", ord $1/ge;
-        return "\"$data\"";
-    };
-    if ($depth) {
-        if (UNIVERSAL::isa($data, 'ARRAY')) {
-            return (ref $data eq 'ARRAY' ? '' : ref $data)
-                ."[".join(", ", map { to_scalar($_, $depth-1) } @$data )."]";
-        };
-        if (UNIVERSAL::isa($data, 'HASH')) {
-            return (ref $data eq 'HASH' ? '' : ref $data)
-            . "{".join(", ", map {
-                 to_scalar($_, 0) .":".to_scalar( $data->{$_}, $depth-1 );
-            } sort keys %$data )."}";
-        };
-    };
-    return sprintf "%s/%x", ref $data, refaddr $data;
-};
 
 =head1 LICENSE AND COPYRIGHT
 

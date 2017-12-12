@@ -3,7 +3,7 @@ package Assert::Contract::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.01;
+our $VERSION = 0.0101;
 
 =head1 NAME
 
@@ -23,6 +23,8 @@ Assert::Contract - The great new Assert::Contract!
 =cut
 
 use Carp;
+
+use Assert::Contract::Build::Util qw(to_scalar);
 
 =head1 OBJECT-ORIENTED INTERFACE
 
@@ -67,6 +69,34 @@ sub refute {
     } else {
         $self->log_message( 0, "ok $n$msg" );
     };
+};
+
+=head2 diag
+
+    diag "Message", \%reference, ...;
+
+Add human-readable diagnostic message to report.
+References are explained to depth 1.
+
+=head2 note
+
+    diag "Message", \%reference, ...;
+
+Add human-readable notice message to report.
+References are explained to depth 1.
+
+=cut
+
+sub diag {
+    my $self = shift;
+
+    $self->log_message( 1, join " ", map { to_scalar($_) } @_ );
+};
+
+sub note {
+    my $self = shift;
+
+    $self->log_message( 2, join " ", map { to_scalar($_) } @_ );
 };
 
 =head2 log_message( $level, $message )
