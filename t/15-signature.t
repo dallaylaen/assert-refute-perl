@@ -13,10 +13,10 @@ my $c = contract {
     die "Intentional" if shift;
 } want_self=>1;
 
-is $c->exec( 42, "food" )->signature, "t..d", "Passing contract";
+is $c->exec( 42, "food" )->signature, "t2d", "Passing contract";
 
-is $c->exec( 42, "bard" )->signature, "t.^d", "Failing contract";
+is $c->exec( 42, "bard" )->signature, "t1Nd", "Failing contract";
 
-is $c->exec( 42, "food", "kaboom" )->signature, "t..^E", "Exception => fail";
+is $c->exec( 42, "food", "kaboom" )->signature, "t2NE", "Exception => fail";
 
 done_testing;

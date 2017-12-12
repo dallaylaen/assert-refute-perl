@@ -3,7 +3,7 @@ package Assert::Refute::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0107;
+our $VERSION = 0.0108;
 
 =head1 NAME
 
@@ -235,37 +235,53 @@ sub as_tap {
 
 =head3 signature
 
-Produce a comparable string-based representation.
+Produce a terse pass/fail summary as a string of numbers and letters.
 
-The format is C<"t...^^[Erd]">.
+The format is C<"t(\d+|N)*[rdE]">.
 
 =over
 
 =item C<t> is always present at the start;
 
-=item C<.> stands for passing test;
+=item a number stands for a series of passing tests;
 
-=item C<^> stands for failing test;
+=item C<N> stands for a I<single> failing test;
 
-=item C<r> stands for a running contract;
+=item C<r> stands for a contract that is still B<r>unning;
 
-=item C<E> stands for a interrupted execution;
+=item C<E> stands for a an B<e>xception during execution;
 
-=item C<d> stands for a contract that is done.
+=item C<d> stands for a contract that is B<d>one.
 
 =back
 
-=cut
+The format is still evolving.
+Capital letters are used to represent failure,
+and it is likely to stay like that.
 
-# TODO maybe chess-like: t5F2d meaning "5 passes, 1 fail, 2 passes"
+The numeric notation was inspired by Forsyth-Edwards notation (FEN) in chess.
+
+=cut
 
 sub signature {
     my $self = shift;
 
-    my @t = map { $self->{fail}{$_} ? "^" : "." }
-        1 .. $self->{count};
+    my @t = ("t");
+
+    my $streak;
+    foreach (1 .. $self->{count}) {
+        if ( $self->{fail}{$_} ) {
+            push @t, $streak if $streak;
+            $streak = 0;
+            push @t, "N"; # for "not ok"
+        } else {
+            $streak++;
+        };
+    };
+    push @t, $streak if $streak;
+
     my $d = $self->last_error ? 'E' : $self->{done} ? 'd' : 'r';
-    return join '', "t", @t, $d;
+    return join '', @t, $d;
 };
 
 sub _croak {

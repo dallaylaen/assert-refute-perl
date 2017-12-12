@@ -12,7 +12,7 @@ BEGIN {
     Test::Pod::Spelling->import(
         spelling => {
             allow_words => [qw[
-                Konstantin Uvarin
+                Konstantin Uvarin Forsyth
                 falsifiability
                 github metacpan annocpan CPAN
                 regex
