@@ -7,7 +7,7 @@ use Test::More;
 plan tests => 1;
 
 BEGIN {
-    use_ok( 'Assert::Contract' ) || print "Bail out!\n";
+    require_ok( 'Assert::Contract' ) || print "Bail out!\n";
 }
 
 diag( "Testing Assert::Contract $Assert::Contract::VERSION, Perl $], $^X" );
