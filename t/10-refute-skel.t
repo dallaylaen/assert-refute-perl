@@ -20,4 +20,13 @@ is $c->count, 2, "2 tests now";
 like $c->as_tap, qr/^ok 1 - right\nnot ok 2 - wrong\n# .*foobared.*\n$/s,
     "as_tap looks like tap";
 
+$c->done_testing;
+like $c->as_tap, qr/^1..2$/m, "Plan present";
+
+eval {
+    $c->done_testing;
+};
+
+like $@, qr/done_testing.*no more/;
+
 done_testing;

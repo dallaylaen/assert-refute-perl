@@ -3,7 +3,7 @@ package Assert::Refute::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0108;
+our $VERSION = 0.0109;
 
 =head1 NAME
 
@@ -133,6 +133,8 @@ sub done_testing {
         $self->refute( $exception, "unexpected exception: $exception" )
     } elsif ($self->{done}) {
         $self->_croak( $ERROR_DONE )
+    } else {
+        $self->log_message(0, "1..$self->{count}");
     };
 
     $self->{done}++;
