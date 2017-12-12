@@ -3,11 +3,11 @@ package Assert::Refute;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0104;
+our $VERSION = 0.0105;
 
 =head1 NAME
 
-Assert::Refute - Test::More-like assertions in your production code
+Assert::Refute - unified contract, assertion, and testing tool
 
 =head1 SYNOPSIS
 
@@ -27,17 +27,54 @@ Assert::Refute - Test::More-like assertions in your production code
 
 =head1 DESCRIPTION
 
-This module adds C<Test::More>-like snippets to your production code.
+This module adds L<Test::More>-like code snippets called contracts
+to your production code, without turning the whole application
+into a giant testing script.
 
-Such snippet is compiled once and executed multiple times,
+Each contract is compiled once and executed multiple times,
 generating reports objects that can be queried to be successful
 or printed out as TAP if needed.
 
+=head1 REFUTATIONS AND CONTRACTS
+
+C<refute($condition, $message)> stands for an inverted assertion.
+If $condition is B<false>, it is regarded as a B<success>.
+If it is true, however, it is considered to be the B<reason>
+for a failing test.
+
+This is similar to how Unix programs set their exit code,
+or to Perl's own C<$@> variable,
+or to the modern science's I<falsifiability> concept.
+
+A C<contract{ ... }> is as block of code containing various assumptions
+about its input.
+An execution of such block is considered successful if none
+of these assumptions were refuted.
+
+These two can serve as building blocks for arbitrarily complex
+condition testing.
+
 =head1 EXPORT
 
-All functions in this module are exportable and exported by default.
-See L<Assert::Refute::Spec> for object-oriented interface
-if you insist on leaving the namespace clean.
+All of the below functions are exported by default,
+as well as some basic assumptions mirroring the L<Test::More> suite.
+
+    use Assert::Refute qw(:core);
+
+would only export C<contract>, C<current_contract>, and C<refute> functions.
+
+    use Assert::Refute qw(:basic);
+
+would export the following testing primitives:
+
+C<is>, C<isnt>, C<ok>, C<use_ok>, C<require_ok>, C<cmp_ok>,
+C<like>, C<unlike>, C<can_ok>, C<isa_ok>, C<new_ok>,
+C<contract_is>, C<is_deeply>, C<note>, C<diag>.
+
+See L<Assert::Refute::T::Basic> and L<Assert::Refute::T::Deep> for more.
+
+Use L<Assert::Refute::Spec> if you insist on no exports and purely
+object-oriented interface.
 
 =cut
 
@@ -196,7 +233,6 @@ YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT HOLDER OR
 CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR
 CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT OF THE USE OF THE PACKAGE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 
 =cut
 

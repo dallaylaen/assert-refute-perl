@@ -13,6 +13,7 @@ BEGIN {
         spelling => {
             allow_words => [qw[
                 Konstantin Uvarin
+                falsifiability
                 github metacpan annocpan CPAN
                 regex
                 diag isnt ok qr
