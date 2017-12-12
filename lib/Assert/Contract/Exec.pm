@@ -3,7 +3,7 @@ package Assert::Contract::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0103;
+our $VERSION = 0.0104;
 
 =head1 NAME
 
@@ -173,35 +173,15 @@ sub done_testing {
 
 =head2 INSPECTION PRIMITIVES
 
-=head3 as_tap
+=head3 is_done
 
-Return a would-be Test::More script output for current contract.
-
-=cut
-
-sub as_tap {
-    my ($self, $verbosity) = @_;
-
-    $verbosity = 1 unless defined $verbosity;
-    my @str;
-    foreach (@{ $self->{mess} }) {
-        my ($lvl, $mess) = @$_;
-        next unless $lvl <= $verbosity;
-        my $pad = $lvl > 0 ? '#' x $lvl . ' ' : '';
-        push @str, "$pad$mess";
-    };
-    return join "\n", @str, '';
-};
-
-=head3 count
-
-How many tests have been executed.
+Tells whether done_testing was seen.
 
 =cut
 
-sub count {
+sub is_done {
     my $self = shift;
-    return $self->{count};
+    return $self->{done} || 0;
 };
 
 =head3 is_passing
@@ -214,6 +194,17 @@ sub is_passing {
     my $self = shift;
 
     return !%{ $self->{fail} } && !$self->{last_error};
+};
+
+=head3 count
+
+How many tests have been executed.
+
+=cut
+
+sub count {
+    my $self = shift;
+    return $self->{count};
 };
 
 =head3 result( $n )
@@ -231,17 +222,6 @@ sub result {
         unless $n =~ /^[1-9][0-9]*$/ and $n <= $self->{count};
 
     return $self->{fail}{$n} || 0;
-};
-
-=head3 is_done
-
-Tells whether done_testing was seen.
-
-=cut
-
-sub is_done {
-    my $self = shift;
-    return $self->{done} || 0;
 };
 
 =head3 has_died
@@ -263,6 +243,26 @@ or false if there was none.
 sub last_error {
     my $self = shift;
     return $self->{last_error} || '';
+};
+
+=head3 as_tap
+
+Return a would-be Test::More script output for current contract.
+
+=cut
+
+sub as_tap {
+    my ($self, $verbosity) = @_;
+
+    $verbosity = 1 unless defined $verbosity;
+    my @str;
+    foreach (@{ $self->{mess} }) {
+        my ($lvl, $mess) = @$_;
+        next unless $lvl <= $verbosity;
+        my $pad = $lvl > 0 ? '#' x $lvl . ' ' : '';
+        push @str, "$pad$mess";
+    };
+    return join "\n", @str, '';
 };
 
 =head3 signature
