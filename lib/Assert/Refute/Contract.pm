@@ -3,7 +3,7 @@ package Assert::Refute::Contract;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0106;
+our $VERSION = 0.0107;
 
 =head1 NAME
 
@@ -22,7 +22,7 @@ Assert::Refute::Contract - Contract specification class for Assert::Refute
     );
 
     # much later
-    my $result = $contract->execute( 137 );
+    my $result = $contract->exec( 137 );
     $result->count;      # 1
     $result->is_passing; # 0
     $result->as_tap;     # Test::More-like summary
@@ -39,6 +39,7 @@ use Carp;
 
 use Assert::Refute::Exec;
 
+our @CARP_NOT = qw(Assert::Refute Assert::Refute::Build);
 our $ENGINE;
 
 =head1 OBJECT-ORIENTED INTERFACE
@@ -53,30 +54,70 @@ our $ENGINE;
 
 =item * C<code> (required) - contract to be executed
 
+=item * C<want_self> - if given, a contract execution object
+will be prepended to C<code>'s argument list.
+
+This name is stupid and has to be changed.
+
 =back
 
 =cut
 
+my @new_required  = qw( code );
+my @new_essential = (@new_required, qw( want_self ));
+my @new_optional  = qw( backend );
+
 my %new_arg;
-$new_arg{$_}++ for qw(code want_self);
+$new_arg{$_}++ for @new_essential, @new_optional;
+
+my $def_backend = "Assert::Refute::Exec";
 
 sub new {
     my ($class, %opt) = @_;
 
-    UNIVERSAL::isa($opt{code}, 'CODE')
-        or croak "code argument is required";
+    my @missing = grep { !$opt{$_} } @new_required;
+    croak( "Missing required arguments: @missing" )
+        if @missing;
+    croak( "'code' argument must be a subroutine" )
+        unless UNIVERSAL::isa($opt{code}, 'CODE');
     my @extra = grep { !$new_arg{$_} } keys %opt;
-    croak "Unknown options: @extra"
+    croak( "Unknown options: @extra" )
         if @extra;
 
-    bless {
-        code      => $opt{code},
-        engine    => 'Assert::Refute::Exec',
-        want_self => $opt{want_self} ? 1 : 0,
-    }, $class;
+    $opt{want_self}   = $opt{want_self} ? 1 : 0;
+    $opt{backend}    ||= $def_backend;
+    # TODO validate backend
+
+    bless \%opt, $class;
 };
 
-=head2 exec
+=head2 clone( %overrides )
+
+Return a copy of this object with some overridden fields.
+
+The name is BAD and will be replaced.
+
+%overrides may include:
+
+=over
+
+=item * backend - the class to perform tests.
+
+=back
+
+=cut
+
+sub clone {
+    my ($self, %opt) = @_;
+
+    my @dont = grep { $opt{$_} } @new_essential;
+    croak( "Attempt to override essential parameters @dont" )
+        if @dont;
+
+    return (ref $self)->new( %$self, %opt );
+};
+
+=head2 exec( @parameters )
 
 Spawn a new execution log object and run contract against it.
 
@@ -85,8 +126,9 @@ Spawn a new execution log object and run contract against it.
 sub exec {
     my ($self, @args) = @_;
 
-    my $c = $self->{engine}->new;
-    # TODO plan argcheck etc
+    my $c = $self->{backend};
+    $c = $c->new unless ref $c;
+    # TODO plan tests, argument check etc
 
     unshift @args, $c if $self->{want_self};
     local $ENGINE = $c;
