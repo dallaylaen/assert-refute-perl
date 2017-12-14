@@ -2,7 +2,7 @@ package Assert::Refute::T::Basic;
 
 use strict;
 use warnings;
-our $VERSION = 0.0102;
+our $VERSION = 0.0103;
 
 =head1 NAME
 
@@ -42,7 +42,7 @@ use Scalar::Util qw(blessed looks_like_number);
 use parent qw(Exporter);
 
 use Assert::Refute::Build;
-our @EXPORT = qw(diag note);
+our @EXPORT = qw( diag note );
 
 =head2 is $got, $expected, "explanation"
 
@@ -251,41 +251,20 @@ sub _isa_ok {
 
 Check that a contract has been fullfilled to exactly the specified extent.
 
-The signature format is "t" followed by dots for passing tests and C<^>s for
-failing ones. This MAY change in the future.
-
-B<EXPERIMENTAL>. The signature MAY change in the future.
+See L<Assert::Refute::Exec/signature> for exact signature format.
 
 =cut
 
 build_refute contract_is => sub {
-    my ($c, $condition) = @_;
+    my ($c, $sig) = @_;
 
-    # the happy case first
-    my $not_ok = $c->get_failed;
-    my @out = map { $not_ok->{$_} ? 0 : 1 } 1..$c->get_count;
-    return ''
-        if $condition eq join "", @out;
-
-    # analyse what went wrong - it did if we're here
-    my @cond = split / *?/, $condition;
-    my @fail;
-    push @fail, "Contract signature: @out";
-    push @fail, "Expected:           @cond";
-    push @fail, sprintf "Tests executed: %d of %d", scalar @out, scalar @cond
-        if @out != @cond;
-    for (my $i = 0; $i<@out && $i<@cond; $i++) {
-        next if $out[$i] eq $cond[$i];
-        my $n = $i + 1;
-        push @fail, "Unexpected " .($not_ok->{$n} ? "not ok $n" : "ok $n");
-        if ($not_ok->{$n}) {
-            push @fail, map { "DIAG # $_" } split /\n+/, $not_ok->{$n}[1]
-        };
-    };
-
-    croak "Impossible: contract_is broken. File a bug in Assert::Refute::T immediately!"
-        if !@fail;
-    return join "\n", @fail;
+    my $got = $c->signature;
+    return $got ne $sig && <<"EOF".$c->as_tap;
+Unexpected subcontract signature.
+Got:      $got
+Expected: $sig
+Execution log:
+EOF
 }, args => 2, export => 1;
 
 =head2 diag @message

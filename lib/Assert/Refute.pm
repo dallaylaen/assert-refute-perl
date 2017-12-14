@@ -3,7 +3,7 @@ package Assert::Refute;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0106;
+our $VERSION = 0.0107;
 
 =head1 NAME
 
@@ -51,8 +51,11 @@ about its input.
 An execution of such block is considered successful if none
 of these assumptions were refuted.
 
-These two can serve as building blocks for arbitrarily complex
-condition testing.
+A C<subcontract> is an execution of previously defined contract
+in current contract's context, succeeding silently, but failing loudly.
+
+These three primitives can serve as building blocks for arbitrarily complex
+assertions, tests, and validations.
 
 =head1 EXPORT
 
@@ -61,7 +64,8 @@ as well as some basic assumptions mirroring the L<Test::More> suite.
 
     use Assert::Refute qw(:core);
 
-would only export C<contract>, C<current_contract>, and C<refute> functions.
+would only export C<contract>, C<refute>,
+C<contract_is>, C<subcontract>, and C<current_contract> functions.
 
     use Assert::Refute qw(:basic);
 
@@ -69,7 +73,7 @@ would export the following testing primitives:
 
 C<is>, C<isnt>, C<ok>, C<use_ok>, C<require_ok>, C<cmp_ok>,
 C<like>, C<unlike>, C<can_ok>, C<isa_ok>, C<new_ok>,
-C<contract_is>, C<is_deeply>, C<note>, C<diag>.
+C<contract_is>, C<subcontract>, C<is_deeply>, C<note>, C<diag>.
 
 See L<Assert::Refute::T::Basic> and L<Assert::Refute::T::Deep> for more.
 
@@ -89,7 +93,7 @@ my @basic = (
     @Assert::Refute::T::Basic::EXPORT,
     @Assert::Refute::T::Deep::EXPORT,
 );
-my @core  = qw(contract current_contract refute);
+my @core  = qw( contract current_contract refute subcontract contract_is );
 
 our @ISA = qw(Exporter);
 our @EXPORT = (@core, @basic);
@@ -140,6 +144,23 @@ and fails otherwise.
 
 sub refute ($$) { ## no critic
     current_contract()->refute(@_);
+};
+
+=head2 subcontract( "Message" => $contract, @arguments )
+
+Execute a contract and fail loudly if it fails.
+
+B<[NOTE]> that the message comes first, unlike in refute or other
+test conditions, and is required.
+
+=cut
+
+sub subcontract($$@) { ## no critic
+    my ($msg, $c, @args) = @_;
+
+    my $log = $c->exec(@args);
+    my $stop = !$log->is_passing && $log->as_tap;
+    current_contract()->refute( $stop, "$msg (subtest)" );
 };
 
 =head2 current_contract
