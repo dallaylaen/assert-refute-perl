@@ -3,7 +3,7 @@ package Assert::Refute::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0111;
+our $VERSION = 0.0112;
 
 =head1 NAME
 
@@ -152,6 +152,7 @@ sub is_done {
     return $self->{done} || 0;
 };
 
+
 =head3 is_passing
 
 Tell whether the contract is passing or not.
@@ -173,6 +174,17 @@ How many tests have been executed.
 sub count {
     my $self = shift;
     return $self->{count};
+};
+
+=head3 get_tests
+
+Returns a list of test ids, preserving order.
+
+=cut
+
+sub get_tests {
+    my $self = shift;
+    return $self->{list} ? @{ $self->{list} } : ();
 };
 
 =head3 result( $id )
@@ -299,8 +311,8 @@ sub _croak {
 
 =head2 DEVELOPMENT PRIMITIVES
 
-Generally one should not touch these functions unless something very strange
-is needed.
+Generally one should not touch these methods unless
+when subclassing to build a new test backend.
 
 =head3 log_message( $indent, $level, $message )
 
@@ -338,7 +350,9 @@ sub log_message {
     return $self;
 };
 
-=head3 add_result
+=head3 add_result( $id, $result )
+
+Add a refutation to the failed tests log.
 
 =cut
 
@@ -347,7 +361,10 @@ sub add_result {
 
     $self->_croak( $ERROR_DONE )
         if $self->{done};
+    $self->_croak( "Duplicate test id $id" )
+        if exists $self->{fail}{$id};
 
+    push @{ $self->{list} }, $id;
     $self->{failed}++ if $result;
     $self->{fail}{$id} = $result;
 
