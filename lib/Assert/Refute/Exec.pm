@@ -3,7 +3,7 @@ package Assert::Refute::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0110;
+our $VERSION = 0.0111;
 
 =head1 NAME
 
@@ -66,14 +66,11 @@ An inverted assertion. That is, it B<passes> if C<$condition> is B<false>.
 sub refute {
     my ($self, $cond, $msg) = @_;
 
-    $self->_croak( $ERROR_DONE )
-        if $self->{done};
-
     $msg = $msg ? " - $msg" : '';
     my $n = ++$self->{count};
+    $self->add_result( $n, $cond );
 
     if ($cond) {
-        $self->{fail}{$n} = $cond;
         $self->log_message( 0, -1, "not ok $n$msg" );
         $self->log_message( 0,  1, $cond ) unless $cond eq 1;
         return 0;
@@ -102,16 +99,12 @@ References are explained to depth 1.
 sub diag {
     my $self = shift;
 
-    $self->_croak( $ERROR_DONE )
-        if $self->{done};
     $self->log_message( 0, 1, join " ", map { to_scalar($_) } @_ );
 };
 
 sub note {
     my $self = shift;
 
-    $self->_croak( $ERROR_DONE )
-        if $self->{done};
     $self->log_message( 0, 2, join " ", map { to_scalar($_) } @_ );
 };
 
@@ -168,7 +161,7 @@ Tell whether the contract is passing or not.
 sub is_passing {
     my $self = shift;
 
-    return !%{ $self->{fail} } && !$self->{last_error};
+    return !$self->{failed} && !$self->{last_error};
 };
 
 =head3 count
@@ -182,9 +175,9 @@ sub count {
     return $self->{count};
 };
 
-=head3 result( $n )
+=head3 result( $id )
 
-Returns result of $n-th test, dies if such test was never performed.
+Returns result of test denoted by $id, dies if such test was never performed.
 The result is false for passing tests and whatever the reason for failure was
 for failing ones.
 
@@ -194,7 +187,7 @@ sub result {
     my ($self, $n) = @_;
 
     $self->_croak( "Test $n has never been performed" )
-        unless $n =~ /^[1-9][0-9]*$/ and $n <= $self->{count};
+        unless exists $self->{fail}{$n};
 
     return $self->{fail}{$n} || 0;
 };
@@ -306,6 +299,9 @@ sub _croak {
 
 =head2 DEVELOPMENT PRIMITIVES
 
+Generally one should not touch these functions unless something very strange
+is needed.
+
 =head3 log_message( $indent, $level, $message )
 
 Append a message to execution log.
@@ -338,6 +334,22 @@ sub log_message {
     foreach (@parts) {
         push @{ $self->{mess} }, [$indent, $level, $_];
     };
+
+    return $self;
+};
+
+=head3 add_result
+
+=cut
+
+sub add_result {
+    my ($self, $id, $result) = @_;
+
+    $self->_croak( $ERROR_DONE )
+        if $self->{done};
+
+    $self->{failed}++ if $result;
+    $self->{fail}{$id} = $result;
 
     return $self;
 };
