@@ -3,15 +3,15 @@ package Assert::Refute::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0109;
+our $VERSION = 0.0110;
 
 =head1 NAME
 
-Assert::Refute - Contrace execution log for Assert::Refute
+Assert::Refute - Contract execution log for Assert::Refute
 
 =head1 SYNOPSIS
 
-    my $c = Assert::Refute::Exec;
+    my $c = Assert::Refute::Exec->new;
     $c->refute ( $cond, $message );
     $c->refute ( $cond2, $message2 );
     # .......
@@ -37,7 +37,11 @@ my $ERROR_DONE = "done_testing was called, no more changes may be added";
 
 %options may include:
 
-Nothing yet.
+=over
+
+=item * indent - log indentation (will be shown as 4 spaces in C<as_tap>);
+
+=back
 
 =cut
 
@@ -45,8 +49,9 @@ sub new {
     my ($class, %opt) = @_;
 
     bless {
-        fail  => {},
-        count => 0,
+        indent => $opt{indent} || 0,
+        fail   => {},
+        count  => 0,
     }, $class;
 };
 
@@ -69,11 +74,11 @@ sub refute {
 
     if ($cond) {
         $self->{fail}{$n} = $cond;
-        $self->log_message( -1, "not ok $n$msg" );
-        $self->log_message(  1, $cond ) unless $cond eq 1;
+        $self->log_message( 0, -1, "not ok $n$msg" );
+        $self->log_message( 0,  1, $cond ) unless $cond eq 1;
         return 0;
     } else {
-        $self->log_message( 0, "ok $n$msg" );
+        $self->log_message( 0,  0, "ok $n$msg" );
         return 1;
     };
 };
@@ -99,7 +104,7 @@ sub diag {
 
     $self->_croak( $ERROR_DONE )
         if $self->{done};
-    $self->log_message( 1, join " ", map { to_scalar($_) } @_ );
+    $self->log_message( 0, 1, join " ", map { to_scalar($_) } @_ );
 };
 
 sub note {
@@ -107,7 +112,7 @@ sub note {
 
     $self->_croak( $ERROR_DONE )
         if $self->{done};
-    $self->log_message( 2, join " ", map { to_scalar($_) } @_ );
+    $self->log_message( 0, 2, join " ", map { to_scalar($_) } @_ );
 };
 
 =head3 done_testing
@@ -134,7 +139,7 @@ sub done_testing {
     } elsif ($self->{done}) {
         $self->_croak( $ERROR_DONE )
     } else {
-        $self->log_message(0, "1..$self->{count}");
+        $self->log_message(0, 0, "1..$self->{count}");
     };
 
     $self->{done}++;
@@ -227,9 +232,10 @@ sub as_tap {
     $verbosity = 1 unless defined $verbosity;
     my @str;
     foreach (@{ $self->{mess} }) {
-        my ($lvl, $mess) = @$_;
+        my ($indent, $lvl, $mess) = @$_;
         next unless $lvl <= $verbosity;
-        my $pad = $lvl > 0 ? '#' x $lvl . ' ' : '';
+        my $pad  = $indent > 0 ? '    ' x $indent : '';
+        $pad    .= $lvl > 0 ? '#' x $lvl . ' ' : '';
         push @str, "$pad$mess";
     };
     return join "\n", @str, '';
@@ -300,7 +306,7 @@ sub _croak {
 
 =head2 DEVELOPMENT PRIMITIVES
 
-=head3 log_message( $level, $message )
+=head3 log_message( $indent, $level, $message )
 
 Append a message to execution log.
 Levels are:
@@ -322,18 +328,31 @@ Levels are:
 =cut
 
 sub log_message {
-    my ($self, $level, @parts) = @_;
+    my ($self, $indent, $level, @parts) = @_;
 
     $self->_croak( $ERROR_DONE )
         if $self->{done};
+
+    $indent += $self->{indent};
+
     foreach (@parts) {
-        push @{ $self->{mess} }, [$level, $_];
+        push @{ $self->{mess} }, [$indent, $level, $_];
     };
 
     return $self;
 };
 
+=head3 get_proxy
 
+Return ($self, indent) pair in list content, or just $self in scalar context.
+
+=cut
+
+sub get_proxy {
+    my $self = shift;
+
+    return wantarray ? ($self, $self->{indent}) : $self;
+};
 
 =head1 LICENSE AND COPYRIGHT
 
