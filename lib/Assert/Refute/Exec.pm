@@ -3,7 +3,7 @@ package Assert::Refute::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0112;
+our $VERSION = 0.0113;
 
 =head1 NAME
 
@@ -239,11 +239,16 @@ sub as_tap {
     foreach (@{ $self->{mess} }) {
         my ($indent, $lvl, $mess) = @$_;
         next unless $lvl <= $verbosity;
+
         my $pad  = $indent > 0 ? '    ' x $indent : '';
         $pad    .= $lvl > 0 ? '#' x $lvl . ' ' : '';
-        push @str, "$pad$mess";
+        $mess    =~ s/\s*$//s;
+
+        foreach (split /\n/, $mess) {
+            push @str, "$pad$_\n";
+        };
     };
-    return join "\n", @str, '';
+    return join '', @str;
 };
 
 =head3 signature
