@@ -3,7 +3,7 @@ package Assert::Refute;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0107;
+our $VERSION = 0.0108;
 
 =head1 NAME
 
@@ -168,13 +168,13 @@ sub subcontract($$@) { ## no critic
 Returns the contract object being executed.
 Dies if no contract is being executed at the time.
 
-This is actually a clone of L<Assert::Refute::Contract/current_contract>.
+This is actually a clone of L<Assert::Refute::Build/current_contract>.
 
 =cut
 
 {
     no warnings 'once'; ## no critic
-    *current_contract = \&Assert::Refute::Contract::current_contract;
+    *current_contract = \&Assert::Refute::Build::current_contract;
 }
 
 =head1 BUGS

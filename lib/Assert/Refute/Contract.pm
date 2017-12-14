@@ -3,7 +3,7 @@ package Assert::Refute::Contract;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0107;
+our $VERSION = 0.0108;
 
 =head1 NAME
 
@@ -40,7 +40,6 @@ use Carp;
 use Assert::Refute::Exec;
 
 our @CARP_NOT = qw(Assert::Refute Assert::Refute::Build);
-our $ENGINE;
 
 =head1 OBJECT-ORIENTED INTERFACE
 
@@ -131,7 +130,7 @@ sub exec {
     # TODO plan tests, argument check etc
 
     unshift @args, $c if $self->{want_self};
-    local $ENGINE = $c;
+    local $Assert::Refute::Build::BACKEND = $c;
     eval {
         $self->{code}->( @args );
         $c->done_testing
@@ -144,19 +143,6 @@ sub exec {
     # At this point, done_testing *has* been called unless of course
     #    it is broken and dies, in which case tests will fail.
     return $c;
-};
-
-=head2 current_contract
-
-Returns the contract object being executed.
-Dies if no contract is being executed at the time.
-
-=cut
-
-sub current_contract() { ## nocritic
-    croak "Not currently testing anything"
-        unless $ENGINE;
-    return $ENGINE;
 };
 
 =head1 ACKNOWLEDGEMENTS

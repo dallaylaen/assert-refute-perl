@@ -3,7 +3,7 @@ package Assert::Refute::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0113;
+our $VERSION = 0.0114;
 
 =head1 NAME
 
@@ -26,6 +26,10 @@ Assert::Refute - Contract execution log for Assert::Refute
 use Carp;
 
 use Assert::Refute::Build::Util qw(to_scalar);
+
+# Always add basic testing primitives to the arsenal
+use Assert::Refute::T::Basic qw();
+use Assert::Refute::T::Deep qw();
 
 my $ERROR_DONE = "done_testing was called, no more changes may be added";
 
