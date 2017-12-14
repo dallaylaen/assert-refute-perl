@@ -3,7 +3,7 @@ package Assert::Refute::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0114;
+our $VERSION = 0.0115;
 
 =head1 NAME
 
@@ -24,6 +24,7 @@ Assert::Refute - Contract execution log for Assert::Refute
 =cut
 
 use Carp;
+use Scalar::Util qw(blessed);
 
 use Assert::Refute::Build::Util qw(to_scalar);
 
@@ -141,6 +142,46 @@ sub done_testing {
 
     $self->{done}++;
     return $self;
+};
+
+=head2 TESTING PRIMITIVES
+
+L<Assert::Refute> comes with a set of basic checks
+similar to that of L<Test::More>, all being wrappers around
+L</refute> discussed above.
+They are available as both prototyped functions (if requested) I<and>
+methods in contract execution object and its descendants.
+
+The list is as follows:
+
+C<is>, C<isnt>, C<ok>, C<use_ok>, C<require_ok>, C<cmp_ok>,
+C<like>, C<unlike>, C<can_ok>, C<isa_ok>, C<new_ok>,
+C<contract_is>, C<is_deeply>, C<note>, C<diag>.
+
+See L<Assert::Refute::T::Basic> and L<Assert::Refute::T::Deep>
+for more details.
+
+Additionally, I<any> checks defined using L<Assert::Refute::Build>
+will be added to this L<Assert::Refute::Exec> by default.
+
+=head3 subcontract( "Message" => $specification, @arguments ... )
+
+Execute a previously defined contract and fail loudly if it fails.
+
+B<[NOTE]> that the message comes first, unlike in C<refute> or other
+test conditions, and is required.
+
+=cut
+
+sub subcontract {
+    my ($self, $msg, $c, @args) = @_;
+
+    $self->_croak("subcontract must be a contract definition or execution log")
+        unless blessed $c;
+
+    my $log = $c->isa("Assert::Refute::Contract") ? $c->exec(@args) : $c;
+    my $stop = !$log->is_passing && $log->as_tap;
+    $self->refute( $stop, "$msg (subtest)" );
 };
 
 =head2 INSPECTION PRIMITIVES

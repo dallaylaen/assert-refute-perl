@@ -3,7 +3,7 @@ package Assert::Refute;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0108;
+our $VERSION = 0.0109;
 
 =head1 NAME
 
@@ -156,11 +156,7 @@ test conditions, and is required.
 =cut
 
 sub subcontract($$@) { ## no critic
-    my ($msg, $c, @args) = @_;
-
-    my $log = $c->exec(@args);
-    my $stop = !$log->is_passing && $log->as_tap;
-    current_contract()->refute( $stop, "$msg (subtest)" );
+    current_contract()->subcontract( @_ );
 };
 
 =head2 current_contract
