@@ -2,7 +2,7 @@ package Assert::Refute::Build;
 
 use strict;
 use warnings;
-our $VERSION = 0.0104;
+our $VERSION = 0.0105;
 
 =head1 NAME
 
@@ -43,20 +43,28 @@ Extending the test suite goes as follows:
 
     build_refute is_everything => sub {
         return if $_[0] == 42;
-        return "$_[0] is not answer to life, universe, abd everything";
+        return "$_[0] is not answer to life, universe, and everything";
     }, export => 1, args => 1;
 
     1;
 
-This can be later used either inside production code to check a condition:
+This can be later used inside production code to check a condition:
 
     use Assert::Refute;
     use My::Package;
-    my $c = contract {
-        is_everything( $foo );
-        $_[0]->is_everything( $bar ); # ditto
+    my $fun_check = contract {
+        is_everything( shift );
     };
-    # ... check $c validity
+    my $oo_check = contract {
+        $_[0]->is_everything( $_[1] );
+    }, want_self => 1;
+    # ditto
+
+    # apply $fun_check or $oo_check to a variable, get result
+
+    my $log = $oo_check->exec(137);
+    $log->is_passing; # nope
+    $log->as_tap;     # get details
 
 The function provided to builder MUST
 return a false value if everything is fine,
