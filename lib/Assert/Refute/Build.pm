@@ -1,8 +1,9 @@
 package Assert::Refute::Build;
 
+use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0105;
+our $VERSION = 0.0106;
 
 =head1 NAME
 
@@ -10,28 +11,11 @@ Assert::Refute::Build - tool for extending Assert::Refute suite
 
 =head1 DESCRIPTION
 
-Unfortunately, extending L<Assert::Refute> is not completely straightforward.
+Although arbitrary checks may be created using just the C<refute> function,
+they may be cumbersome to use and especially share.
 
-In order to create a new test function, one needs to:
-
-=over
-
-=item * provide a check function that returns a false value on success
-and a brief description of the problem on failure
-(e.g. C<"$got != $expected">);
-
-=item * build an exportable wrapper around it that would talk to
-the most up-to-date L<Assert::Refute> instance;
-
-=item * add a method with the same name to L<Assert::Refute>
-so that object-oriented and functional interfaces
-are as close to each other as possible.
-
-=back
-
-The first task still has to be done by a programmer (you),
-but the other two can be more or less automated.
-Hence this module.
+This module takes care of some boilerplate as well as maintains parity
+between functional and object-oriented interfaces of L<Assert::Refute>.
 
 =head1 SYNOPSIS
 
@@ -66,10 +50,6 @@ This can be later used inside production code to check a condition:
     $log->is_passing; # nope
     $log->as_tap;     # get details
 
-The function provided to builder MUST
-return a false value if everything is fine,
-or reason of failure (but generally any true value) if not.
-
 This call will create a prototyped function is_everything(...) in the calling
 package, with C<args> positional parameters and an optional human-readable
 message. (Think C<ok 1>, C<ok 1 'test passed'>).
@@ -88,11 +68,32 @@ our @EXPORT = qw(build_refute current_contract to_scalar);
 use Assert::Refute::Build::Util qw(to_scalar);
 our $BACKEND;
 
-=head2 build_refute name => CODE, %options
+=head2 build_refute name => \&CODE, %options
 
-Create a function in calling package and a method in L<Assert::Refute>.
+This function
+
+=over
+
+=item * accepts a subroutine reference that returns a false value on success
+and a brief description of the discrepancy on failure
+(e.g. C<"$got != $expected">);
+
+Note that this function does not need to know anything about the testing
+environment it is in, it just cares about its arguments
+(think I<pure function>).
+
+=item * builds an exportable wrapper around it that would talk to
+the most recent L<Assert::Refute::Exec> instance;
+
+=item * adds a method with the same name to L<Assert::Refute::Exec>
+so that object-oriented and functional interfaces
+are as close to each other as possible.
+
+=back
+
 As a side effect, Assert::Refute's internals are added to the caller's
-C<@CARP_NOT> array so that carp/croak points to actual outside usage.
+C<@CARP_NOT> array so that carp/croak points to where the built function
+is actually used.
 
 B<NOTE> One needs to use Exporter explicitly if either C<export>
 or C<export_ok> option is in use. This MAY change in the future.

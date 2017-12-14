@@ -1,16 +1,17 @@
 package Assert::Refute::Build::Util;
 
+use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0101;
+our $VERSION = 0.0102;
 
 =head1 NAME
 
-Assert::Refute::Build::Util - utility functions for Assert::Refute
+Assert::Refute::Build::Util - utility functions for Assert::Refute suite
 
 =head1 DESCRIPTION
 
-See L<Assert::Refute> and L<Assert::Refute::Build>.
+See L<Assert::Refute> for usage and L<Assert::Refute::Build> for extension.
 Nothing of interest here.
 
 =head1 FUNCTIONS

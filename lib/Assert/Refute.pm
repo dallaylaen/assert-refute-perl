@@ -3,11 +3,21 @@ package Assert::Refute;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0109;
+our $VERSION = 0.0110;
 
 =head1 NAME
 
-Assert::Refute - unified contract, assertion, and testing tool
+Assert::Refute - unified assertion and testing tool
+
+=head1 DESCRIPTION
+
+This module adds L<Test::More>-like code snippets called I<contracts>
+to your production code, without turning the whole application
+into a giant testing script.
+
+Each contract is compiled once and executed multiple times,
+generating reports objects that can be queried to be successful
+or printed out as TAP if needed.
 
 =head1 SYNOPSIS
 
@@ -25,16 +35,6 @@ Assert::Refute - unified contract, assertion, and testing tool
     $report->is_passing; # true
     $report->as_tap;     # printable summary *as if* it was Test::More
 
-=head1 DESCRIPTION
-
-This module adds L<Test::More>-like code snippets called contracts
-to your production code, without turning the whole application
-into a giant testing script.
-
-Each contract is compiled once and executed multiple times,
-generating reports objects that can be queried to be successful
-or printed out as TAP if needed.
-
 =head1 REFUTATIONS AND CONTRACTS
 
 C<refute($condition, $message)> stands for an inverted assertion.
@@ -44,15 +44,15 @@ for a failing test.
 
 This is similar to how Unix programs set their exit code,
 or to Perl's own C<$@> variable,
-or to the modern science's I<falsifiability> concept.
+or to the I<falsifiability> concept in science.
 
 A C<contract{ ... }> is as block of code containing various assumptions
 about its input.
-An execution of such block is considered successful if none
+An execution of such block is considered successful if I<none>
 of these assumptions were refuted.
 
 A C<subcontract> is an execution of previously defined contract
-in current contract's context, succeeding silently, but failing loudly.
+in scope of the current one, succeeding silently, but failing loudly.
 
 These three primitives can serve as building blocks for arbitrarily complex
 assertions, tests, and validations.
@@ -86,6 +86,7 @@ use Carp;
 use Exporter;
 
 use Assert::Refute::Contract;
+use Assert::Refute::Build qw(current_contract);
 use Assert::Refute::T::Basic;
 use Assert::Refute::T::Deep;
 
@@ -106,14 +107,20 @@ our %EXPORT_TAGS = (
 =head2 contract { ... }
 
 Create a contract specification object for future use.
-The form is
+The form is either
 
     my $spec = contract {
         my @args = @_;
+        # ... work on input
+        refute $condition, $message;
     };
+
+or
 
     my $spec = contract {
         my ($contract, @args) = @_;
+        # ... work on input
+        $contract->refute( $condition, $message );
     } want_self => 1;
 
 The want_self form may be preferable if one doesn't want to pollute the
@@ -148,10 +155,42 @@ sub refute ($$) { ## no critic
 
 =head2 subcontract( "Message" => $contract, @arguments )
 
-Execute a contract and fail loudly if it fails.
+Execute a previously defined contract and fail loudly if it fails.
 
-B<[NOTE]> that the message comes first, unlike in refute or other
-test conditions, and is required.
+B<[NOTE]> that the message comes first, unlike in C<refute> or other
+test conditions, and is I<required>.
+
+For instance, one could apply a previously defined validation to a
+structure member:
+
+    my $valid_email = contract {
+        my $email = shift;
+        # ... define your checks here
+    };
+
+    my $valid_user = contract {
+        my $user = shift;
+        is ref $user, 'HASH'
+            or die "Bail out - not a hash";
+        like $user->{id}, qr/^\d+$/, "id is a number";
+        subcontract "Check e-mail" => $valid_email, $user->{email};
+    };
+
+    # much later
+    $valid_user->exec( $form_input );
+
+Or pass a definition as I<argument> to be applied to specific structure parts
+(think I<higher-order functions>, like C<map> or C<grep>).
+
+    my $array_of_foo = contract {
+        my ($is_foo, $ref) = @_;
+
+        foreach (@$ref) {
+            subcontract "Element check", $is_foo, $_;
+        };
+    };
+
+    $array_of_foo->exec( $valid_user, \@user_list );
 
 =cut
 
@@ -166,18 +205,27 @@ Dies if no contract is being executed at the time.
 
 This is actually a clone of L<Assert::Refute::Build/current_contract>.
 
-=cut
+=head1 EXTENDING THE SUITE
 
-{
-    no warnings 'once'; ## no critic
-    *current_contract = \&Assert::Refute::Build::current_contract;
-}
+Although building wrappers around C<refute> call is easy enough,
+specialized tool exists for doing that.
+
+Use L<Assert::Refute::Build> to define new I<checks> as
+both prototyped exportable functions and their counterpart methods
+in L<Assert::Refute::Exec>.
+
+Subclass L<Assert::Refute::Exec> to create new I<drivers>, for instance,
+to register failed/passed tests in your unit-testing framework of choice
+or generate exceptions.
 
 =head1 BUGS
 
-Please report any bugs or feature requests to C<bug-assert-contract at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Assert-Refute>.  I will be notified, and then you'll
-automatically be notified of progress on your bug as I make changes.
+This module is still under development.
+
+Test coverage is maintained at ~80%, but who knows what lurks in the other 20%.
+
+See L<https://github.com/dallaylaen/assert-refute-perl/issues>
+to browse old bugs or report new ones.
 
 =head1 SUPPORT
 
@@ -187,7 +235,7 @@ You can find documentation for this module with the C<perldoc> command.
 
 You can also look for information at:
 
-=over 4
+=over
 
 =item * C<RT>: CPAN's request tracker (report bugs here)
 
@@ -207,9 +255,7 @@ L<http://search.cpan.org/dist/Assert-Refute/>
 
 =back
 
-
 =head1 ACKNOWLEDGEMENTS
-
 
 =head1 LICENSE AND COPYRIGHT
 

@@ -3,11 +3,21 @@ package Assert::Refute::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0115;
+our $VERSION = 0.0116;
 
 =head1 NAME
 
-Assert::Refute - Contract execution log for Assert::Refute
+Assert::Refute::Exec - Contract execution class for Assert::Refute suite
+
+=head1 DESCRIPTION
+
+This class represents one specific application of contract.
+It is mutable, but can only changed in one way
+(there is no undo of tests and diagnostic messages).
+Eventually a C<done_testing> locks it completely, leaving only
+L</QUERYING PRIMITIVES> for inspection.
+
+See L<Assert::Refute::Contract> for contract I<definition>.
 
 =head1 SYNOPSIS
 
@@ -184,7 +194,7 @@ sub subcontract {
     $self->refute( $stop, "$msg (subtest)" );
 };
 
-=head2 INSPECTION PRIMITIVES
+=head2 QUERYING PRIMITIVES
 
 =head3 is_done
 

@@ -3,11 +3,17 @@ package Assert::Refute::Contract;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0108;
+our $VERSION = 0.0109;
 
 =head1 NAME
 
-Assert::Refute::Contract - Contract specification class for Assert::Refute
+Assert::Refute::Contract - Contract definition class for Assert::Refute suite
+
+=head1 DESCRIPTION
+
+This class represents a contract and is thus immutable.
+
+See L<Assert::Refute::Exec> for its I<application> to a specific case.
 
 =head1 SYNOPSIS
 
