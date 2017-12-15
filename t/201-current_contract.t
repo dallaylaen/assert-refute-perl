@@ -2,9 +2,11 @@
 
 use strict;
 use warnings;
-use Test::More;
 
+# Load BEFORE T::M to avoid detecting it
 use Assert::Refute qw(:core);
+
+use Test::More;
 
 my $spec = contract {
     current_contract->refute( 0, "fine" );

@@ -3,7 +3,7 @@ package Assert::Refute::Build;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.02;
+our $VERSION = 0.0201;
 
 =head1 NAME
 
@@ -66,6 +66,13 @@ use parent qw(Exporter);
 our @EXPORT = qw(build_refute current_contract to_scalar);
 
 our $BACKEND;
+
+# NOTE HACK
+# If we're being loaded after Test::More, we're *likely* inside a test script
+# This has to be re-done properly
+# Cannot instantiate *here* because cyclic dependencies
+#    so wait until current_contract() is called
+our $MORE_DETECTED = Test::Builder->can("new") ? 1 : 0;
 
 =head2 build_refute name => \&CODE, %options
 
@@ -213,9 +220,15 @@ Dies if no contract is being executed at the time.
 =cut
 
 sub current_contract() { ## nocritic
-    croak "Not currently testing anything"
-        unless $BACKEND;
-    return $BACKEND;
+    return $BACKEND if $BACKEND;
+
+    # Would love to just die, but...
+    if ($MORE_DETECTED) {
+        require Assert::Refute::Driver::More;
+        return $BACKEND = Assert::Refute::Driver::More->new;
+    };
+
+    croak "Not currently testing anything";
 };
 
 =head2 to_scalar

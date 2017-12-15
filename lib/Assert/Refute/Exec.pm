@@ -3,7 +3,7 @@ package Assert::Refute::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.02;
+our $VERSION = 0.0202;
 
 =head1 NAME
 
@@ -143,12 +143,16 @@ sub done_testing {
         delete $self->{done};
         $self->{last_error} = $exception;
         # Make sure there *is* a failing test on the outside
-        $self->refute( $exception, "unexpected exception: $exception" )
+        $self->refute( $exception, "unexpected exception: $exception" );
+        $self->log_message( 0, 1, "Looks like test execution was interrupted" );
     } elsif ($self->{done}) {
         $self->_croak( $ERROR_DONE )
     } else {
         $self->log_message(0, 0, "1..$self->{count}");
     };
+    $self->log_message(0, 1,
+        "Looks like $self->{failed} tests of $self->{count} have failed")
+            if $self->{failed};
 
     $self->{done}++;
     return $self;
