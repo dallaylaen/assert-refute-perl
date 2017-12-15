@@ -3,7 +3,7 @@ package Assert::Refute;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0110;
+our $VERSION = 0.02;
 
 =head1 NAME
 
