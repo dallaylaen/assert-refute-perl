@@ -3,7 +3,7 @@ package Assert::Refute::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0116;
+our $VERSION = 0.0117;
 
 =head1 NAME
 
@@ -36,7 +36,7 @@ See L<Assert::Refute::Contract> for contract I<definition>.
 use Carp;
 use Scalar::Util qw(blessed);
 
-use Assert::Refute::Build::Util qw(to_scalar);
+use Assert::Refute::Build qw(to_scalar);
 
 # Always add basic testing primitives to the arsenal
 use Assert::Refute::T::Basic qw();

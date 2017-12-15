@@ -3,7 +3,7 @@ package Assert::Refute::Build;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0106;
+our $VERSION = 0.0107;
 
 =head1 NAME
 
@@ -65,7 +65,6 @@ use Scalar::Util qw(weaken blessed set_prototype looks_like_number refaddr);
 use parent qw(Exporter);
 our @EXPORT = qw(build_refute current_contract to_scalar);
 
-use Assert::Refute::Build::Util qw(to_scalar);
 our $BACKEND;
 
 =head2 build_refute name => \&CODE, %options
@@ -219,6 +218,61 @@ sub current_contract() { ## nocritic
     return $BACKEND;
 };
 
+=head2 to_scalar
+
+Convert an arbitrary data structure to a human-readable string.
+
+=over
+
+=item * C<to_scalar( undef )> # returns C<'(undef)'>
+
+=item * C<to_scalar( string )> # returns the string as is in quotes
+
+=item * C<to_scalar( \%ref || \@array, $depth )>
+
+Only goes C<$depth> levels deep. Default depth is 1.
+
+=back
+
+Hashes/arrays are only penetrated 1 level deep by default.
+
+C<undef> is returned as C<"(undef)"> so it can't be confused with other types.
+
+Strings are quoted unless numeric or depth is omitted.
+
+Refs are returned as C<My::Module/1a2c3f> (NOT in perl's own format
+C<My::Module=HASH(0x20f9190)>). This MAY change in the future.
+
+=cut
+
+my %replace = ( "\n" => "n", "\\" => "\\", '"' => '"', "\0" => "0", "\t" => "t" );
+sub to_scalar {
+    my ($data, $depth) = @_;
+
+    return '(undef)' unless defined $data;
+    if (!ref $data) {
+        return $data if !defined $depth or looks_like_number($data);
+        $data =~ s/([\0"\n\t\\])/\\$replace{$1}/g;
+        $data =~ s/([^\x20-\x7E])/sprintf "\\x%02x", ord $1/ge;
+        return "\"$data\"";
+    };
+
+    $depth = 1 unless defined $depth;
+
+    if ($depth) {
+        if (UNIVERSAL::isa($data, 'ARRAY')) {
+            return (ref $data eq 'ARRAY' ? '' : ref $data)
+                ."[".join(", ", map { to_scalar($_, $depth-1) } @$data )."]";
+        };
+        if (UNIVERSAL::isa($data, 'HASH')) {
+            return (ref $data eq 'HASH' ? '' : ref $data)
+            . "{".join(", ", map {
+                 to_scalar($_, 0) .":".to_scalar( $data->{$_}, $depth-1 );
+            } sort keys %$data )."}";
+        };
+    };
+    return sprintf "%s/%x", ref $data, refaddr $data;
+};
 =head1 LICENSE AND COPYRIGHT
 
 This module is part of L<Assert::Refute> suite.
