@@ -13,9 +13,13 @@ WriteMakefile(
     MIN_PERL_VERSION => '5.006',
     CONFIGURE_REQUIRES => {
         'ExtUtils::MakeMaker' => '0',
+        'Scalar::Util'        => 1.14, # set_prototype
+        $] >= 5.010 ? () : (
+            'parent'          => 0,
+        ),
     },
     BUILD_REQUIRES => {
-        'Test::More' => '0',
+        'Test::More'          => 0.87,
     },
     PREREQ_PM => {
         #'ABC'              => '1.6',

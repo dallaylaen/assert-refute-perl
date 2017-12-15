@@ -13,7 +13,7 @@ nytprof*
 pod2htm*.tmp
 Assert-Refute-*
 .*.*
-nocommit-*
+*.skip
 MYMETA.*
 *.bak
 *.old
