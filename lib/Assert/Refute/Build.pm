@@ -3,7 +3,7 @@ package Assert::Refute::Build;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0202;
+our $VERSION = 0.0203;
 
 =head1 NAME
 
@@ -214,7 +214,7 @@ sub build_refute(@) { ## no critic # Moose-like DSL for the win!
 
 =head2 current_contract
 
-Returns the contract object being executed.
+Returns a L<Assert::Refute::Exec> object.
 Dies if no contract is being executed at the time.
 
 =cut

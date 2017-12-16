@@ -3,7 +3,7 @@ package Assert::Refute::Contract;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0203;
+our $VERSION = 0.0204;
 
 =head1 NAME
 
@@ -60,9 +60,13 @@ our @CARP_NOT = qw(Assert::Refute Assert::Refute::Build);
 =item * C<code> (required) - contract to be executed
 
 =item * C<need_object> - if given, a contract execution object
-will be prepended to C<code>'s argument list.
+will be prepended to C<code>'s argument list,
+as if it was a method.
 
-This name is stupid and has to be changed.
+This allows to run a contract without exporting anything to the calling
+package.
+
+The name is not final, better suggestions wanted.
 
 =item * C<args> = n or C<args> = [min, max] - set limitation on
 the number of accepted parameters.
@@ -118,7 +122,7 @@ sub new {
 
 Return a copy of this object with some overridden fields.
 
-The name is BAD and will be replaced.
+The name is not perfect, better ideas wanted.
 
 %overrides may include:
 
@@ -143,6 +147,8 @@ sub adjust {
 =head2 exec( @parameters )
 
 Spawn a new execution log object and run contract against it.
+
+Returns an L<Assert::Refute::Exec> instance.
 
 =cut
 
@@ -171,8 +177,6 @@ sub exec {
     #    it is broken and dies, in which case tests will fail.
     return $c;
 };
-
-=head1 ACKNOWLEDGEMENTS
 
 =head1 LICENSE AND COPYRIGHT
 

@@ -3,7 +3,7 @@ package Assert::Refute::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0203;
+our $VERSION = 0.0204;
 
 =head1 NAME
 
@@ -74,6 +74,11 @@ sub new {
 =head3 refute( $condition, $message )
 
 An inverted assertion. That is, it B<passes> if C<$condition> is B<false>.
+
+Returns inverse of first argument.
+Dies if L</done_testing> was called.
+
+See L<Assert::Refute/refute> for more detailed discussion.
 
 =cut
 
@@ -447,7 +452,7 @@ sub get_proxy {
 
 =head1 LICENSE AND COPYRIGHT
 
-This module is part of L<Refute::Assert> suite.
+This module is part of L<Assert::Refute> suite.
 
 Copyright 2017 Konstantin S. Uvarin. C<< <khedin at gmail.com> >>
 

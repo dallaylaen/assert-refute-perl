@@ -3,7 +3,7 @@ package Assert::Refute;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0202;
+our $VERSION = 0.0203;
 
 =head1 NAME
 
@@ -39,7 +39,7 @@ or printed out as TAP if needed.
 
 C<refute($condition, $message)> stands for an inverted assertion.
 If $condition is B<false>, it is regarded as a B<success>.
-If it is true, however, it is considered to be the B<reason>
+If it is B<true>, however, it is considered to be the B<reason>
 for a failing test.
 
 This is similar to how Unix programs set their exit code,
@@ -121,11 +121,20 @@ or
         $contract->refute( $condition, $message );
     } need_object => 1;
 
-The need_object form may be preferable if one doesn't want to pollute the
+The C<need_object> form may be preferable if one doesn't want to pollute the
 main namespace with test functions (C<is>, C<ok>, C<like> etc)
 and instead intends to use object-oriented interface.
 
 Other options are TBD.
+
+Note that contract does B<not> validate anything by itself,
+it just creates a read-only L<Assert::Refute::Contract>
+object sitting there and waiting for an C<exec> call.
+
+The C<exec> call returns a L<Assert::Refute::Exec> object containing
+results of specific execution.
+
+This is much like C<prepare> / C<execute> works in L<DBI>.
 
 =cut
 
@@ -198,7 +207,7 @@ sub subcontract($$@) { ## no critic
 
 =head2 current_contract
 
-Returns the contract object being executed.
+Returns the L<Assert::Refute::Exec> object being worked on.
 Dies if no contract is being executed at the time.
 
 This is actually a clone of L<Assert::Refute::Build/current_contract>.
@@ -214,7 +223,7 @@ in L<Assert::Refute::Exec>.
 
 Subclass L<Assert::Refute::Exec> to create new I<drivers>, for instance,
 to register failed/passed tests in your unit-testing framework of choice
-or generate exceptions.
+or generate warnings/exceptions like a normal assertion tool does.
 
 =head1 BUGS
 
@@ -234,6 +243,8 @@ You can find documentation for this module with the C<perldoc> command.
 You can also look for information at:
 
 =over
+
+=item * First and foremost, use Github!
 
 =item * C<RT>: CPAN's request tracker (report bugs here)
 

@@ -3,7 +3,7 @@ package Assert::Refute::T::Basic;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0202;
+our $VERSION = 0.0203;
 
 =head1 NAME
 
@@ -28,14 +28,13 @@ exported by default. Scalar context is imposed onto arguments, so
 would actually compare arrays by length.
 
 If a C<contract { ... }> is in action, the results of each assertion
-will be recorded there. See L<Assert::Refute::T> for more.
-If L<Assert::Refute::T::Unit>/L<Test::More> is in action,
-a unit testing script is assumed.
+will be recorded there. See L<Assert::Refute::Exec> for more.
+If L<Test::More> is in action, a unit testing script is assumed.
 If neither is true, an exception is thrown.
 
-In addition, a C<Assert::Refute::T-E<gt>function_name> method with
+In addition, a C<Assert::Refute::Exec-E<gt>function_name> method with
 the same signature is generated for each of them
-(see L<Assert::Refute::T::Engine::Build>).
+(see L<Assert::Refute::Build>).
 
 =cut
 
@@ -417,7 +416,7 @@ sub _both_keys {
 
 =head1 LICENSE AND COPYRIGHT
 
-This module is part of L<Refute::Assert> suite.
+This module is part of L<Assert::Refute> suite.
 
 Copyright 2017 Konstantin S. Uvarin. C<< <khedin at gmail.com> >>
 

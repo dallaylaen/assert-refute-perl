@@ -3,7 +3,7 @@ package Assert::Refute::Driver::More;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0201;
+our $VERSION = 0.0202;
 
 =head1 NAME
 
@@ -117,7 +117,7 @@ sub log_message {
 
 =head1 LICENSE AND COPYRIGHT
 
-This module is part of L<Refute::Assert> suite.
+This module is part of L<Assert::Refute> suite.
 
 Copyright 2017 Konstantin S. Uvarin. C<< <khedin at gmail.com> >>
 
