@@ -15,7 +15,7 @@ BEGIN {
                 Konstantin Uvarin Forsyth
                 falsifiability
                 github metacpan annocpan CPAN
-                regex
+                regex min max
                 diag isnt ok qr
                 TBD
             ]],

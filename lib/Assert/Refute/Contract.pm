@@ -3,7 +3,7 @@ package Assert::Refute::Contract;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.02;
+our $VERSION = 0.0202;
 
 =head1 NAME
 
@@ -64,12 +64,16 @@ will be prepended to C<code>'s argument list.
 
 This name is stupid and has to be changed.
 
+=item * C<args> = n or C<args> = [min, max] - set limitation on
+the number of accepted parameters.
+Negative maximum value means unlimited.
+
 =back
 
 =cut
 
 my @new_required  = qw( code );
-my @new_essential = (@new_required, qw( want_self ));
+my @new_essential = (@new_required, qw( want_self args ));
 my @new_optional  = qw( backend );
 
 my %new_arg;
@@ -90,8 +94,22 @@ sub new {
         if @extra;
 
     $opt{want_self}   = $opt{want_self} ? 1 : 0;
-    $opt{backend}    ||= $def_backend;
+
+    # argument count:
+    # * n means exactly n
+    # * (n, m) means from n to m
+    # * (n, 0) means from n to inf
+    my $args = delete $opt{args};
+    $args = [0, -1] unless defined $args; # == 0 is ok
+    $args = [ $args, $args ] unless ref $args eq 'ARRAY';
+    $args->[1] = 9**9**9 if $args->[1] < 0;
+    croak "Meaningless argument limits [$args->[0], $args->[1]]"
+        unless $args->[0] <= $args->[1];
+    $opt{minarg} = $args->[0];
+    $opt{maxarg} = $args->[1];
+
     # TODO validate backend
+    $opt{backend}    ||= $def_backend;
 
     bless \%opt, $class;
 };
@@ -134,6 +152,9 @@ sub exec {
     my $c = $self->{backend};
     $c = $c->new unless ref $c;
     # TODO plan tests, argument check etc
+
+    croak "contract->exec: expected from $self->{minarg} to $self->{maxarg} parameters"
+        unless $self->{minarg} <= @args and @args <= $self->{maxarg};
 
     unshift @args, $c if $self->{want_self};
     local $Assert::Refute::Build::BACKEND = $c;
