@@ -3,7 +3,7 @@ package Assert::Refute::T::Errors;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0201;
+our $VERSION = 0.0202;
 
 =head1 NAME
 
@@ -52,6 +52,7 @@ use parent qw(Exporter);
 our @EXPORT = qw(foobar);
 
 use Assert::Refute::Build;
+use Assert::Refute qw( contract like refute );
 
 =head2 dies_like
 
@@ -88,6 +89,52 @@ build_refute dies_like => sub {
             : Carp::shortmess "Block died"."Expected to live";
     }
 }, block => 1, export => 1, args => 1;
+
+=head2 warns_like { ... }
+
+    warns_like {
+        warn "Foo";
+        warn "Bar";
+    } [qr/Foo/, "Bar"], "Human comment";
+
+    warns_like {
+        # Shoddy code here
+    } '', "No warnings";
+
+Check that exactly the specified warnings were emitted by block.
+A single string or regex value is accepted and converted to 1-element array.
+
+An empty array or a false value mean no warnings at all.
+
+Note that this block does NOT catch exceptions.
+This MAY change in the future.
+
+=cut
+
+my $multi_like = contract {
+    my ($got, $exp) = @_;
+
+    for (my $i = 0; $i < @$got and $i < @$exp; $i++) {
+        like $got->[$i], $exp->[$i];
+    };
+};
+
+build_refute warns_like => sub {
+    my ($block, $exp) = @_;
+
+    $exp = $exp ? [ $exp ] : []
+        unless ref $exp eq 'ARRAY';
+    $_ = qr/$_/ for @$exp;
+
+    my @warn;
+    {
+        local $SIG{__WARN__} = sub { push @warn, shift };
+        $block->();
+    };
+
+    my $c = $multi_like->exec( \@warn, $exp );
+    return $c->is_passing ? '' : $c->as_tap;
+}, block => 1, args => 1, export => 1;
 
 =head1 LICENSE AND COPYRIGHT
 
