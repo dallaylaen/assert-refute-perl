@@ -3,7 +3,7 @@ package Assert::Refute::T::Basic;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0201;
+our $VERSION = 0.0202;
 
 =head1 NAME
 
@@ -314,7 +314,6 @@ build_refute is_deeply => sub {
     return "Structures differ (got != expected):\n$diff";
 }, export => 1, args => 2;
 
-
 =head2 deep_diff( $old, $new )
 
 Not exported by default.
@@ -383,7 +382,7 @@ sub _hash2str {
     my ($hash, $type) = @_;
     $type = '' if $type eq 'HASH';
     return $type.'{'
-            . join(", ", map { to_scalar($_).":$hash->{$_}" } sort keys %$hash)
+            . join(", ", map { to_scalar($_, 0).":$hash->{$_}" } sort keys %$hash)
         ."}";
 };
 
