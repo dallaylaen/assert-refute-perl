@@ -8,7 +8,6 @@ use Assert::Refute qw(:core);
 {
     package Foo;
     use Assert::Refute::T::Basic;
-    use Assert::Refute::T::Deep;
 }
 
 my $report;

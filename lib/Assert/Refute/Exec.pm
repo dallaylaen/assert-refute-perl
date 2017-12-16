@@ -3,7 +3,7 @@ package Assert::Refute::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0202;
+our $VERSION = 0.0203;
 
 =head1 NAME
 
@@ -40,7 +40,6 @@ use Assert::Refute::Build qw(to_scalar);
 
 # Always add basic testing primitives to the arsenal
 use Assert::Refute::T::Basic qw();
-use Assert::Refute::T::Deep qw();
 
 my $ERROR_DONE = "done_testing was called, no more changes may be added";
 
@@ -172,8 +171,7 @@ C<is>, C<isnt>, C<ok>, C<use_ok>, C<require_ok>, C<cmp_ok>,
 C<like>, C<unlike>, C<can_ok>, C<isa_ok>, C<new_ok>,
 C<contract_is>, C<is_deeply>, C<note>, C<diag>.
 
-See L<Assert::Refute::T::Basic> and L<Assert::Refute::T::Deep>
-for more details.
+See L<Assert::Refute::T::Basic> for more details.
 
 Additionally, I<any> checks defined using L<Assert::Refute::Build>
 will be added to this L<Assert::Refute::Exec> by default.

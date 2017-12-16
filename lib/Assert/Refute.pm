@@ -3,7 +3,7 @@ package Assert::Refute;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.02;
+our $VERSION = 0.0201;
 
 =head1 NAME
 
@@ -75,7 +75,7 @@ C<is>, C<isnt>, C<ok>, C<use_ok>, C<require_ok>, C<cmp_ok>,
 C<like>, C<unlike>, C<can_ok>, C<isa_ok>, C<new_ok>,
 C<contract_is>, C<subcontract>, C<is_deeply>, C<note>, C<diag>.
 
-See L<Assert::Refute::T::Basic> and L<Assert::Refute::T::Deep> for more.
+See L<Assert::Refute::T::Basic> for more.
 
 Use L<Assert::Refute::Contract> if you insist on no exports and purely
 object-oriented interface.
@@ -88,11 +88,9 @@ use Exporter;
 use Assert::Refute::Contract;
 use Assert::Refute::Build qw(current_contract);
 use Assert::Refute::T::Basic;
-use Assert::Refute::T::Deep;
 
 my @basic = (
     @Assert::Refute::T::Basic::EXPORT,
-    @Assert::Refute::T::Deep::EXPORT,
 );
 my @core  = qw( contract current_contract refute subcontract contract_is );
 
