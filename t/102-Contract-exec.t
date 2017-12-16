@@ -10,7 +10,7 @@ my $spec = Assert::Refute::Contract->new( code => sub {
     my $c = shift;
     $c->refute( shift, shift );
     die if shift;
-}, want_self => 1 );
+}, need_object => 1 );
 
 ok  $spec->exec( 0, "fine" )->is_passing, "Good";
 ok !$spec->exec( 1, "not so fine" )->is_passing, "Bad";

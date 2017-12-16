@@ -3,7 +3,7 @@ package Assert::Refute::Contract;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0202;
+our $VERSION = 0.0203;
 
 =head1 NAME
 
@@ -24,7 +24,7 @@ See L<Assert::Refute::Exec> for its I<application> to a specific case.
             my ($c, $life) = @_;
             $c->is( $life, 42 );
         },
-        want_self => 1,
+        need_object => 1,
     );
 
     # much later
@@ -59,7 +59,7 @@ our @CARP_NOT = qw(Assert::Refute Assert::Refute::Build);
 
 =item * C<code> (required) - contract to be executed
 
-=item * C<want_self> - if given, a contract execution object
+=item * C<need_object> - if given, a contract execution object
 will be prepended to C<code>'s argument list.
 
 This name is stupid and has to be changed.
@@ -73,7 +73,7 @@ Negative maximum value means unlimited.
 =cut
 
 my @new_required  = qw( code );
-my @new_essential = (@new_required, qw( want_self args ));
+my @new_essential = (@new_required, qw( need_object args ));
 my @new_optional  = qw( backend );
 
 my %new_arg;
@@ -93,7 +93,7 @@ sub new {
     croak( "Unknown options: @extra" )
         if @extra;
 
-    $opt{want_self}   = $opt{want_self} ? 1 : 0;
+    $opt{need_object}   = $opt{need_object} ? 1 : 0;
 
     # argument count:
     # * n means exactly n
@@ -114,7 +114,7 @@ sub new {
     bless \%opt, $class;
 };
 
-=head2 clone( %overrides )
+=head2 adjust( %overrides )
 
 Return a copy of this object with some overridden fields.
 
@@ -130,7 +130,7 @@ The name is BAD and will be replaced.
 
 =cut
 
-sub clone {
+sub adjust {
     my ($self, %opt) = @_;
 
     my @dont = grep { $opt{$_} } @new_essential;
@@ -156,7 +156,7 @@ sub exec {
     croak "contract->exec: expected from $self->{minarg} to $self->{maxarg} parameters"
         unless $self->{minarg} <= @args and @args <= $self->{maxarg};
 
-    unshift @args, $c if $self->{want_self};
+    unshift @args, $c if $self->{need_object};
     local $Assert::Refute::Build::BACKEND = $c;
     eval {
         $self->{code}->( @args );

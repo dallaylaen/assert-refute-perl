@@ -3,7 +3,7 @@ package Assert::Refute;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0201;
+our $VERSION = 0.0202;
 
 =head1 NAME
 
@@ -119,9 +119,9 @@ or
         my ($contract, @args) = @_;
         # ... work on input
         $contract->refute( $condition, $message );
-    } want_self => 1;
+    } need_object => 1;
 
-The want_self form may be preferable if one doesn't want to pollute the
+The need_object form may be preferable if one doesn't want to pollute the
 main namespace with test functions (C<is>, C<ok>, C<like> etc)
 and instead intends to use object-oriented interface.
 

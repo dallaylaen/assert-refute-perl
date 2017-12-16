@@ -3,7 +3,7 @@ package Assert::Refute::Build;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0201;
+our $VERSION = 0.0202;
 
 =head1 NAME
 
@@ -41,7 +41,7 @@ This can be later used inside production code to check a condition:
     };
     my $oo_check = contract {
         $_[0]->is_everything( $_[1] );
-    }, want_self => 1;
+    }, need_object => 1;
     # ditto
 
     # apply $fun_check or $oo_check to a variable, get result

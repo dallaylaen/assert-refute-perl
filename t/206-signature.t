@@ -11,7 +11,7 @@ my $c = contract {
     $c->is( shift, 42 );
     $c->like( shift, qr/foo/ );
     die "Intentional" if shift;
-} want_self=>1;
+} need_object=>1;
 
 is $c->exec( 42, "food" )->signature, "t2d", "Passing contract";
 
