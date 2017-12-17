@@ -1,5 +1,8 @@
 Revision history for Assert-Refute
 
+0.0303  Sun Dec 17 2017
+        - BUG Fix tests so that they run on windows, too
+
 0.0302  Sun Dec 17 2017
         - BUG Patch hanging test on win (no real fix yet)
 
