@@ -3,7 +3,7 @@ package Assert::Refute::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0301;
+our $VERSION = 0.0302;
 
 =head1 NAME
 
@@ -196,9 +196,14 @@ sub subcontract {
     $self->_croak("subcontract must be a contract definition or execution log")
         unless blessed $c;
 
-    my $log = $c->isa("Assert::Refute::Contract") ? $c->apply(@args) : $c;
-    my $stop = !$log->is_passing && $log->as_tap;
+    my $exec = $c->isa("Assert::Refute::Contract") ? $c->apply(@args) : $c;
+    my $stop = !$exec->is_passing;
     $self->refute( $stop, "$msg (subtest)" );
+    if ($stop) {
+        my $log = $exec->get_log;
+        $self->log_message( $_->[0]+1, $_->[1], $_->[2] )
+            for @$log;
+    };
 };
 
 =head2 QUERYING PRIMITIVES
@@ -415,6 +420,23 @@ sub log_message {
     };
 
     return $self;
+};
+
+=head2 get_log
+
+Return log messages "as is" as array reference
+containing triads of (indent, level, message).
+
+B<[CAUTION]> This currently returns reference to internal structure,
+so be careful not to spoil it.
+This MAY change in the future.
+
+=cut
+
+sub get_log {
+    my $self = shift;
+    # TODO copy or smth
+    return $self->{mess};
 };
 
 =head3 add_result( $id, $result )
