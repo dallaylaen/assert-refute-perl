@@ -21,3 +21,4 @@ nytprof.*
 MYMETA\..*
 fake_lib
 TODO
+^README\.md$
