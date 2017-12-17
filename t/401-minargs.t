@@ -9,7 +9,7 @@ sub dies_like (&$$) { ## no critic
 
     my ($file, $line) = (caller 0)[1,2];
     $line = join "|", map { $line + $_ } -1 .. 1;
-    my $where = "$file line (?:$line)\.?";
+    my $where = "\Q$file\E line (?:$line)\.?";
 
     my $res = eval {
         $block->();

@@ -28,7 +28,7 @@ ok $ugly->is_done, "Execution finished";
 ok $ugly->has_died, "Has died";
 like $ugly->last_error, qr/forgot a semicolon/, "Error retained";
 
-my $file = __FILE__;
+my $file = quotemeta __FILE__;
 my $line = __LINE__ + 2;
 eval {
     $ugly->result(10);
