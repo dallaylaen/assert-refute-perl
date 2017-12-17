@@ -1,5 +1,12 @@
 Revision history for Assert-Refute
 
+0.03    Sun Dec 17 2017
+        - API BREAK Rename want_self => need_object, clone => adjust
+        - MOD Add exception test module T::Errors (dies_like, warns_like)
+        - API contract: add args => [n,m] to limit number of parameters to apply()
+        - DRV Add Test::More backend so that A::R::Build builds tests ready to run with T::M
+        - BUG bugs fixed, test coverage improved, docs improved.
+
 0.02    Fri Dec 15 2017
         - API Add contract, refute, and suncontract primitives
         - API Add an arsenal of checks corresponding to that of Test::More
