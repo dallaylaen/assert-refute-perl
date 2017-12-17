@@ -3,7 +3,7 @@ package Assert::Refute::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.03;
+our $VERSION = 0.0301;
 
 =head1 NAME
 
@@ -366,14 +366,14 @@ sub signature {
 
 sub _croak {
     my ($self, $mess) = @_;
-    my @where = caller 0;
 
-    my $fun = $where[3];
-    $fun =~ s/.*:://;
     $mess ||= "Something terrible happened";
     $mess =~ s/\n+$//s;
 
-    croak "$where[0]->$fun: $mess";
+    my $fun = (caller 1)[3];
+    $fun =~ s/(.*)::/${1}->/;
+
+    croak "$fun(): $mess";
 };
 
 =head2 DEVELOPMENT PRIMITIVES

@@ -27,6 +27,6 @@ eval {
     $c->done_testing;
 };
 
-like $@, qr/done_testing.*no more/;
+like $@, qr/Assert::Refute::Exec->done_testing.*done_testing.*no more/;
 
 done_testing;
