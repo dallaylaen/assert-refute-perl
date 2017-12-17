@@ -1,8 +1,51 @@
-Assert-Refute
+# NAME
 
-Test-script like compound assertions in your production code.
+**Assert::Refute** - unified testing, assertion, and design-by-contract tool
 
-INSTALLATION
+# DESCRIPTION
+
+This module allows to create snippets of code called *contracts*
+that behave just as a unit test would,
+but do not require the enclosing code to be a unit test.
+
+A **refutation** is an inverted form of assertion:
+
+    refute( $condition, $message );
+
+Succeeds silently if the condition is *false*, but fails loudly if it is *true*
+and asumes the condition value itself to be the *reason* of failure.
+
+Such inversion simplifies building and composition of tests a lot.
+Normal `is`, `like` etc can easily be built on top of that:
+
+    sub my_is($$;$) {
+        my ($got, $exp, $message) = @_;
+        refute( $got ne $exp && "$got != $exp", $message );
+        # no diag() needed!
+    };
+
+A **contract** is a group of assertions that is saved for later execution:
+
+    # once, at start up
+    use Assert::Refute;
+    my $spec = contract {
+        my ($foo, $bar) = @_;
+        # insert checks here
+    };
+
+    # much later
+    $spec->exec( $real_foo, $real_bar );
+    $spec->is_passing; # true of false
+    $spec->count;      # number of tests performed
+    $spec->as_tap;     # summary in Test::More's format
+
+A **subcontract** is an application of a preexisting contract
+to the data at hand as a single check.
+
+These three elements allow for creation of arbitarily complex checks
+applicable uniformly in production code or test scripts.
+
+# INSTALLATION
 
 To install this module, run the following commands:
 
@@ -11,31 +54,20 @@ To install this module, run the following commands:
 	make test
 	make install
 
-SUPPORT AND DOCUMENTATION
+# SUPPORT AND DOCUMENTATION
 
 After installing, you can find documentation for this module with the
 perldoc command.
 
     perldoc Assert::Refute
 
-You can also look for information at:
+Please report bugs and ask for features here:
 
-    RT, CPAN's request tracker (report bugs here)
-        http://rt.cpan.org/NoAuth/Bugs.html?Dist=Assert-Refute
+    https://github.com/dallaylaen/assert-refute-perl/issues
 
-    AnnoCPAN, Annotated CPAN documentation
-        http://annocpan.org/dist/Assert-Refute
+# LICENSE AND COPYRIGHT
 
-    CPAN Ratings
-        http://cpanratings.perl.org/d/Assert-Refute
-
-    Search CPAN
-        http://search.cpan.org/dist/Assert-Refute/
-
-
-LICENSE AND COPYRIGHT
-
-Copyright (C) 2017 Konstantin S. Uvarin
+Copyright (C) 2017 Konstantin S. Uvarin `khedin@gmail.com`
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the the Artistic License (2.0). You may obtain a
