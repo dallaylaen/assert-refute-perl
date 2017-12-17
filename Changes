@@ -1,5 +1,8 @@
 Revision history for Assert-Refute
 
+0.0301  Sun Dec 17 2017
+        - BUG Fixed deep recursion on perl < 5.010
+
 0.03    Sun Dec 17 2017
         - API BREAK Rename want_self => need_object, clone => adjust
         - MOD Add exception test module T::Errors (dies_like, warns_like)
