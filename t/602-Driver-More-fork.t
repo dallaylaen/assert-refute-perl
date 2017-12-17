@@ -3,6 +3,13 @@
 use strict;
 use warnings;
 
+if ($^O eq 'MSWin32') {
+    require Test::More;
+    Test::More->import;
+    plan( skip_all => 'Fork not supported (yet)' );
+    exit 0;
+};
+
 # Preload nothing - don't spoil test!
 
 pipe (my $read, my $write)
