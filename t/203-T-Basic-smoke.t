@@ -35,8 +35,8 @@ $report = contract {
     diag "bared";
 }->apply;
 
-like $report->as_tap(2), qr/^## foo \{ *"x" *: *42 *\}/m, "note works";
-like $report->as_tap(2), qr/^# bared/m, "diag works";
+like $report->as_tap(2), qr/^## foo \{ *"x" *: *42 *\}/, "note works";
+like $report->as_tap(2), qr/\n# bared/, "diag works";
 
 $report = contract {
     package Foo;
