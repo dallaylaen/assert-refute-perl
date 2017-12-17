@@ -3,7 +3,7 @@ package Assert::Refute::T::Errors;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0203;
+our $VERSION = 0.0204;
 
 =head1 NAME
 
@@ -24,7 +24,7 @@ Assert::Refute::T::Errors - exception and warning check for Assert::Refute suite
         } '', "Bar works fine with 1";
     };
 
-    $c->exec( $my_foo ); # check whether foo lives/dies as expected
+    $c->apply( $my_foo ); # check whether foo lives/dies as expected
 
 Ditto with L<Test::More> (although there are more fine-grained L<Test::Warn>
 and L<Test::Exception>):
@@ -132,7 +132,7 @@ build_refute warns_like => sub {
         $block->();
     };
 
-    my $c = $multi_like->exec( \@warn, $exp );
+    my $c = $multi_like->apply( \@warn, $exp );
     return $c->is_passing ? '' : $c->as_tap;
 }, block => 1, args => 1, export => 1;
 

@@ -34,7 +34,7 @@ A **contract** is a group of assertions that is saved for later execution:
     };
 
     # much later
-    $spec->exec( $real_foo, $real_bar );
+    $spec->apply( $real_foo, $real_bar );
     $spec->is_passing; # true of false
     $spec->count;      # number of tests performed
     $spec->as_tap;     # summary in Test::More's format

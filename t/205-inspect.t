@@ -12,7 +12,7 @@ my $contract = contract {
     die shift if @_;
 };
 
-my $bad = $contract->exec( 0, "forgot a semicolon" );
+my $bad = $contract->apply( 0, "forgot a semicolon" );
 
 # note explain $bad;
 
@@ -23,7 +23,7 @@ ok !$bad->result(1), "Nothing returned for passing test";
 is $bad->result(2), "forgot a semicolon", "Reason retained for failing test";
 is $bad->count, 2, "2 tests run";
 
-my $ugly = $contract->exec( 0, 0, "forgot a semicolon" );
+my $ugly = $contract->apply( 0, 0, "forgot a semicolon" );
 ok $ugly->is_done, "Execution finished";
 ok $ugly->has_died, "Has died";
 like $ugly->last_error, qr/forgot a semicolon/, "Error retained";

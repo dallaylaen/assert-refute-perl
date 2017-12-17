@@ -12,8 +12,8 @@ my $spec = Assert::Refute::Contract->new( code => sub {
     die if shift;
 }, need_object => 1 );
 
-ok  $spec->exec( 0, "fine" )->is_passing, "Good";
-ok !$spec->exec( 1, "not so fine" )->is_passing, "Bad";
-ok !$spec->exec( 0, "fine", "die" )->is_passing, "Ugly";
+ok  $spec->apply( 0, "fine" )->is_passing, "Good";
+ok !$spec->apply( 1, "not so fine" )->is_passing, "Bad";
+ok !$spec->apply( 0, "fine", "die" )->is_passing, "Ugly";
 
 done_testing;

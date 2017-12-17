@@ -3,7 +3,7 @@ package Assert::Refute;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0203;
+our $VERSION = 0.0204;
 
 =head1 NAME
 
@@ -30,7 +30,7 @@ or printed out as TAP if needed.
     };
 
     # later
-    my $report = $spec->exec( 42, "bard" );
+    my $report = $spec->apply( 42, "bard" );
     $report->count;      # 2
     $report->is_passing; # true
     $report->as_tap;     # printable summary *as if* it was Test::More
@@ -129,9 +129,9 @@ Other options are TBD.
 
 Note that contract does B<not> validate anything by itself,
 it just creates a read-only L<Assert::Refute::Contract>
-object sitting there and waiting for an C<exec> call.
+object sitting there and waiting for an C<apply> call.
 
-The C<exec> call returns a L<Assert::Refute::Exec> object containing
+The C<apply> call returns a L<Assert::Refute::Exec> object containing
 results of specific execution.
 
 This is much like C<prepare> / C<execute> works in L<DBI>.
@@ -184,7 +184,7 @@ structure member:
     };
 
     # much later
-    $valid_user->exec( $form_input );
+    $valid_user->apply( $form_input );
 
 Or pass a definition as I<argument> to be applied to specific structure parts
 (think I<higher-order functions>, like C<map> or C<grep>).
@@ -197,7 +197,7 @@ Or pass a definition as I<argument> to be applied to specific structure parts
         };
     };
 
-    $array_of_foo->exec( $valid_user, \@user_list );
+    $array_of_foo->apply( $valid_user, \@user_list );
 
 =cut
 

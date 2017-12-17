@@ -13,7 +13,7 @@ my $spec = contract {
     current_contract->refute( 42, "not so fine" );
 };
 
-my $log = $spec->exec;
+my $log = $spec->apply;
 
 is $log->count, 2, "Count as expected";
 ok !$log->is_passing, "Contract invalidated (as expected)";

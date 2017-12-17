@@ -3,7 +3,7 @@ package Assert::Refute::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0204;
+our $VERSION = 0.0205;
 
 =head1 NAME
 
@@ -196,7 +196,7 @@ sub subcontract {
     $self->_croak("subcontract must be a contract definition or execution log")
         unless blessed $c;
 
-    my $log = $c->isa("Assert::Refute::Contract") ? $c->exec(@args) : $c;
+    my $log = $c->isa("Assert::Refute::Contract") ? $c->apply(@args) : $c;
     my $stop = !$log->is_passing && $log->as_tap;
     $self->refute( $stop, "$msg (subtest)" );
 };

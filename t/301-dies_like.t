@@ -23,7 +23,7 @@ my $c = contract {
     dies_like {
         die "Barfooed";
     } '^Foobared', "Dies with wrong mess";
-}->exec;
+}->apply;
 
 contract_is $c, "t2NNNd", "Contract as expected";
 

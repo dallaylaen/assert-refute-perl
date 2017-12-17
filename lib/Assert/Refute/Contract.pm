@@ -3,7 +3,7 @@ package Assert::Refute::Contract;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0204;
+our $VERSION = 0.0205;
 
 =head1 NAME
 
@@ -28,7 +28,7 @@ See L<Assert::Refute::Exec> for its I<application> to a specific case.
     );
 
     # much later
-    my $result = $contract->exec( 137 );
+    my $result = $contract->apply( 137 );
     $result->count;      # 1
     $result->is_passing; # 0
     $result->as_tap;     # Test::More-like summary
@@ -144,22 +144,22 @@ sub adjust {
     return (ref $self)->new( %$self, %opt );
 };
 
-=head2 exec( @parameters )
+=head2 apply( @parameters )
 
 Spawn a new execution log object and run contract against it.
 
-Returns an L<Assert::Refute::Exec> instance.
+Returns a locked L<Assert::Refute::Exec> instance.
 
 =cut
 
-sub exec {
+sub apply {
     my ($self, @args) = @_;
 
     my $c = $self->{backend};
     $c = $c->new unless ref $c;
     # TODO plan tests, argument check etc
 
-    croak "contract->exec: expected from $self->{minarg} to $self->{maxarg} parameters"
+    croak "contract->apply: expected from $self->{minarg} to $self->{maxarg} parameters"
         unless $self->{minarg} <= @args and @args <= $self->{maxarg};
 
     unshift @args, $c if $self->{need_object};

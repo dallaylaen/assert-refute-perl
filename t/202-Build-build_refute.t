@@ -26,10 +26,10 @@ my $spec = contract {
     my_is shift, 137, "Fine";
 };
 
-my $report = $spec->exec( 137 );
+my $report = $spec->apply( 137 );
 ok $report->is_passing, "137 is fine";
 
-   $report = $spec->exec( 42 );
+   $report = $spec->apply( 42 );
 ok !$report->is_passing, "Life is not fine";
 
 note $report->as_tap;

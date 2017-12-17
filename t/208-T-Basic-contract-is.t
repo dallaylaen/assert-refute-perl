@@ -13,18 +13,18 @@ my $inner = contract {
 
 my $outer = contract {
     my $exp = shift;
-    contract_is $inner->exec(@_), $exp, "Contract as expected";
+    contract_is $inner->apply(@_), $exp, "Contract as expected";
 };
 
-my $run1 = $outer->exec( "t2d", 0, 0 );
+my $run1 = $outer->apply( "t2d", 0, 0 );
 is $run1->signature, "t1d", "Happy case";
 note $run1->as_tap;
 
-my $run2 = $outer->exec( "tNNd", 42, 137 );
+my $run2 = $outer->apply( "tNNd", 42, 137 );
 is $run2->signature, "t1d", "Inner failed";
 note $run2->as_tap;
 
-my $run3 = $outer->exec( "tNNd", 0, 0 );
+my $run3 = $outer->apply( "tNNd", 0, 0 );
 is $run3->signature, "tNd", "Outer failed";
 note $run3->as_tap;
 like $run3->as_tap

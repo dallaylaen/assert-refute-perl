@@ -3,7 +3,7 @@ package Assert::Refute::Build;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0203;
+our $VERSION = 0.0204;
 
 =head1 NAME
 
@@ -46,7 +46,7 @@ This can be later used inside production code to check a condition:
 
     # apply $fun_check or $oo_check to a variable, get result
 
-    my $log = $oo_check->exec(137);
+    my $log = $oo_check->apply(137);
     $log->is_passing; # nope
     $log->as_tap;     # get details
 

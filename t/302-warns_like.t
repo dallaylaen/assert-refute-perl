@@ -20,7 +20,7 @@ my $c = contract {
     warns_like {
         warn "Bar";
     } qr/^Foo/, "Unexpected warning";
-}->exec;
+}->apply;
 
 contract_is $c, "t2Nd", "Contract as expected";
 note $c->as_tap;
