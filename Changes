@@ -1,5 +1,8 @@
 Revision history for Assert-Refute
 
+0.0302  Sun Dec 17 2017
+        - BUG Patch hanging test on win (no real fix yet)
+
 0.0301  Sun Dec 17 2017
         - BUG Fixed deep recursion on perl < 5.010
 
