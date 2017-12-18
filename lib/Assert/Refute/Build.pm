@@ -3,7 +3,7 @@ package Assert::Refute::Build;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0306;
+our $VERSION = 0.0307;
 
 =head1 NAME
 
@@ -130,6 +130,9 @@ with parentheses.
 
 =back
 
+The name must not start with C<set_>, C<get_>, or C<do_>.
+Also colliding with a previously defined name would case an exception.
+
 =cut
 
 my %Backend;
@@ -144,6 +147,9 @@ sub build_refute(@) { ## no critic # Moose-like DSL for the win!
 
     my $class = "Assert::Refute::Exec";
 
+    if ($name =~ /^(get_|set_|do_)/) {
+        croak "build_refute(): fucntion name shall not start with get_, set_, or do_";
+    };
     if (my $backend = ( $class->can($name) ? $class : $Backend{$name} ) ) {
         croak "build_refute(): '$name' already registered by $backend";
     };
