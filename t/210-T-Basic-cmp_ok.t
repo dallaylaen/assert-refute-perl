@@ -23,6 +23,6 @@ my $ce = contract {
     cmp_ok 1, "<<", 2;
 }->apply;
 is $ce->get_sign, 'tNE', "Bad operator died";
-like $ce->last_error, qr/cmp_ok.*Comparison.*<</, "Error as expected";
+like $ce->get_error, qr/cmp_ok.*Comparison.*<</, "Error as expected";
 
 done_testing;

@@ -3,7 +3,7 @@ package Assert::Refute::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0309;
+our $VERSION = 0.0310;
 
 =head1 NAME
 
@@ -145,7 +145,7 @@ sub done_testing {
 
     if ($exception) {
         delete $self->{done};
-        $self->{last_error} = $exception;
+        $self->{has_error} = $exception;
         # Make sure there *is* a failing test on the outside
         $self->refute( $exception, "unexpected exception: $exception" );
         $self->do_log( 0, 1, "Looks like test execution was interrupted" );
@@ -229,7 +229,7 @@ Tell whether the contract is passing or not.
 sub is_passing {
     my $self = shift;
 
-    return !$self->{failed} && !$self->{last_error};
+    return !$self->{failed} && !$self->{has_error};
 };
 
 =head3 count
@@ -271,25 +271,16 @@ sub result {
     return $self->{fail}{$n} || 0;
 };
 
-=head3 has_died
-
-Returns true if contract execution was ever interrupted by exception.
-
-=cut
-
-# TODO like, do we need this if we have last_error?
-*has_died = *has_died = \&last_error;
-
-=head3 last_error
+=head3 get_error
 
 Return last error that was recorded during contract execution,
 or false if there was none.
 
 =cut
 
-sub last_error {
+sub get_error {
     my $self = shift;
-    return $self->{last_error} || '';
+    return $self->{has_error} || '';
 };
 
 =head3 get_tap
@@ -366,7 +357,7 @@ sub get_sign {
     };
     push @t, $streak if $streak;
 
-    my $d = $self->last_error ? 'E' : $self->{done} ? 'd' : 'r';
+    my $d = $self->get_error ? 'E' : $self->{done} ? 'd' : 'r';
     return join '', @t, $d;
 };
 
