@@ -3,7 +3,7 @@ package Assert::Refute::T::Basic;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0306;
+our $VERSION = 0.0307;
 
 =head1 NAME
 
@@ -253,14 +253,14 @@ sub _isa_ok {
 
 Check that a contract has been fullfilled to exactly the specified extent.
 
-See L<Assert::Refute::Exec/signature> for exact signature format.
+See L<Assert::Refute::Exec/get_sign> for exact signature format.
 
 =cut
 
 build_refute contract_is => sub {
     my ($c, $sig) = @_;
 
-    my $got = $c->signature;
+    my $got = $c->get_sign;
     return $got ne $sig && <<"EOF".$c->get_tap;
 Unexpected subcontract signature.
 Got:      $got

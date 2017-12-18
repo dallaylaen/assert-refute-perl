@@ -29,7 +29,7 @@ $c = contract {
     my @y = 11..15;
     is @x, @y, "scalar context";
 }->apply;
-is $c->signature, "t1NNN2NNN1d", "is()";
+is $c->get_sign, "t1NNN2NNN1d", "is()";
 note $c->get_tap;
 
 $c = contract {
@@ -42,7 +42,7 @@ $c = contract {
     isnt '', undef;
     isnt undef, '';
 }->apply;
-is $c->signature, "t1NN4d", "isnt()";
+is $c->get_sign, "t1NN4d", "isnt()";
 note $c->get_tap;
 
 $c = contract {
@@ -53,7 +53,7 @@ $c = contract {
     like "foo", "f.*o";
     like undef, qr/.*/;
 }->apply;
-is $c->signature, "t1NN1Nd", "like()";
+is $c->get_sign, "t1NN1Nd", "like()";
 note $c->get_tap;
 
 $c = contract {
@@ -64,7 +64,7 @@ $c = contract {
     unlike "foo", "f.*o";
     unlike undef, qr/.*/;
 }->apply;
-is $c->signature, "t1N1NNd", "unlike()";
+is $c->get_sign, "t1N1NNd", "unlike()";
 note $c->get_tap;
 
 $c = contract {
@@ -73,7 +73,7 @@ $c = contract {
     ok ok 0;
     ok undef;
 }->apply;
-is $c->signature, "t2NNNd", "ok()";
+is $c->get_sign, "t2NNNd", "ok()";
 note $c->get_tap;
 
 $c = contract {
@@ -81,7 +81,7 @@ $c = contract {
     refute 0, "dummy";
     refute { foo => 42 }, "dummy";
 }->apply;
-is $c->signature, "t1Nd", "refute()";
+is $c->get_sign, "t1Nd", "refute()";
 note $c->get_tap;
 
 $c = contract {
@@ -93,7 +93,7 @@ $c = contract {
     isa_ok "TT", "T";
     isa_ok "TT", "Foo::Bar";
 }->apply;
-is $c->signature, "t1N1Nd", "isa_ok()";
+is $c->get_sign, "t1N1Nd", "isa_ok()";
 note $c->get_tap;
 
 $c = contract {
@@ -104,7 +104,7 @@ $c = contract {
     can_ok "Assert::Refute", "unknown_subroutine";
     can_ok "No::Exist", "can", "isa", "import";
 }->apply;
-is $c->signature, "t1N1NNd", "can_ok()";
+is $c->get_sign, "t1N1NNd", "can_ok()";
 note $c->get_tap;
 
 $c = contract {
@@ -113,7 +113,7 @@ $c = contract {
     new_ok "Assert::Refute::Contract", [ code => sub {} ];
     new_ok "No::Such::Package", [];
 }->apply;
-is $c->signature, "t1Nd", "new_ok()";
+is $c->get_sign, "t1Nd", "new_ok()";
 note $c->get_tap;
 
 $c = contract {
@@ -121,7 +121,7 @@ $c = contract {
     require_ok "Assert::Refute"; # already loaded
     require_ok "No::Such::Package::_______::000";
 }->apply;
-is $c->signature, "t1Nd", "require_ok()";
+is $c->get_sign, "t1Nd", "require_ok()";
 note $c->get_tap;
 
 done_testing;

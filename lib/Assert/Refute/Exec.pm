@@ -3,7 +3,7 @@ package Assert::Refute::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0308;
+our $VERSION = 0.0309;
 
 =head1 NAME
 
@@ -318,9 +318,10 @@ sub get_tap {
     return join '', @str;
 };
 
-=head3 signature
+=head3 get_sign
 
-Produce a terse pass/fail summary as a string of numbers and letters.
+Produce a terse pass/fail summary (signature)
+as a string of numbers and letters.
 
 The format is C<"t(\d+|N)*[rdE]">.
 
@@ -348,7 +349,7 @@ The numeric notation was inspired by Forsyth-Edwards notation (FEN) in chess.
 
 =cut
 
-sub signature {
+sub get_sign {
     my $self = shift;
 
     my @t = ("t");

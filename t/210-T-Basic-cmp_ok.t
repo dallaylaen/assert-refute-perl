@@ -15,14 +15,14 @@ my $c = contract {
     cmp_ok undef, "eq", '';
     cmp_ok undef, "==", undef;
 }->apply;
-is $c->signature, "t1N1NNNd", "Compare results";
+is $c->get_sign, "t1N1NNNd", "Compare results";
 note $c->get_tap;
 
 my $ce = contract {
     package T;
     cmp_ok 1, "<<", 2;
 }->apply;
-is $ce->signature, 'tNE', "Bad operator died";
+is $ce->get_sign, 'tNE', "Bad operator died";
 like $ce->last_error, qr/cmp_ok.*Comparison.*<</, "Error as expected";
 
 done_testing;
