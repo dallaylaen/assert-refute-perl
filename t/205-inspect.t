@@ -21,7 +21,7 @@ ok !$bad->get_error, "Has never died"
     or diag $bad->get_error;
 ok !$bad->get_result(1), "Nothing returned for passing test";
 is $bad->get_result(2), "forgot a semicolon", "Reason retained for failing test";
-is $bad->count, 2, "2 tests run";
+is $bad->get_count, 2, "2 tests run";
 
 my $ugly = $contract->apply( 0, 0, "forgot a semicolon" );
 ok $ugly->is_done, "Execution finished";

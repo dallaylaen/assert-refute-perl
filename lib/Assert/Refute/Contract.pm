@@ -3,7 +3,7 @@ package Assert::Refute::Contract;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0306;
+our $VERSION = 0.0307;
 
 =head1 NAME
 
@@ -29,7 +29,7 @@ See L<Assert::Refute::Exec> for its I<application> to a specific case.
 
     # much later
     my $result = $contract->apply( 137 );
-    $result->count;      # 1
+    $result->get_count;  # 1
     $result->is_passing; # 0
     $result->get_tap;    # Test::More-like summary
 

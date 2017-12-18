@@ -3,7 +3,7 @@ package Assert::Refute::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0312;
+our $VERSION = 0.0313;
 
 =head1 NAME
 
@@ -27,9 +27,9 @@ See L<Assert::Refute::Contract> for contract I<definition>.
     # .......
     $c->done_testing; # no more refute after this
 
-    $c->count;      # how many tests were run
-    $c->is_passing; # did any of them fail?
-    $c->get_tap;    # return printable summary in familiar format
+    $c->get_count;    # how many tests were run
+    $c->is_passing;   # did any of them fail?
+    $c->get_tap;      # return printable summary in familiar format
 
 =cut
 
@@ -232,13 +232,13 @@ sub is_passing {
     return !$self->{failed} && !$self->{has_error};
 };
 
-=head3 count
+=head3 get_count
 
 How many tests have been executed.
 
 =cut
 
-sub count {
+sub get_count {
     my $self = shift;
     return $self->{count};
 };

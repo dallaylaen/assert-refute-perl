@@ -17,7 +17,7 @@ $report = contract {
     is_deeply {bar => 2}, {foo => 1 };
 }->apply;
 
-is $report->count, 1, "is_deeply bad: 1 test run";
+is $report->get_count, 1, "is_deeply bad: 1 test run";
 ok !$report->is_passing, "is_deeply bad: not passing";
 note $report->get_tap;
 
@@ -26,7 +26,7 @@ $report = contract {
     is_deeply {foo => 1}, {foo => 1 };
 }->apply;
 
-is $report->count, 1, "is_deeply good: 1 test run";
+is $report->get_count, 1, "is_deeply good: 1 test run";
 ok $report->is_passing, "is_deeply good: passing";
 
 $report = contract {
@@ -44,7 +44,7 @@ $report = contract {
     like "foobar", "f.*b.*r";
 }->apply;
 
-is $report->count, 2, "is + like bad: 2 tests run";
+is $report->get_count, 2, "is + like bad: 2 tests run";
 ok !$report->is_passing, "is + like bad: not passing";
 note $report->get_tap;
 
