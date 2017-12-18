@@ -76,10 +76,10 @@ PERL
 
     is (  $exit, 1, "1 test fail + no signal" );
     is (  $sig,  0, "1 test fail + no signal" );
-    like( $stdout, qr/^# *Testing.*integration$/m, "Note worked");
+    like( $stdout, qr/# *Testing[^\n]*integration\n/, "Note worked");
     like( $stdout, qr/Intermix 1.*Test pass.*Intermix 3.*Test fail.*#[^\n]*Big and hairy reason.*Intermix 5.*\n1..\d+/s, "Test maybe worked" );
 
-    unlike( $stdout, qr/not ok.*exception/m, "Nothing died" );
+    unlike( $stdout, qr/not ok[^\n]*exception/, "Nothing died" );
 
     done_testing();
 }; # end if pid
