@@ -3,7 +3,7 @@ package Assert::Refute::Build;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0305;
+our $VERSION = 0.0306;
 
 =head1 NAME
 
@@ -48,7 +48,7 @@ This can be later used inside production code to check a condition:
 
     my $log = $oo_check->apply(137);
     $log->is_passing; # nope
-    $log->as_tap;     # get details
+    $log->get_tap;    # get details
 
 This call will create a prototyped function is_everything(...) in the calling
 package, with C<args> positional parameters and an optional human-readable

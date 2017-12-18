@@ -30,7 +30,7 @@ $c = contract {
     is @x, @y, "scalar context";
 }->apply;
 is $c->signature, "t1NNN2NNN1d", "is()";
-note $c->as_tap;
+note $c->get_tap;
 
 $c = contract {
     package T;
@@ -43,7 +43,7 @@ $c = contract {
     isnt undef, '';
 }->apply;
 is $c->signature, "t1NN4d", "isnt()";
-note $c->as_tap;
+note $c->get_tap;
 
 $c = contract {
     package T;
@@ -54,7 +54,7 @@ $c = contract {
     like undef, qr/.*/;
 }->apply;
 is $c->signature, "t1NN1Nd", "like()";
-note $c->as_tap;
+note $c->get_tap;
 
 $c = contract {
     package T;
@@ -65,7 +65,7 @@ $c = contract {
     unlike undef, qr/.*/;
 }->apply;
 is $c->signature, "t1N1NNd", "unlike()";
-note $c->as_tap;
+note $c->get_tap;
 
 $c = contract {
     package T;
@@ -74,7 +74,7 @@ $c = contract {
     ok undef;
 }->apply;
 is $c->signature, "t2NNNd", "ok()";
-note $c->as_tap;
+note $c->get_tap;
 
 $c = contract {
     package T;
@@ -82,7 +82,7 @@ $c = contract {
     refute { foo => 42 }, "dummy";
 }->apply;
 is $c->signature, "t1Nd", "refute()";
-note $c->as_tap;
+note $c->get_tap;
 
 $c = contract {
     package TT;
@@ -94,7 +94,7 @@ $c = contract {
     isa_ok "TT", "Foo::Bar";
 }->apply;
 is $c->signature, "t1N1Nd", "isa_ok()";
-note $c->as_tap;
+note $c->get_tap;
 
 $c = contract {
     package T;
@@ -105,7 +105,7 @@ $c = contract {
     can_ok "No::Exist", "can", "isa", "import";
 }->apply;
 is $c->signature, "t1N1NNd", "can_ok()";
-note $c->as_tap;
+note $c->get_tap;
 
 $c = contract {
     # TODO write a better new_ok
@@ -114,7 +114,7 @@ $c = contract {
     new_ok "No::Such::Package", [];
 }->apply;
 is $c->signature, "t1Nd", "new_ok()";
-note $c->as_tap;
+note $c->get_tap;
 
 $c = contract {
     package T;
@@ -122,6 +122,6 @@ $c = contract {
     require_ok "No::Such::Package::_______::000";
 }->apply;
 is $c->signature, "t1Nd", "require_ok()";
-note $c->as_tap;
+note $c->get_tap;
 
 done_testing;

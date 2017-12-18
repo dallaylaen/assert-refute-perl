@@ -12,7 +12,7 @@ $c->refute (0);
 $c->diag( "Foobar" );
 $c->done_testing;
 
-is $c->as_tap, <<"TAP", "Tap indented as intended";
+is $c->get_tap, <<"TAP", "Tap indented as intended";
     ok 1
     # Foobar
     1..1

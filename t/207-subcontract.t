@@ -21,7 +21,7 @@ my $outer = contract {
 my $c1 =  $outer->apply( 137, 42 );
 is $c1->signature, "tN1d", "pass/fail as expected";
 
-my $tap = $c1->as_tap;
+my $tap = $c1->get_tap;
 note "TEST LOG\n$tap\n/TEST LOG";
 like $tap, qr/^not ok 1.*subtest.*\n    not ok 1.*# *Expected.*42.*\n    1..1.*\nok 2/s
     , "Reason for failure present";

@@ -3,7 +3,7 @@ package Assert::Refute::T::Basic;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0305;
+our $VERSION = 0.0306;
 
 =head1 NAME
 
@@ -261,7 +261,7 @@ build_refute contract_is => sub {
     my ($c, $sig) = @_;
 
     my $got = $c->signature;
-    return $got ne $sig && <<"EOF".$c->as_tap;
+    return $got ne $sig && <<"EOF".$c->get_tap;
 Unexpected subcontract signature.
 Got:      $got
 Expected: $sig

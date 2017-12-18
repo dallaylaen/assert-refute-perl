@@ -17,11 +17,11 @@ ok !$c->refute( "foobared", "wrong" ), "refute(false) yelds true";
 ok !$c->is_passing, "not passing now";
 is $c->count, 2, "2 tests now";
 
-like $c->as_tap, qr/^ok 1 - right\nnot ok 2 - wrong\n# .*foobared.*\n$/s,
-    "as_tap looks like tap";
+like $c->get_tap, qr/^ok 1 - right\nnot ok 2 - wrong\n# .*foobared.*\n$/s,
+    "get_tap looks like tap";
 
 $c->done_testing;
-like $c->as_tap, qr/\n1..2(\n|$)/, "Plan present";
+like $c->get_tap, qr/\n1..2(\n|$)/, "Plan present";
 
 eval {
     $c->done_testing;

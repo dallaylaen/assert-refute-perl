@@ -3,7 +3,7 @@ package Assert::Refute;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0305;
+our $VERSION = 0.0306;
 
 =head1 NAME
 
@@ -33,7 +33,7 @@ or printed out as TAP if needed.
     my $report = $spec->apply( 42, "bard" );
     $report->count;      # 2
     $report->is_passing; # true
-    $report->as_tap;     # printable summary *as if* it was Test::More
+    $report->get_tap;    # printable summary *as if* it was Test::More
 
 =head1 REFUTATIONS AND CONTRACTS
 

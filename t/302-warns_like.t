@@ -23,6 +23,6 @@ my $c = contract {
 }->apply;
 
 contract_is $c, "t2Nd", "Contract as expected";
-note $c->as_tap;
+note $c->get_tap;
 
 done_testing;

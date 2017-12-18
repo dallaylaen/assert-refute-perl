@@ -16,7 +16,7 @@ my $c = contract {
     cmp_ok undef, "==", undef;
 }->apply;
 is $c->signature, "t1N1NNNd", "Compare results";
-note $c->as_tap;
+note $c->get_tap;
 
 my $ce = contract {
     package T;

@@ -3,7 +3,7 @@ package Assert::Refute::T::Errors;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0305;
+our $VERSION = 0.0306;
 
 =head1 NAME
 
@@ -133,7 +133,7 @@ build_refute warns_like => sub {
     };
 
     my $c = $multi_like->apply( \@warn, $exp );
-    return $c->is_passing ? '' : $c->as_tap;
+    return $c->is_passing ? '' : $c->get_tap;
 }, block => 1, args => 1, export => 1;
 
 =head1 LICENSE AND COPYRIGHT

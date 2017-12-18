@@ -3,7 +3,7 @@ package Assert::Refute::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0307;
+our $VERSION = 0.0308;
 
 =head1 NAME
 
@@ -29,7 +29,7 @@ See L<Assert::Refute::Contract> for contract I<definition>.
 
     $c->count;      # how many tests were run
     $c->is_passing; # did any of them fail?
-    $c->as_tap;     # return printable summary in familiar format
+    $c->get_tap;    # return printable summary in familiar format
 
 =cut
 
@@ -53,7 +53,7 @@ my $ERROR_DONE = "done_testing was called, no more changes may be added";
 
 =over
 
-=item * indent - log indentation (will be shown as 4 spaces in C<as_tap>);
+=item * indent - log indentation (will be shown as 4 spaces in C<get_tap>);
 
 =back
 
@@ -292,13 +292,13 @@ sub last_error {
     return $self->{last_error} || '';
 };
 
-=head3 as_tap
+=head3 get_tap
 
 Return a would-be Test::More script output for current contract.
 
 =cut
 
-sub as_tap {
+sub get_tap {
     my ($self, $verbosity) = @_;
 
     $verbosity = 1 unless defined $verbosity;
