@@ -1,6 +1,9 @@
 Revision history for Assert-Refute
 
 0.0304  Sun Dec 17 2017
+        - BUG Fix tests again - splitting t/602 in two didn't work
+
+0.0304  Sun Dec 17 2017
         - BUG Fix tests on perl < 5.8.9 (qr/.../m)
 
 0.0303  Sun Dec 17 2017
