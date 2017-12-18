@@ -19,8 +19,8 @@ my $bad = $contract->apply( 0, "forgot a semicolon" );
 ok $bad->is_done, "Execution finished";
 ok !$bad->get_error, "Has never died"
     or diag $bad->get_error;
-ok !$bad->result(1), "Nothing returned for passing test";
-is $bad->result(2), "forgot a semicolon", "Reason retained for failing test";
+ok !$bad->get_result(1), "Nothing returned for passing test";
+is $bad->get_result(2), "forgot a semicolon", "Reason retained for failing test";
 is $bad->count, 2, "2 tests run";
 
 my $ugly = $contract->apply( 0, 0, "forgot a semicolon" );
@@ -31,7 +31,7 @@ like $ugly->get_error, qr/forgot a semicolon/, "Error retained";
 my $file = quotemeta __FILE__;
 my $line = __LINE__ + 2;
 eval {
-    $ugly->result(10);
+    $ugly->get_result(10);
 };
 like $@, qr/never.*performed.*$file line $line/
     , "Carped error for nonexistent test";

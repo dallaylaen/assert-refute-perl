@@ -3,7 +3,7 @@ package Assert::Refute::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0310;
+our $VERSION = 0.0311;
 
 =head1 NAME
 
@@ -254,7 +254,7 @@ sub get_tests {
     return $self->{list} ? @{ $self->{list} } : ();
 };
 
-=head3 result( $id )
+=head3 get_result( $id )
 
 Returns result of test denoted by $id, dies if such test was never performed.
 The result is false for passing tests and whatever the reason for failure was
@@ -262,7 +262,7 @@ for failing ones.
 
 =cut
 
-sub result {
+sub get_result {
     my ($self, $n) = @_;
 
     $self->_croak( "Test $n has never been performed" )
