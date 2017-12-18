@@ -3,7 +3,7 @@ package Assert::Refute::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0311;
+our $VERSION = 0.0312;
 
 =head1 NAME
 
@@ -87,7 +87,7 @@ sub refute {
 
     $msg = $msg ? " - $msg" : '';
     my $n = ++$self->{count};
-    $self->add_result( $n, $cond );
+    $self->set_result( $n, $cond );
 
     if ($cond) {
         $self->do_log( 0, -1, "not ok $n$msg" );
@@ -419,13 +419,13 @@ sub get_log {
     return $self->{mess};
 };
 
-=head3 add_result( $id, $result )
+=head3 set_result( $id, $result )
 
 Add a refutation to the failed tests log.
 
 =cut
 
-sub add_result {
+sub set_result {
     my ($self, $id, $result) = @_;
 
     $self->_croak( $ERROR_DONE )
