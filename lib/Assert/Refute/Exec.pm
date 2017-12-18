@@ -3,7 +3,7 @@ package Assert::Refute::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0306;
+our $VERSION = 0.0307;
 
 =head1 NAME
 
@@ -90,11 +90,11 @@ sub refute {
     $self->add_result( $n, $cond );
 
     if ($cond) {
-        $self->log_message( 0, -1, "not ok $n$msg" );
-        $self->log_message( 0,  1, $cond ) unless $cond eq 1;
+        $self->do_log( 0, -1, "not ok $n$msg" );
+        $self->do_log( 0,  1, $cond ) unless $cond eq 1;
         return 0;
     } else {
-        $self->log_message( 0,  0, "ok $n$msg" );
+        $self->do_log( 0,  0, "ok $n$msg" );
         return 1;
     };
 };
@@ -118,13 +118,13 @@ References are explained to depth 1.
 sub diag {
     my $self = shift;
 
-    $self->log_message( 0, 1, join " ", map { to_scalar($_) } @_ );
+    $self->do_log( 0, 1, join " ", map { to_scalar($_) } @_ );
 };
 
 sub note {
     my $self = shift;
 
-    $self->log_message( 0, 2, join " ", map { to_scalar($_) } @_ );
+    $self->do_log( 0, 2, join " ", map { to_scalar($_) } @_ );
 };
 
 =head3 done_testing
@@ -148,13 +148,13 @@ sub done_testing {
         $self->{last_error} = $exception;
         # Make sure there *is* a failing test on the outside
         $self->refute( $exception, "unexpected exception: $exception" );
-        $self->log_message( 0, 1, "Looks like test execution was interrupted" );
+        $self->do_log( 0, 1, "Looks like test execution was interrupted" );
     } elsif ($self->{done}) {
         $self->_croak( $ERROR_DONE )
     } else {
-        $self->log_message(0, 0, "1..$self->{count}");
+        $self->do_log(0, 0, "1..$self->{count}");
     };
-    $self->log_message(0, 1,
+    $self->do_log(0, 1,
         "Looks like $self->{failed} tests of $self->{count} have failed")
             if $self->{failed};
 
@@ -201,7 +201,7 @@ sub subcontract {
     $self->refute( $stop, "$msg (subtest)" );
     if ($stop) {
         my $log = $exec->get_log;
-        $self->log_message( $_->[0]+1, $_->[1], $_->[2] )
+        $self->do_log( $_->[0]+1, $_->[1], $_->[2] )
             for @$log;
     };
 };
@@ -374,7 +374,7 @@ sub signature {
 Generally one should not touch these methods unless
 when subclassing to build a new test backend.
 
-=head3 log_message( $indent, $level, $message )
+=head3 do_log( $indent, $level, $message )
 
 Append a message to execution log.
 Levels are:
@@ -395,7 +395,7 @@ Levels are:
 
 =cut
 
-sub log_message {
+sub do_log {
     my ($self, $indent, $level, @parts) = @_;
 
     $self->_croak( $ERROR_DONE )

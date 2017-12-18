@@ -3,7 +3,7 @@ package Assert::Refute::Driver::More;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0305;
+our $VERSION = 0.0306;
 
 =head1 NAME
 
@@ -96,14 +96,14 @@ sub done_testing {
     croak "Use Test::More native done_testing";
 };
 
-=head2 log_message( $indent, $level, $message )
+=head2 do_log( $indent, $level, $message )
 
 Just fall back to diag/note.
 Indentation is ignored.
 
 =cut
 
-sub log_message {
+sub do_log {
     my ($self, $indent, $level, @mess) = @_;
 
     if ($level == 1) {
@@ -112,7 +112,7 @@ sub log_message {
         $self->{builder}->note($_) for @mess;
     };
 
-    $self->SUPER::log_message( $indent, $level, @mess );
+    $self->SUPER::do_log( $indent, $level, @mess );
 };
 
 =head1 LICENSE AND COPYRIGHT
