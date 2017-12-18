@@ -3,7 +3,7 @@ package Assert::Refute::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0313;
+our $VERSION = 0.0314;
 
 =head1 NAME
 
@@ -366,6 +366,12 @@ sub get_sign {
 Generally one should not touch these methods unless
 when subclassing to build a new test backend.
 
+When extending this module,
+please try to stick to C<do_*>, C<get_*>, and C<set_*>
+to avoid clash with test names.
+
+This is weird and probably has to be fixed at some point.
+
 =head3 do_log( $indent, $level, $message )
 
 Append a message to execution log.
@@ -463,6 +469,39 @@ sub _croak {
 
     croak "$fun(): $mess";
 };
+
+=head2 DEPRECATED METHODS
+
+The following methods were added in the beginning and will disappear
+in 0.10.
+
+=over
+
+=item count       => "get_count"
+
+=item add_result  => "set_result"
+
+=item result      => "get_result"
+
+=item last_error  => "get_error"
+
+=item signature   => "get_sign"
+
+=item as_tap      => "get_tap"
+
+=item log_message => "do_log"
+
+=back
+
+=cut
+
+_deprecate( count       => "get_count" );
+_deprecate( add_result  => "set_result" );
+_deprecate( result      => "get_result" );
+_deprecate( last_error  => "get_error" );
+_deprecate( signature   => "get_sign" );
+_deprecate( as_tap      => "get_tap" );
+_deprecate( log_message => "do_log" );
 
 sub _deprecate {
     my ($legacy, $new) = @_;
