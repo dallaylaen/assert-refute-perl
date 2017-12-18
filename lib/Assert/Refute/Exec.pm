@@ -3,7 +3,7 @@ package Assert::Refute::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0305;
+our $VERSION = 0.0306;
 
 =head1 NAME
 
@@ -369,18 +369,6 @@ sub signature {
     return join '', @t, $d;
 };
 
-sub _croak {
-    my ($self, $mess) = @_;
-
-    $mess ||= "Something terrible happened";
-    $mess =~ s/\n+$//s;
-
-    my $fun = (caller 1)[3];
-    $fun =~ s/(.*)::/${1}->/;
-
-    croak "$fun(): $mess";
-};
-
 =head2 DEVELOPMENT PRIMITIVES
 
 Generally one should not touch these methods unless
@@ -470,6 +458,32 @@ sub get_proxy {
     my $self = shift;
 
     return wantarray ? ($self, $self->{indent}) : $self;
+};
+
+sub _croak {
+    my ($self, $mess) = @_;
+
+    $mess ||= "Something terrible happened";
+    $mess =~ s/\n+$//s;
+
+    my $fun = (caller 1)[3];
+    $fun =~ s/(.*)::/${1}->/;
+
+    croak "$fun(): $mess";
+};
+
+sub _deprecate {
+    my ($legacy, $new) = @_;
+
+    my $impl = \&$new;
+
+    no strict 'refs';           ## no critic
+    no warnings 'redefine';     ## no critic
+    *$legacy = sub {
+        carp "$legacy() is deprecated, use $new() instead";
+        *$legacy = $impl;
+        goto &$impl;            ## no critic
+    };
 };
 
 =head1 LICENSE AND COPYRIGHT
