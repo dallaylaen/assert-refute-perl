@@ -1,5 +1,11 @@
 Revision history for Assert-Refute
 
+0.04    Tue Dec 19 2017
+        - API BREAK rename contract's own methods into get_*/set_*/do_*
+            The new names are:
+            is_done is_passing get_count get_tests get_result get_error
+            get_tap get_sign do_log get_log set_result
+
 0.0304  Sun Dec 17 2017
         - BUG Fix tests again - splitting t/602 in two didn't work
 

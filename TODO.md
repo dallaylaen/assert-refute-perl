@@ -3,21 +3,25 @@
 # Roadmap v.0.10
 
 * 0.01 DRV Carp/croak/confess backend for bona-fide assertions
-* 0.01 TST Need to add examples
-* 0.02 MOD Module to check that "foo" is really implementation of "bar"
-* 0.03 BLD Prohibit `my_*`, `get_*`, `do_*`, `set_*` as test names
+* 0.03 MOD Round-trip assertion
+* 0.03 TST Core example: contract + subcontract + higher-order ("array-of")
+* 0.03 TST Core example: building new conditions + test-more
 
 # Backlog v.0.20
 
-* 0.03 MOD Round-trip assertion
+* 0.03 TST More examples
+* 0.03 BLD Convert subcontract into exportable sub
+* 0.02 MOD Module to check that "foo" is really implementation of "bar"
 * 0.01 API plan tests => nnn
 * 0.01 DRV Own Unit-testing backend
-* 0.02 API Short-circuit - just fail, don't conduct the whole set.
 * 0.02 API Some extra goodies to contract {...} like title
 
 # Backlog v.0.30+
 
 * 0.02 API `bail_out` to stop tests altogether
+* 0.02 API Short-circuit - just fail, don't conduct the whole set.
+* 0.03 REF Decouple Exec class into Report + Driver
+* 0.03 DRV A TAP consumer class
 
 # Need to think harder
 

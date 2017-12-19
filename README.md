@@ -24,20 +24,30 @@ Normal `is`, `like` etc can easily be built on top of that:
         # no diag() needed!
     };
 
-A **contract** is a group of assertions that is saved for later execution:
+Contract-confined counterparts are pre-defined this way
+for all of Test::More's checks.
+
+A **contract** is a group of assertions that is saved for later execution.
+Once defined, it can be applied to arbitrary data
+(user input, plug-in module, or output of internal method)
+producing a summary of passed/failed checks.
 
     # once, at start up
     use Assert::Refute;
     my $spec = contract {
         my ($foo, $bar) = @_;
-        # insert checks here
+
+        is $foo, 42, "Got answer to life, universe, and everything";
+        like $bar, qr/b.*a.*r.*/, "Format as expected";
+
+        # insert more checks here
     };
 
     # much later
-    $spec->apply( $real_foo, $real_bar );
-    $spec->is_passing; # true of false
-    $spec->get_count;  # number of tests performed
-    $spec->get_tap;    # summary in Test::More's format
+    my $report = $spec->apply( $real_foo, $real_bar );
+    $report->is_passing; # true of false
+    $report->get_count;  # number of tests performed
+    $report->get_tap;    # summary in Test::More's format
 
 A **subcontract** is an application of a preexisting contract
 to the data at hand as a single check.
