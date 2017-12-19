@@ -3,11 +3,11 @@ package Assert::Refute;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0307;
+our $VERSION = 0.0308;
 
 =head1 NAME
 
-Assert::Refute - unified assertion and testing tool
+Assert::Refute - Unified testing and assertion tool
 
 =head1 DESCRIPTION
 
@@ -18,6 +18,9 @@ into a giant testing script.
 Each contract is compiled once and executed multiple times,
 generating reports objects that can be queried to be successful
 or printed out as TAP if needed.
+
+The condition arsenal may be extended, producing functions that will run
+uniformly both inside C<contract> blocks and in a unit-testing script.
 
 =head1 SYNOPSIS
 
@@ -220,16 +223,18 @@ specialized tool exists for doing that.
 Use L<Assert::Refute::Build> to define new I<checks> as
 both prototyped exportable functions and their counterpart methods
 in L<Assert::Refute::Exec>.
+Such functions will then run just fine in both C<contract> blocks
+and usual unit-testing scripts built with L<Test::More>.
 
 Subclass L<Assert::Refute::Exec> to create new I<drivers>, for instance,
 to register failed/passed tests in your unit-testing framework of choice
-or generate warnings/exceptions like a normal assertion tool does.
+or generate warnings/exceptions when conditions are not met.
 
 =head1 BUGS
 
-This module is still under development.
+This module is still in ALPHA stage.
 
-Test coverage is maintained at ~80%, but who knows what lurks in the other 20%.
+Test coverage is maintained at >80%, but who knows what lurks in the other 20%.
 
 See L<https://github.com/dallaylaen/assert-refute-perl/issues>
 to browse old bugs or report new ones.
