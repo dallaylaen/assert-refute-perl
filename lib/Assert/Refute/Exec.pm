@@ -3,7 +3,7 @@ package Assert::Refute::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.04;
+our $VERSION = 0.0401;
 
 =head1 NAME
 
@@ -155,8 +155,8 @@ sub done_testing {
         $self->do_log(0, 0, "1..$self->{count}");
     };
     $self->do_log(0, 1,
-        "Looks like $self->{failed} tests of $self->{count} have failed")
-            if $self->{failed};
+        "Looks like $self->{fail_count} tests of $self->{count} have failed")
+            if $self->{fail_count};
 
     $self->{done}++;
     return $self;
@@ -229,7 +229,7 @@ Tell whether the contract is passing or not.
 sub is_passing {
     my $self = shift;
 
-    return !$self->{failed} && !$self->{has_error};
+    return !$self->{fail_count} && !$self->{has_error};
 };
 
 =head3 get_count
@@ -241,6 +241,17 @@ How many tests have been executed.
 sub get_count {
     my $self = shift;
     return $self->{count};
+};
+
+=head3 get_fail_count
+
+How many tests failed
+
+=cut
+
+sub get_fail_count {
+    my $self = shift;
+    return $self->{fail_count} || 0;
 };
 
 =head3 get_tests
@@ -394,16 +405,14 @@ Levels are:
 =cut
 
 sub do_log {
-    my ($self, $indent, $level, @parts) = @_;
+    my ($self, $indent, $level, $mess) = @_;
 
     $self->_croak( $ERROR_DONE )
         if $self->{done};
 
     $indent += $self->{indent};
 
-    foreach (@parts) {
-        push @{ $self->{mess} }, [$indent, $level, $_];
-    };
+    push @{ $self->{mess} }, [$indent, $level, $mess];
 
     return $self;
 };
@@ -440,7 +449,7 @@ sub set_result {
         if exists $self->{fail}{$id};
 
     push @{ $self->{list} }, $id;
-    $self->{failed}++ if $result;
+    $self->{fail_count}++ if $result;
     $self->{fail}{$id} = $result;
 
     return $self;
