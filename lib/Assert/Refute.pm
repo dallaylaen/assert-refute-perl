@@ -3,7 +3,7 @@ package Assert::Refute;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.04;
+our $VERSION = 0.0401;
 
 =head1 NAME
 
@@ -95,7 +95,10 @@ use Assert::Refute::T::Basic;
 my @basic = (
     @Assert::Refute::T::Basic::EXPORT,
 );
-my @core  = qw( contract current_contract refute subcontract contract_is );
+my @core  = qw(
+    contract carp_refute
+    refute subcontract contract_is current_contract
+);
 
 our @ISA = qw(Exporter);
 our @EXPORT = (@core, @basic);
@@ -147,6 +150,36 @@ sub contract (&@) { ## no critic
     # TODO check
     $opt{code} = $todo;
     return Assert::Refute::Contract->new( %opt );
+};
+
+=head2 carp_refute { ... }
+
+Refute several conditions, warn or die if they fail.
+
+This is basically what one expects from a module in C<Assert::*> namespace.
+
+=cut
+
+sub carp_refute(&;@) { ## no critic # need prototype
+    my ( $block, @arg ) = @_;
+
+    # This is generally a ripoff of A::R::Contract->apply
+    my $report = Assert::Refute::Exec->new;
+    local $Assert::Refute::Build::BACKEND = $report;
+    eval {
+        $block->($report);
+        $report->done_testing(0);
+        1;
+    } || do {
+        $report->done_testing($@ || "Something horrible happened");
+    };
+
+    my $callback = $report->is_passing ? '' : sub {
+        carp $_[0]->get_tap . "Contract failed";
+    };
+    $callback->($report) if $callback;
+
+    return $report;
 };
 
 =head2 refute( $condition, $message )
