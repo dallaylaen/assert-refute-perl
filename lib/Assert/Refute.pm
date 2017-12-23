@@ -3,7 +3,7 @@ package Assert::Refute;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0402;
+our $VERSION = 0.0403;
 
 =head1 NAME
 
@@ -24,6 +24,18 @@ uniformly both inside C<contract> blocks and in a unit-testing script.
 
 =head1 SYNOPSIS
 
+The following would die if C<$foo> doesn't meet the requirements:
+
+    use Assert::Refute { on_fail => 'croak' };
+
+    my $foo = frobnicate();
+    carp_refute {
+        like $foo->{text}, qr/f?o?r?m?a?t/;
+        is $foo->{error}, undef;
+    };
+
+Or if you want more control over the execution of checks:
+
     use Assert::Refute;
 
     my $spec = contract {
@@ -37,6 +49,10 @@ uniformly both inside C<contract> blocks and in a unit-testing script.
     $report->get_count;  # 2
     $report->is_passing; # true
     $report->get_tap;    # printable summary *as if* it was Test::More
+
+Note that Assert::Refute aims to be as non-invasive as possible.
+You can muffle condition checks at will or make them fatal,
+or copy them from production code to a unit-test.
 
 =head1 REFUTATIONS AND CONTRACTS
 
@@ -61,6 +77,27 @@ These three primitives can serve as building blocks for arbitrarily complex
 assertions, tests, and validations.
 
 =head1 EXPORT
+
+Per-package configuration parameters can be passed as hash refs in
+use statement. Anything that is I<not> hash is passed to exporter module:
+
+    use Assert::Refute { on_fail => 'croak' }, "carp_assert";
+
+Or more generally (though without any meaning and likely to die in the future):
+
+    use Assert::Refute { foo => 42 }, "refute", "contract", { bar => 137 };
+
+Valid configuration parameters are:
+
+=over
+
+=item * on_pass => skip|carp|croak - what to do when conditions are met.
+The default is skip, i.e. do nothing.
+
+=item * on_fail => skip|carp|croak - what to do when conditions are I<not> met.
+The default is carp (issue a warning and continue on, even with wrong data).
+
+=back
 
 All of the below functions are exported by default,
 as well as some basic assumptions mirroring the L<Test::More> suite.
@@ -109,6 +146,63 @@ our %EXPORT_TAGS = (
 );
 
 our $DRIVER;
+our %CALLER_CONF;
+
+sub import {
+    my $class = shift;
+    my (%conf, @exp);
+    foreach (@_) {
+        if (ref $_ eq 'HASH') {
+            %conf = (%conf, %$_);
+        } elsif (!ref $_) {
+            push @exp, $_;
+        } else {
+            croak "Unexpected argument in Assert::Refute->import: ".ref $_;
+        };
+    };
+
+    $class->export_to_level(1, undef, @exp);
+    $class->_set_caller_conf( scalar caller, \%conf );
+};
+
+my %known_callback = (
+    skip => '',
+    carp => sub {
+        my $report = shift;
+        carp $report->get_tap
+            .($report->is_passing ? "Contract passed" : "Contract failed");
+    },
+    croak => sub {
+        my $report = shift;
+        croak $report->get_tap
+            .($report->is_passing ? "Contract passed" : "Contract failed");
+    },
+);
+my %default_conf = (
+    on_fail => 'carp',
+    on_pass => 'skip',
+);
+
+sub _set_caller_conf {
+    my ($class, $caller, $conf) = @_;
+
+    # TODO croak unknown params
+    $conf = { %default_conf, %$conf };
+    $conf->{on_fail} = _coerce_cb($conf->{on_fail});
+    $conf->{on_pass} = _coerce_cb($conf->{on_pass});
+
+    $CALLER_CONF{$caller} = $conf;
+};
+
+sub _coerce_cb {
+    my $sub = shift;
+
+    $sub = defined $known_callback{$sub} ? $known_callback{$sub} : $sub;
+    return unless $sub;
+    croak "Bad callback $sub"
+        unless ref $sub and UNIVERSAL::isa( $sub, 'CODE' );
+    return $sub;
+};
 
 =head2 contract { ... }
 
@@ -157,6 +251,11 @@ sub contract (&@) { ## no critic
 =head2 carp_refute { ... }
 
 Refute several conditions, warn or die if they fail.
+The coderef shall accept one argument, the contract execution object
+(likely a L<Assert::Refute::Exec>, see C<need_object> above).
+More arguments MAY be added in the future.
+Return value is ignored.
+A contract report object is returned instead.
 
 This is basically what one expects from a module in C<Assert::*> namespace.
 
@@ -164,6 +263,9 @@ This is basically what one expects from a module in C<Assert::*> namespace.
 
 sub carp_refute(&;@) { ## no critic # need prototype
     my ( $block, @arg ) = @_;
+
+    # TODO Carp::cluck if empty because this is either a bug or very crooked use
+    my $conf = $CALLER_CONF{+caller} || {};
 
     # This is generally a ripoff of A::R::Contract->apply
     my $report = Assert::Refute::Exec->new;
@@ -176,9 +278,8 @@ sub carp_refute(&;@) { ## no critic # need prototype
         $report->done_testing($@ || "Something horrible happened");
     };
 
-    my $callback = $report->is_passing ? '' : sub {
-        carp $_[0]->get_tap . "Contract failed";
-    };
+    # perform whatever action is needed
+    my $callback = $conf->{ $report->is_passing ? "on_pass" : "on_fail" };
     $callback->($report) if $callback;
 
     return $report;
