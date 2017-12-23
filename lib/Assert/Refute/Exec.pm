@@ -3,7 +3,7 @@ package Assert::Refute::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0401;
+our $VERSION = 0.0402;
 
 =head1 NAME
 
@@ -134,9 +134,18 @@ After this call, no more writes (including done_testing)
 can be performed on this contract.
 This happens by default at the end of C<contract{ ... }> block.
 
-If an argument is given, it is considered to be the exception
+Dies if called for a second time, I<unless> an argument is given.
+
+A true argument is considered to be the exception
 that interrupted the contract execution,
 resulting in an unconditionally failed contract.
+
+A false argument just avoids dying and is equivalent to
+
+    $report->done_testing
+        unless $report->is_done;
+
+Returns self.
 
 =cut
 
@@ -150,7 +159,8 @@ sub done_testing {
         $self->refute( $exception, "unexpected exception: $exception" );
         $self->do_log( 0, 1, "Looks like test execution was interrupted" );
     } elsif ($self->{done}) {
-        $self->_croak( $ERROR_DONE )
+        return $self if defined $exception;
+        $self->_croak( $ERROR_DONE );
     } else {
         $self->do_log(0, 0, "1..$self->{count}");
     };
