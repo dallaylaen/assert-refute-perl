@@ -3,7 +3,7 @@ package Assert::Refute;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0401;
+our $VERSION = 0.0402;
 
 =head1 NAME
 
@@ -108,6 +108,8 @@ our %EXPORT_TAGS = (
     core  => \@core,
 );
 
+our $DRIVER;
+
 =head2 contract { ... }
 
 Create a contract specification object for future use.
@@ -165,7 +167,7 @@ sub carp_refute(&;@) { ## no critic # need prototype
 
     # This is generally a ripoff of A::R::Contract->apply
     my $report = Assert::Refute::Exec->new;
-    local $Assert::Refute::Build::BACKEND = $report;
+    local $DRIVER = $report;
     eval {
         $block->($report);
         $report->done_testing(0);

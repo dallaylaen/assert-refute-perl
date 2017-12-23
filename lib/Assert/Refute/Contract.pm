@@ -3,7 +3,7 @@ package Assert::Refute::Contract;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.04;
+our $VERSION = 0.05;
 
 =head1 NAME
 
@@ -163,7 +163,7 @@ sub apply {
         unless $self->{minarg} <= @args and @args <= $self->{maxarg};
 
     unshift @args, $c if $self->{need_object};
-    local $Assert::Refute::Build::BACKEND = $c;
+    local $Assert::Refute::DRIVER = $c;
     eval {
         $self->{code}->( @args );
         $c->done_testing

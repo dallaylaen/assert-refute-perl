@@ -3,7 +3,7 @@ package Assert::Refute::Build;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.04;
+our $VERSION = 0.05;
 
 =head1 NAME
 
@@ -64,8 +64,6 @@ use Carp;
 use Scalar::Util qw(weaken blessed set_prototype looks_like_number refaddr);
 use parent qw(Exporter);
 our @EXPORT = qw(build_refute current_contract to_scalar);
-
-our $BACKEND;
 
 # NOTE HACK
 # If we're being loaded after Test::More, we're *likely* inside a test script
@@ -226,12 +224,12 @@ Dies if no contract is being executed at the time.
 =cut
 
 sub current_contract() { ## nocritic
-    return $BACKEND if $BACKEND;
+    return $Assert::Refute::DRIVER if $Assert::Refute::DRIVER;
 
     # Would love to just die, but...
     if ($MORE_DETECTED) {
         require Assert::Refute::Driver::More;
-        return $BACKEND = Assert::Refute::Driver::More->new;
+        return $Assert::Refute::DRIVER = Assert::Refute::Driver::More->new;
     };
 
     croak "Not currently testing anything";
