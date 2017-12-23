@@ -3,7 +3,7 @@ package Assert::Refute::T::Errors;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.04;
+our $VERSION = 0.0401;
 
 =head1 NAME
 
@@ -52,7 +52,7 @@ use parent qw(Exporter);
 our @EXPORT = qw(foobar);
 
 use Assert::Refute::Build;
-use Assert::Refute qw( contract like refute );
+use Assert::Refute::Contract;
 
 =head2 dies_like
 
@@ -111,13 +111,13 @@ This MAY change in the future.
 
 =cut
 
-my $multi_like = contract {
-    my ($got, $exp) = @_;
+my $multi_like = Assert::Refute::Contract->new( code => sub {
+    my ($self, $got, $exp) = @_;
 
     for (my $i = 0; $i < @$got and $i < @$exp; $i++) {
-        like $got->[$i], $exp->[$i];
+        $self->like( $got->[$i], $exp->[$i] );
     };
-};
+}, need_object => 1 );
 
 build_refute warns_like => sub {
     my ($block, $exp) = @_;
