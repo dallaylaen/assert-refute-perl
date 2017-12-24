@@ -3,7 +3,7 @@ package Assert::Refute;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0404;
+our $VERSION = 0.0405;
 
 =head1 NAME
 
@@ -29,7 +29,7 @@ The following would die if C<$foo> doesn't meet the requirements:
     use Assert::Refute { on_fail => 'croak' };
 
     my $foo = frobnicate();
-    carp_refute {
+    refute_these {
         like $foo->{text}, qr/f?o?r?m?a?t/;
         is $foo->{error}, undef;
     };
@@ -133,7 +133,7 @@ my @basic = (
     @Assert::Refute::T::Basic::EXPORT,
 );
 my @core  = qw(
-    contract carp_refute
+    contract refute_these
     refute subcontract contract_is current_contract
 );
 
@@ -227,7 +227,7 @@ sub contract (&@) { ## no critic
     return Assert::Refute::Contract->new( %opt );
 };
 
-=head2 carp_refute { ... }
+=head2 refute_these { ... }
 
 Refute several conditions, warn or die if they fail,
 as requested during C<use> of this module.
@@ -246,7 +246,7 @@ It will stay available (with a warning) for at least 5 releases after that.
 
 =cut
 
-sub carp_refute(&;@) { ## no critic # need prototype
+sub refute_these(&;@) { ## no critic # need prototype
     my ( $block, @arg ) = @_;
 
     # Should a missing config even happen? Ok, play defensively...
@@ -261,7 +261,7 @@ sub carp_refute(&;@) { ## no critic # need prototype
         $report->done_testing(0);
         1;
     } || do {
-        $report->done_testing($@ || "carp_refute block was interrupted");
+        $report->done_testing($@ || "refute_these block was interrupted");
     };
 
     # perform whatever action is needed
@@ -351,7 +351,7 @@ for even more fine-grained control.
 Set per-caller package configuration values for given package.
 Called implicitly C<use Assert::Refute { ... }> if parameters are given.
 
-These are adhered to by L</carp_refute>, mostly.
+These are adhered to by L</refute_these>, mostly.
 
 Available %options include:
 
