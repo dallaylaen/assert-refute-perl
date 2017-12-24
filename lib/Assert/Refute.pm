@@ -3,7 +3,7 @@ package Assert::Refute;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0403;
+our $VERSION = 0.0404;
 
 =head1 NAME
 
@@ -161,8 +161,8 @@ sub import {
         };
     };
 
+    $class->configure( \%conf, scalar caller );
     $class->export_to_level(1, undef, @exp);
-    $class->_set_caller_conf( scalar caller, \%conf );
 };
 
 my %known_callback = (
@@ -182,27 +182,6 @@ my %default_conf = (
     on_fail => 'carp',
     on_pass => 'skip',
 );
-
-sub _set_caller_conf {
-    my ($class, $caller, $conf) = @_;
-
-    # TODO croak unknown params
-    $conf = { %default_conf, %$conf };
-    $conf->{on_fail} = _coerce_cb($conf->{on_fail});
-    $conf->{on_pass} = _coerce_cb($conf->{on_pass});
-
-    $CALLER_CONF{$caller} = $conf;
-};
-
-sub _coerce_cb {
-    my $sub = shift;
-
-    $sub = defined $known_callback{$sub} ? $known_callback{$sub} : $sub;
-    return unless $sub;
-    croak "Bad callback $sub"
-        unless ref $sub and UNIVERSAL::isa( $sub, 'CODE' );
-    return $sub;
-};
 
 =head2 contract { ... }
 
@@ -250,22 +229,29 @@ sub contract (&@) { ## no critic
 
 =head2 carp_refute { ... }
 
-Refute several conditions, warn or die if they fail.
+Refute several conditions, warn or die if they fail,
+as requested during C<use> of this module.
 The coderef shall accept one argument, the contract execution object
 (likely a L<Assert::Refute::Exec>, see C<need_object> above).
+
 More arguments MAY be added in the future.
 Return value is ignored.
 A contract report object is returned instead.
 
 This is basically what one expects from a module in C<Assert::*> namespace.
 
+B<[EXPERIMENTAL]> This name is preliminary and is likely to change
+in the nearest future.
+It will stay available (with a warning) for at least 5 releases after that.
+
 =cut
 
 sub carp_refute(&;@) { ## no critic # need prototype
     my ( $block, @arg ) = @_;
 
-    # TODO Carp::cluck if empty because this is either a bug or very crooked use
-    my $conf = $CALLER_CONF{+caller} || {};
+    # Should a missing config even happen? Ok, play defensively...
+    my $conf = $CALLER_CONF{+caller}
+        || __PACKAGE__->configure( {}, scalar caller );
 
     # This is generally a ripoff of A::R::Contract->apply
     my $report = Assert::Refute::Exec->new;
@@ -275,7 +261,7 @@ sub carp_refute(&;@) { ## no critic # need prototype
         $report->done_testing(0);
         1;
     } || do {
-        $report->done_testing($@ || "Something horrible happened");
+        $report->done_testing($@ || "carp_refute block was interrupted");
     };
 
     # perform whatever action is needed
@@ -350,6 +336,94 @@ Returns the L<Assert::Refute::Exec> object being worked on.
 Dies if no contract is being executed at the time.
 
 This is actually a clone of L<Assert::Refute::Build/current_contract>.
+
+=head1 STATIC METHODS
+
+Use these methods to configure Assert::Refute globally.
+There's of course always purely object-oriented L<Assert::Refute::Contract>
+for even more fine-grained control.
+
+=head2 configure
+
+    Assert::Refute->configure( \%options );
+    Assert::Refute->configure( \%options, "My::Package");
+
+Set per-caller package configuration values for given package.
+Called implicitly C<use Assert::Refute { ... }> if parameters are given.
+
+These are adhered to by L</carp_refute>, mostly.
+
+Available %options include:
+
+=over
+
+=item * on_pass - callback to execute if tests pass (default: C<skip>)
+
+=item * on_fail - callback to execute if tests fail (default: C<carp>,
+but not just C<Carp::carp> - see below).
+
+=back
+
+The callbacks MUST be either
+a C<CODEREF> accepting L<Assert::Refute::Report> object,
+or one of predefined strings:
+
+=over
+
+=item * skip - do nothing;
+
+=item * carp - warn the stringified report;
+
+=item * croak - die with stringified report as error message;
+
+=back
+
+Returns the resulting config (with default values added,etc).
+
+=cut
+
+my %conf_known;
+$conf_known{$_}++ for qw( on_pass on_fail );
+
+sub configure {
+    my ($class, $conf, $caller) = @_;
+
+    my @extra = grep { !$conf_known{$_} } keys %$conf;
+    croak "$class->configure: unknown parameters (@extra)"
+        if @extra;
+
+    # configure whoever called us by default
+    $caller ||= scalar caller;
+
+    $conf = { %default_conf, %$conf };
+    $conf->{on_fail} = _coerce_cb($conf->{on_fail});
+    $conf->{on_pass} = _coerce_cb($conf->{on_pass});
+
+    $CALLER_CONF{$caller} = $conf;
+};
+
+=head2 get_config
+
+Returns configuration from above, initializing with defaults if needed.
+
+=cut
+
+sub get_config {
+    my ($class, $caller) = @_;
+
+    $caller ||= scalar caller;
+    return $CALLER_CONF{$caller} ||= $class->configure({}, $caller);
+};
+
+sub _coerce_cb {
+    my $sub = shift;
+
+    $sub = defined $known_callback{$sub} ? $known_callback{$sub} : $sub;
+    return unless $sub;
+    croak "Bad callback $sub"
+        unless ref $sub and UNIVERSAL::isa( $sub, 'CODE' );
+    return $sub;
+};
 
 =head1 EXTENDING THE SUITE
 
