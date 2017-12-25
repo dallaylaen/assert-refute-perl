@@ -2,7 +2,7 @@ package Assert::Refute::T::Array;
 
 use strict;
 use warnings;
-our $VERSION = 0.05;
+our $VERSION = 0.0501;
 
 =head1 NAME
 
@@ -117,15 +117,21 @@ build_refute is_sorted => sub {
 
     return '' if @$list < 2;
 
-    my $caller = caller 1;
-    my @bad;
-    my $refa = "${caller}::a";
-    my $refb = "${caller}::b";
+    # Unfortunately, $a and $b are package variables
+    # of the *calling* package...
+    # So localize them through a hack.
+    my ($refa, $refb) = do {
+        my $caller = caller 1;
+        no strict 'refs'; ## no critic
+        \(*{$caller."::a"}, *{$caller."::b"});
+    };
+    local (*$refa, *$refb);
 
+    my @bad;
     for( my $i = 0; $i < @$list - 1; $i++) {
         no strict 'refs'; ## no critic - need to localize caller's $a and $b
-        local $$refa = $list->[$i];
-        local $$refb = $list->[$i+1];
+        *$refa = \$list->[$i];
+        *$refb = \$list->[$i+1];
         $block->() or push @bad, "($i, ".($i+1).")";
     };
 

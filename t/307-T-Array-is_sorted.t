@@ -20,11 +20,14 @@ contract_is $rep, "t2Nd", "Obvious cases";
 $rep = contract {
     package T;
     use Assert::Refute::T::Array;
+    use Assert::Refute::T::Basic qw(is);
+    $a = "foo";
     is_sorted{ $a == $b } [ 1, 1, 1 ], "Holds";
     is_sorted{ $a == $b } [ 1, 1, 2 ], "Nope";
+    is $a, "foo", "And \$a properly localized";
 }->apply;
 
-contract_is $rep, "t1Nd", "Actual work";
+contract_is $rep, "t1N1d", "Actual work";
 note "REPORT\n".$rep->get_tap."/REPORT";
 
 $rep = contract {
