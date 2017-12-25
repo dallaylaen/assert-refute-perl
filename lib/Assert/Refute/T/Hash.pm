@@ -2,7 +2,7 @@ package Assert::Refute::T::Hash;
 
 use strict;
 use warnings;
-our $VERSION = 0.0401;
+our $VERSION = 0.0402;
 
 =head1 NAME
 
@@ -22,9 +22,12 @@ All of the below functions are exported by default:
 =cut
 
 use Carp;
+use Scalar::Util qw(blessed);
 use parent qw(Exporter);
+our @EXPORT = qw(values_are);
 
 use Assert::Refute::Build;
+use Assert::Refute; # TODO Assert::Refute::Contract please
 
 =head2 keys_are \%hash, \@required, \@allowed, "Message"
 
@@ -59,6 +62,31 @@ build_refute keys_are => sub {
     push @msg, "Unexpected keys present (@extra)" if @extra;
     return join "; ", @msg;
 }, args => 3, export => 1;
+
+my $check_values = contract {
+    my ($hash, $spec) = @_;
+
+    foreach ( keys %$spec ) {
+        my $cond = $spec->{$_};
+        if (!ref $cond) {
+            is $hash->{$_}, $cond, "$_ exact value";
+        } elsif (ref $cond eq 'Regexp') {
+            like $hash->{$_}, $cond, "$_ regex";
+        } elsif (blessed $cond) {
+            subcontract "$_ contract" => $cond, $hash->{$_};
+        } else {
+            # TODO bail_out when we can
+            croak "Unexpected hash value type ". ref $cond;
+        };
+    };
+};
+
+sub values_are {
+    my ($hash, $spec, $message) = @_;
+
+    $message ||= "hash values as expected";
+    subcontract $message => $check_values->apply( $hash, $spec );
+};
 
 =head1 LICENSE AND COPYRIGHT
 
