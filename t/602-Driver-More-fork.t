@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-if ($^O eq 'MSWin32') {
+if ($^O eq 'MSWin32' or $] < 5.008) {
     require Test::More;
     Test::More->import;
     plan( skip_all => 'Fork not supported (yet)' );
