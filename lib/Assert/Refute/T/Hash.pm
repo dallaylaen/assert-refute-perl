@@ -2,7 +2,7 @@ package Assert::Refute::T::Hash;
 
 use strict;
 use warnings;
-our $VERSION = 0.0402;
+our $VERSION = 0.0403;
 
 =head1 NAME
 
@@ -63,6 +63,28 @@ build_refute keys_are => sub {
     return join "; ", @msg;
 }, args => 3, export => 1;
 
+=head2 values_are \%hash, \%spec
+
+For each key in %spec, check corresponding value in %hash:
+
+=over
+
+=item * if spec is C<undef>, only accept undefined or missing value;
+
+=item * if spec is a string or number, check exact match (C<is>);
+
+=item * if spec is a regular expression, apply it (C<like>);
+
+=item * if spec is a contract, apply it to the value (C<subcontract>);
+
+=back
+
+B<[NOTE]> This test should die if any other value appears in the spec.
+However, it does not yet, instead producing a warning and
+an unconditionally failed test.
+
+=cut
+
 my $check_values = contract {
     my ($hash, $spec) = @_;
 
@@ -76,7 +98,8 @@ my $check_values = contract {
             subcontract "$_ contract" => $cond, $hash->{$_};
         } else {
             # TODO bail_out when we can
-            croak "Unexpected hash value type ". ref $cond;
+            carp  "FIX TEST! Unexpected value in spec: '$_'=". ref $cond;
+            croak "FIX TEST! Unexpected value in spec: '$_'=". ref $cond;
         };
     };
 };
