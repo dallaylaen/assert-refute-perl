@@ -3,7 +3,7 @@ package Assert::Refute::T::Errors;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0401;
+our $VERSION = 0.0402;
 
 =head1 NAME
 
@@ -11,7 +11,7 @@ Assert::Refute::T::Errors - exception and warning check for Assert::Refute suite
 
 =head1 SYNOPSIS
 
-    use Assert::Refute;
+    use Assert::Refute qw(:all);
     use Assert::Refute::T::Errors;
 
     my $c = contract {

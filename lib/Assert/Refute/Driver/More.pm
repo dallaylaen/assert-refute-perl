@@ -3,7 +3,7 @@ package Assert::Refute::Driver::More;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.04;
+our $VERSION = 0.0401;
 
 =head1 NAME
 
@@ -14,7 +14,7 @@ Assert::Refute::Driver::More - Test::More compatibility layer for Asser::Refute 
 In your test script:
 
     use Test::More;
-    use Assert::Refute; # in that order
+    use Assert::Refute qw(:all); # in that order
 
     my $def = contract {
         # don't use is/ok/etc here

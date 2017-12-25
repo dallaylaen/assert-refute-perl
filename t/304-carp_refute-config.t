@@ -7,9 +7,9 @@ use Assert::Refute::T::Errors;
 
 {
     package Foo;
-    use Assert::Refute { on_pass => 'carp', on_fail => 'croak' };
+    use Assert::Refute { on_pass => 'carp', on_fail => 'croak' }, ":all";
     package Bar;
-    use Assert::Refute { on_pass => 'croak', on_fail => '' };
+    use Assert::Refute { on_pass => 'croak', on_fail => '' }, ":all";
 }
 
 dies_like {

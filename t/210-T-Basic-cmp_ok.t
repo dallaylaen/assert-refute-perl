@@ -7,7 +7,7 @@ use Test::More;
 
 my $c = contract {
     package T;
-    use Assert::Refute;
+    use Assert::Refute qw(:all);
     cmp_ok 1, "<", 2;
     cmp_ok 2, "<", 1;
     cmp_ok "a", "lt", "b";

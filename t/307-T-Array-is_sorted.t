@@ -30,7 +30,7 @@ note "REPORT\n".$rep->get_tap."/REPORT";
 $rep = contract {
     package T2;
     use Assert::Refute::T::Array;
-    use Assert::Refute qw(:basic);
+    use Assert::Refute qw(:all);
     # Horrible, but it works...
     is_sorted{ cmp_ok $a, "<", $b, "Inside array" } [1,2,3], "Holds";
     is_sorted{ cmp_ok $a, "<", $b, "Inside array 2" } [1,2,2,3], "Nope";

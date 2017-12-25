@@ -8,7 +8,7 @@ use Assert::Refute qw(:core);
 
 my $inner = contract {
     package T;
-    use Assert::Refute;
+    use Assert::Refute qw(:all);
     is shift, 42, "Life is fine";
 };
 

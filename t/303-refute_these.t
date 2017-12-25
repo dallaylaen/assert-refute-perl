@@ -8,7 +8,7 @@ use Assert::Refute::T::Errors;
 
 {
     package T;
-    use Assert::Refute;
+    use Assert::Refute qw(:all);
 };
 
 warns_like {

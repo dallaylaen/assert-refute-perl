@@ -2,7 +2,7 @@ package Assert::Refute::T::Hash;
 
 use strict;
 use warnings;
-our $VERSION = 0.0403;
+our $VERSION = 0.0404;
 
 =head1 NAME
 
@@ -27,7 +27,7 @@ use parent qw(Exporter);
 our @EXPORT = qw(values_are);
 
 use Assert::Refute::Build;
-use Assert::Refute; # TODO Assert::Refute::Contract please
+use Assert::Refute qw(:all); # TODO Assert::Refute::Contract please
 
 =head2 keys_are \%hash, \@required, \@allowed, "Message"
 

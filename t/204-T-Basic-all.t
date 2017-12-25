@@ -9,7 +9,7 @@ use Assert::Refute qw(contract);
 {
     # Be extra careful not to pollute the main namespace
     package T;
-    use Assert::Refute;
+    use Assert::Refute qw(:all);
 };
 
 my $c;

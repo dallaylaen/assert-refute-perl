@@ -2,7 +2,7 @@ package Assert::Refute::T::Array;
 
 use strict;
 use warnings;
-our $VERSION = 0.0402;
+our $VERSION = 0.0403;
 
 =head1 NAME
 
@@ -56,7 +56,7 @@ use parent qw(Exporter);
 our @EXPORT = qw(array_of);
 
 use Assert::Refute::Build;
-use Assert::Refute; # TODO oo interface in internals, plz
+use Assert::Refute qw(:all); # TODO oo interface in internals, plz
 
 =head2 array_of
 

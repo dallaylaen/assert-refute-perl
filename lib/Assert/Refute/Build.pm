@@ -3,7 +3,7 @@ package Assert::Refute::Build;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.05;
+our $VERSION = 0.0501;
 
 =head1 NAME
 
@@ -34,7 +34,7 @@ Extending the test suite goes as follows:
 
 This can be later used inside production code to check a condition:
 
-    use Assert::Refute;
+    use Assert::Refute qw(:all);
     use My::Package;
     my $fun_check = contract {
         is_everything( shift );

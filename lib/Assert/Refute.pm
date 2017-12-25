@@ -3,7 +3,7 @@ package Assert::Refute;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0405;
+our $VERSION = 0.0406;
 
 =head1 NAME
 
@@ -36,7 +36,7 @@ The following would die if C<$foo> doesn't meet the requirements:
 
 Or if you want more control over the execution of checks:
 
-    use Assert::Refute;
+    use Assert::Refute qw(:all);
 
     my $spec = contract {
         my ($foo, $bar) = @_;
@@ -99,15 +99,21 @@ The default is carp (issue a warning and continue on, even with wrong data).
 
 =back
 
-All of the below functions are exported by default,
-as well as some basic assumptions mirroring the L<Test::More> suite.
+All of the below functions are exported by default.
+
+    use Assert::Refute;
+
+as well as
 
     use Assert::Refute qw(:core);
 
 would only export C<contract>, C<refute>,
 C<contract_is>, C<subcontract>, and C<current_contract> functions.
 
-    use Assert::Refute qw(:basic);
+Also for convenience some basic assumptions mirroring the L<Test::More> suite
+are exportable via C<:all> export tag.
+
+    use Assert::Refute qw(:all);
 
 would export the following testing primitives:
 
@@ -138,11 +144,13 @@ my @core  = qw(
 );
 
 our @ISA = qw(Exporter);
-our @EXPORT = (@core, @basic);
+our @EXPORT = @core;
+our @EXPORT_OK = @basic;
 
 our %EXPORT_TAGS = (
     basic => \@basic,
     core  => \@core,
+    all   => [@core, @basic],
 );
 
 our $DRIVER;
