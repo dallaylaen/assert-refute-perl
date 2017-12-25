@@ -2,11 +2,26 @@
 
 **Assert::Refute** - unified testing, assertion, and design-by-contract tool
 
-# DESCRIPTION
+# SYNOPSIS
 
 This module allows to create snippets of code called *contracts*
 that behave just as a unit test would,
-but do not require the enclosing code to be a unit test.
+but do not require the enclosing code to be a unit test:
+
+    use Assert::Refute qw(:all) { on_fail => 'croak' };
+
+    # deep in the production code
+    my $data = Some::Module->bloated_untestable_sub;
+    refute_these {
+        like $data->{foo}, qr/f?o?r?m?a?t/;
+        is $data->{bar}, 42;
+        can_ok $data->{baz}, qw(do_this do_that frobnicate);
+    }; # this dies if conditions are not met
+
+This can be transferred *verbatim* into a unit-test, provided that
+the preconditions existing in production code can be reconstructed there.
+
+# DESCRIPTION
 
 A **refutation** is an inverted form of assertion:
 
@@ -15,17 +30,7 @@ A **refutation** is an inverted form of assertion:
 Succeeds silently if the condition is *false*, but fails loudly if it is *true*
 and asumes the condition value itself to be the *reason* of failure.
 
-Such inversion simplifies building and composition of tests a lot.
-Normal `is`, `like` etc can easily be built on top of that:
-
-    sub my_is($$;$) {
-        my ($got, $exp, $message) = @_;
-        refute( $got ne $exp && "$got != $exp", $message );
-        # no diag() needed!
-    };
-
-Contract-confined counterparts are pre-defined this way
-for all of Test::More's checks.
+Such inversion simplifies building and composition of conditions *a lot*.
 
 A **contract** is a group of assertions that is saved for later execution.
 Once defined, it can be applied to arbitrary data
@@ -64,16 +69,45 @@ To install this module, run the following commands:
 	make test
 	make install
 
+# CONTENT OF THIS PACKAGE
+
+* `Changes` - change log
+* `lib` - modules
+* `Makefile.PL`
+* `README.md` - this file
+* `t` - tests required for installation
+* `TODO.md` - approximate roadmap
+* `xt` - tests required for development only
+* `.githooks` - author's default pre-commit hooks
+
+The modules include:
+
+* `Assert::Refute` - the main frontend with a lot of exports
+
+* `Assert::Refute::Build` - helper module to build more test conditions
+(those would also work fine under Test::More)
+
+* `Assert::Refute::Contract` - implementations of contract *specification*
+
+* `Assert::Refute::Exec` - implementation of contract execution *report*
+
+* `Assert::Refute::Driver::*` - test backends
+(currently only Test::More compatibility layer there)
+
+* `Assert::Refute::T::*` - extra conditions and checks
+
 # SUPPORT AND DOCUMENTATION
 
-After installing, you can find documentation for this module with the
-perldoc command.
+This module is still in ALPHA version, contributions wanted.
 
-    perldoc Assert::Refute
+Test coverage is maintained at about 90%, but who knows what lurks in the
+remaining 10!
 
 Please report bugs and ask for features here:
 
     https://github.com/dallaylaen/assert-refute-perl/issues
+
+**ANY FEEDBACK WOULD BE APPRECIATED**
 
 # LICENSE AND COPYRIGHT
 

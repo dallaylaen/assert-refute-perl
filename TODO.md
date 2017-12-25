@@ -2,7 +2,6 @@
 
 # Roadmap v.0.10
 
-* 0.01 DRV Carp/croak/confess backend for bona-fide assertions
 * 0.03 MOD Round-trip assertion
 * 0.03 TST Core example: contract + subcontract + higher-order ("array-of")
 * 0.03 TST Core example: building new conditions + test-more
@@ -42,10 +41,11 @@ Please prepend the following tags to tasks as well as commit messages.
 Adding new tags to this list is ok, too.
 
 * **API** - extending API
+* **MOD** - new test conditions
 * **DRV** - adding new backends (drivers)
 * **BLD** - test builder features/bugs
 * **REF** - refactoring, internat structure changes, optimisations
 * **DOC** - improving documentation, use case descriptions
 * **TST** - adding tests/examples
 * **BUG** - bugfix
-* **AUX** - changing distribution files
+* **AUX** - changing distribution files (Makefile, README, xt tests etc)

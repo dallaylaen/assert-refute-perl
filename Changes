@@ -1,5 +1,15 @@
 Revision history for Assert-Refute
 
+0.05    Mon Dec 25 2017
+        - API BREAK Importing is, ok, like & co REQUIRES :all or :basic keyword
+        - API Add refute_these for runtime assertions
+        - API Add configure for per-caller configuration of refute_these
+        - MOD T::Hash: keys_are(), values_are()
+        - MOD T::Array: is_sorted(), list_of()
+        - TST Add a use_ok test, finally
+        - API Add get_fail_count to get number of failed tests
+        - API BREAK done_testing(0) now means don't die if locked
+
 0.04    Tue Dec 19 2017
         - API BREAK rename contract's own methods into get_*/set_*/do_*
             The new names are:
