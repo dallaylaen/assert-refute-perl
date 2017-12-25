@@ -2,7 +2,7 @@ package Assert::Refute::T::Array;
 
 use strict;
 use warnings;
-our $VERSION = 0.0401;
+our $VERSION = 0.0402;
 
 =head1 NAME
 
@@ -98,6 +98,39 @@ sub array_of ($$;$) { ## no critic
     return subcontract $message => $is_list, $list, $match;
 }
 
+=head2 is_sorted
+
+    is_sorted { $a ... $b } \@list, "message";
+
+Check that condition about ($a, $b) holds
+for every two subsequent items in array.
+
+Note that conditions are not limited to just C<$a lt $b> and similar.
+I<Any falsifiable> statement about $a and $b would fit, for instance
+
+    is_sorted { $a->{end} == $b->{start} } \@list, "Entries are connected";
+
+=cut
+
+build_refute is_sorted => sub {
+    my ($block, $list) = @_;
+
+    return '' if @$list < 2;
+
+    my $caller = caller 1;
+    my @bad;
+    my $refa = "${caller}::a";
+    my $refb = "${caller}::b";
+
+    for( my $i = 0; $i < @$list - 1; $i++) {
+        no strict 'refs'; ## no critic - need to localize caller's $a and $b
+        local $$refa = $list->[$i];
+        local $$refb = $list->[$i+1];
+        $block->() or push @bad, "($i, ".($i+1).")";
+    };
+
+    return !@bad ? '' : 'Not ordered pairs: '.join(', ', @bad);
+}, block => 1, args => 1, export => 1;
 
 =head1 LICENSE AND COPYRIGHT
 
