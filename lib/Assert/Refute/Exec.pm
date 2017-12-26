@@ -3,7 +3,7 @@ package Assert::Refute::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.05;
+our $VERSION = 0.0501;
 
 =head1 NAME
 
@@ -87,9 +87,9 @@ sub refute {
 
     $msg = $msg ? " - $msg" : '';
     my $n = ++$self->{count};
-    $self->set_result( $n, $cond );
 
     if ($cond) {
+        $self->set_result( $n, $cond );
         $self->do_log( 0, -1, "not ok $n$msg" );
         $self->do_log( 0,  1, $cond ) unless $cond eq 1;
         return 0;
@@ -286,10 +286,12 @@ for failing ones.
 sub get_result {
     my ($self, $n) = @_;
 
-    $self->_croak( "Test $n has never been performed" )
-        unless exists $self->{fail}{$n};
+    return $self->{fail}{$n} || 0
+        if exists $self->{fail}{$n};
 
-    return $self->{fail}{$n} || 0;
+    return 0 if $n =~ /^[1-9]\d*$/ and $n<= $self->{count};
+
+    $self->_croak( "Test $n has never been performed" );
 };
 
 =head3 get_error
@@ -447,6 +449,8 @@ sub get_log {
 =head3 set_result( $id, $result )
 
 Add a refutation to the failed tests log.
+
+This is not guaranteed to be called for passing tests.
 
 =cut
 
