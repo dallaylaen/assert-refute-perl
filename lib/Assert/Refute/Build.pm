@@ -3,7 +3,7 @@ package Assert::Refute::Build;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.05;
+our $VERSION = 0.0501;
 
 =head1 NAME
 
@@ -176,7 +176,10 @@ sub build_refute(@) { ## no critic # Moose-like DSL for the win!
     };
     my $wrapper = sub {
         my $message; $message = pop unless @_ <= $nargs;
-        return current_contract()->refute( scalar $cond->(@_), $message );
+        return (
+            # Ugly hack for speed in happy case
+            $Assert::Refute::DRIVER || current_contract()
+        )->refute( scalar $cond->(@_), $message );
     };
     if (!$opt{no_proto} and ($opt{block} || $opt{list} || defined $opt{args})) {
         my $proto = $opt{list} ? '@' : '$' x ($opt{args} || 0);
