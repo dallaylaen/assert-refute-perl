@@ -49,4 +49,17 @@ is $c->get_sign, "tNd", "Complex criteria - fail mode";
 
 note "CONTRACT RESULT\n", $c->get_tap, "/CONTRACT RESULT";
 
+note "PLAIN SUB SUBCONTRACT";
+
+$c = contract {
+    array_of [ { id => 1 }, { name => "foo" } ], sub {
+        $_[0]->cmp_ok( $_[1]->{id}, '>', 0, "Positive" );
+        Assert::Refute::like $_[1]->{name}, qr/^\w+$/, "Id - identifier";
+    }, "Complex criteria fail - sub";
+}->apply;
+
+is $c->get_sign, "tNd", "Complex criteria - fail mode";
+
+note "PLAIN SUB RESULT\n", $c->get_tap, "/PLAIN SUB RESULT";
+
 done_testing;

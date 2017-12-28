@@ -2,7 +2,7 @@ package Assert::Refute::T::Array;
 
 use strict;
 use warnings;
-our $VERSION = 0.0501;
+our $VERSION = 0.0502;
 
 =head1 NAME
 
@@ -68,26 +68,33 @@ Check that I<every> item in the list matches criteria, which may be one of:
 
 =item * regex - just match against regular expression;
 
-=item * L<Assert::Refute::Contract> - pass list element to this contract as
-argument.
+=item * a functions - execute that function inside a single subcontract;
+
+=item * L<Assert::Refute::Contract> - pass each element as argument to
+a I<separate> subcontract.
 
 =back
 
 =cut
 
-my $is_list = contract {
-    my ($list, $match) = @_;
+my $is_list = sub {
+    my ($report, $list, $match) = @_;
 
+    # TODO 0.30 mention list element number
     if (ref $match eq 'Regexp') {
         foreach (@$list) {
-            like $_, $match;
+            $report->like( $_, $match );
         };
-    } elsif (blessed $match) {
+    } elsif (blessed $match && $match->isa("Assert::Refute::Contract")) {
         foreach (@$list) {
-            subcontract "list item" => $match, $_;
+            $report->subcontract( "list item" => $match, $_ );
+        };
+    } elsif (UNIVERSAL::isa( $match, 'CODE' )) {
+        foreach (@$list) {
+            $match->($report, $_);
         };
     } else {
-        croak "Unknown criterion type: ".(ref $match || 'SCALAR');
+        croak "array_of: unknown criterion type: ".(ref $match || 'SCALAR');
     };
 };
 
