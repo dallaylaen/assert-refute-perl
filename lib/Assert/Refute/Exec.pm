@@ -3,7 +3,7 @@ package Assert::Refute::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0502;
+our $VERSION = 0.0503;
 
 =head1 NAME
 
@@ -229,7 +229,7 @@ sub subcontract {
         $rep = Assert::Refute::Exec->new;
         local $Assert::Refute::DRIVER = $rep;
         eval {
-            $sub->(@args);
+            $sub->($rep, @args);
             $rep->done_testing(0);
             1;
         } or do {
