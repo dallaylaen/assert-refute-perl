@@ -6,7 +6,7 @@ use Test::More;
 
 use Assert::Refute qw(:core);
 
-subcontract "Foo bared" => contract {
+subcontract "Foo bared" => sub {
     refute shift != 42, "null test";
 }, 42;
 

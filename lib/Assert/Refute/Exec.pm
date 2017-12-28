@@ -3,7 +3,7 @@ package Assert::Refute::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0501;
+our $VERSION = 0.0502;
 
 =head1 NAME
 
@@ -193,7 +193,20 @@ will be added to this L<Assert::Refute::Exec> by default.
 
 =head3 subcontract( "Message" => $specification, @arguments ... )
 
-Execute a previously defined contract and fail loudly if it fails.
+Execute a previously defined group of tests and fail loudly if it fails.
+
+$specification may be one of:
+
+=over
+
+=item * code reference - will be executed in C<eval> block, with a I<new>
+L<Assert::Refute::Exec> passed as argument;
+
+=item * L<Assert::Refute::Contract> instance - apply() will be called;
+
+=item * L<Assert::Refute::Exec> instance implying a previously executed test.
+
+=back
 
 B<[NOTE]> that the message comes first, unlike in C<refute> or other
 test conditions, and is required.
@@ -201,16 +214,35 @@ test conditions, and is required.
 =cut
 
 sub subcontract {
-    my ($self, $msg, $c, @args) = @_;
+    my ($self, $msg, $sub, @args) = @_;
 
-    $self->_croak("subcontract must be a contract definition or execution log")
-        unless blessed $c;
+    my $rep;
+    if ( blessed $sub and $sub->isa( "Assert::Refute::Contract" ) ) {
+        $rep = $sub->apply(@args);
+    } elsif (blessed $sub and $sub->isa( "Assert::Refute::Exec" ) ) {
+        $self->_croak("pre-executed subcontract cannot take args")
+            if @args;
+        $self->_croak("pre-executed subcontract must be finished")
+            unless $sub->is_done;
+        $rep = $sub;
+    } elsif (UNIVERSAL::isa( $sub, 'CODE' )) {
+        $rep = Assert::Refute::Exec->new;
+        local $Assert::Refute::DRIVER = $rep;
+        eval {
+            $sub->(@args);
+            $rep->done_testing(0);
+            1;
+        } or do {
+            $rep->done_testing( $@ || "Execution interrupted" );
+        };
+    } else {
+        $self->_croak("subcontract must be a contract definition or execution log");
+    };
 
-    my $exec = $c->isa("Assert::Refute::Contract") ? $c->apply(@args) : $c;
-    my $stop = !$exec->is_passing;
+    my $stop = !$rep->is_passing;
     $self->refute( $stop, "$msg (subtest)" );
     if ($stop) {
-        my $log = $exec->get_log;
+        my $log = $rep->get_log;
         $self->do_log( $_->[0]+1, $_->[1], $_->[2] )
             for @$log;
     };
@@ -394,6 +426,37 @@ please try to stick to C<do_*>, C<get_*>, and C<set_*>
 to avoid clash with test names.
 
 This is weird and probably has to be fixed at some point.
+
+=head3 do_run( $code, @list )
+
+Run given CODEREF, passing self as both first argument I<and>
+current_contract().
+Report object is locked afterwards via L</done_testing> call.
+
+Returns self.
+
+Example usage is
+
+    Assert::Refute::Exec->new->run( sub {
+        like $this, qr/.../;
+        can_ok $that, qw(foo bar frobnicate);
+    } );
+
+=cut
+
+sub do_run {
+    my ($self, $code, @args) = @_;
+    local $Assert::Refute::DRIVER = $self;
+    eval {
+        $code->($self, @args);
+        $self->done_testing(0);
+        1;
+    } || do {
+        $self->done_testing(
+            $@ || Carp::shortmess( 'Contract execution interrupted' ) );
+    };
+    return $self;
+};
 
 =head3 do_log( $indent, $level, $message )
 

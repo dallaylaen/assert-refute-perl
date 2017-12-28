@@ -3,7 +3,7 @@ package Assert::Refute;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.05;
+our $VERSION = 0.0501;
 
 =head1 NAME
 
@@ -262,15 +262,7 @@ sub refute_these(&;@) { ## no critic # need prototype
         || __PACKAGE__->configure( {}, scalar caller );
 
     # This is generally a ripoff of A::R::Contract->apply
-    my $report = Assert::Refute::Exec->new;
-    local $DRIVER = $report;
-    eval {
-        $block->($report);
-        $report->done_testing(0);
-        1;
-    } || do {
-        $report->done_testing($@ || "refute_these block was interrupted");
-    };
+    my $report = Assert::Refute::Exec->new->do_run($block);
 
     # perform whatever action is needed
     my $callback = $conf->{ $report->is_passing ? "on_pass" : "on_fail" };
