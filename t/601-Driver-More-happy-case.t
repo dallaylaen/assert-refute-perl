@@ -7,7 +7,7 @@ use Test::More;
 use Assert::Refute qw(:core);
 
 subcontract "Foo bared" => sub {
-    refute shift != 42, "null test";
+    refute $_[1] != 42, "null test";
 }, 42;
 
 ok 1, "intermix 1";
