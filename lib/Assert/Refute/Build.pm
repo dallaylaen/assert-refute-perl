@@ -3,7 +3,7 @@ package Assert::Refute::Build;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0501;
+our $VERSION = 0.0502;
 
 =head1 NAME
 
@@ -114,6 +114,14 @@ Options may include:
 =item * C<no_create> => 1 - don't generate a function at all, just add to
 L<Assert::Refute>'s methods.
 
+=item * C<manual> => 1 - don't generate any code.
+Instead, assume that user has already done that and just add a method
+to L<Assert::Refute::Exec> and a prototyped exportable wrapper.
+
+This may be useful to create refutations based on subcontract or such.
+
+B<[EXPERIMENTAL]>.
+
 =item * C<args> => C<nnn> - number of arguments.
 This will generate a prototyped function
 accepting C<nnn> scalars + optional description.
@@ -137,7 +145,7 @@ my %Backend;
 my %Carp_not;
 my $trash_can = __PACKAGE__."::generated::For::Cover::To::See";
 my %known;
-$known{$_}++ for qw(args list block no_proto
+$known{$_}++ for qw(args list block no_proto manual
     export export_ok no_create);
 
 sub build_refute(@) { ## no critic # Moose-like DSL for the win!
@@ -148,7 +156,7 @@ sub build_refute(@) { ## no critic # Moose-like DSL for the win!
     if ($name =~ /^(get_|set_|do_)/) {
         croak "build_refute(): fucntion name shall not start with get_, set_, or do_";
     };
-    if (my $backend = ( $class->can($name) ? $class : $Backend{$name} ) ) {
+    if (my $backend = ( $class->can($name) && ($Backend{$name} || $class )) ) {
         croak "build_refute(): '$name' already registered by $backend";
     };
     my @extra = grep { !$known{$_} } keys %opt;
@@ -168,13 +176,15 @@ sub build_refute(@) { ## no critic # Moose-like DSL for the win!
     $nargs++ if $opt{block};
 
     # TODO Add executability check if $block
-    my $method  = sub {
+    my $method  = $opt{manual} ? $cond : sub {
         my $self = shift;
         my $message; $message = pop unless @_ <= $nargs;
 
         return $self->refute( scalar $cond->(@_), $message );
     };
-    my $wrapper = sub {
+    my $wrapper = $opt{manual} ? sub {
+        return $cond->( $Assert::Refute::DRIVER || current_contract(), @_ );
+    } : sub {
         my $message; $message = pop unless @_ <= $nargs;
         return (
             # Ugly hack for speed in happy case
