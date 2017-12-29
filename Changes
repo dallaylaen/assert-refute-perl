@@ -1,5 +1,14 @@
 Revision history for Assert-Refute
 
+0.06    Sat Dec 30 2017
+        - TST Add cross-platform Test::More integration test
+        - DRV Add subcontract, done_testing to Driver::More
+        - MOD Redo T::Array, T::Hash with better build_refute
+        - BLD Add manual=>0|1 flag to simplify building sophisticated wrappers
+        - API Add A::R::Exec->do_run, subcontract accepts sub
+        - REF Speedup
+        - TST Upgrade tests to work on perl 5.6.2
+
 0.05    Mon Dec 25 2017
         - API BREAK Importing is, ok, like & co REQUIRES :all or :basic keyword
         - API Add refute_these for runtime assertions

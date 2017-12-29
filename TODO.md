@@ -9,11 +9,15 @@
 # Backlog v.0.20
 
 * 0.03 TST More examples
-* 0.03 BLD Convert subcontract into exportable sub
 * 0.02 MOD Module to check that "foo" is really implementation of "bar"
 * 0.01 API plan tests => nnn
 * 0.01 DRV Own Unit-testing backend
 * 0.02 API Some extra goodies to contract {...} like title
+* 0.05 MOD T::Array: arbitrary condition for adjacent elements
+* 0.05 MOD Numeric: `between`, `within_delta`, relative delta
+* 0.05 API Throw away Contract class as `do_run` takes over
+* 0.05 API Make sugar for `A::R::Exec->new->do_run`
+* 0.05 MOD `maybe_is` for undef | scalar | regex | contract
 
 # Backlog v.0.30+
 
@@ -21,6 +25,9 @@
 * 0.02 API Short-circuit - just fail, don't conduct the whole set.
 * 0.03 REF Decouple Exec class into Report + Driver
 * 0.03 DRV A TAP consumer class
+* 0.05 MOD T::Array: point misbehaving elements in all tests
+* 0.05 API Exec: configurable verbosity level
+* 0.05 MOD Provide what Test::Most can
 
 # Need to think harder
 
