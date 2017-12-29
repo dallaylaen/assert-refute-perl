@@ -2,7 +2,7 @@ package Assert::Refute::T::Hash;
 
 use strict;
 use warnings;
-our $VERSION = 0.05;
+our $VERSION = 0.0501;
 
 =head1 NAME
 
@@ -75,7 +75,7 @@ For each key in %spec, check corresponding value in %hash:
 
 =item * if spec is a regular expression, apply it (C<like>);
 
-=item * if spec is a contract, apply it to the value (C<subcontract>);
+=item * if spec is a contract or sub, apply it to the value (C<subcontract>);
 
 =back
 
@@ -85,30 +85,26 @@ an unconditionally failed test.
 
 =cut
 
-my $check_values = contract {
-    my ($hash, $spec) = @_;
-
-    foreach ( keys %$spec ) {
-        my $cond = $spec->{$_};
-        if (!ref $cond) {
-            is $hash->{$_}, $cond, "$_ exact value";
-        } elsif (ref $cond eq 'Regexp') {
-            like $hash->{$_}, $cond, "$_ regex";
-        } elsif (blessed $cond) {
-            subcontract "$_ contract" => $cond, $hash->{$_};
-        } else {
-            # TODO bail_out when we can
-            carp  "FIX TEST! Unexpected value in spec: '$_'=". ref $cond;
-            croak "FIX TEST! Unexpected value in spec: '$_'=". ref $cond;
-        };
-    };
-};
-
 sub values_are {
     my ($hash, $spec, $message) = @_;
 
     $message ||= "hash values as expected";
-    subcontract $message => $check_values->apply( $hash, $spec );
+    subcontract $message => sub {
+        foreach ( keys %$spec ) {
+            my $cond = $spec->{$_};
+            if (!ref $cond) {
+                is $hash->{$_}, $cond, "$_ exact value";
+            } elsif (ref $cond eq 'Regexp') {
+                like $hash->{$_}, $cond, "$_ regex";
+            } elsif (blessed $cond or UNIVERSAL::isa($cond, 'CODE')) {
+                subcontract "$_ contract" => $cond, $hash->{$_};
+            } else {
+                # TODO bail_out when we can
+                carp  "FIX TEST! Unexpected value in spec: '$_'=". ref $cond;
+                croak "FIX TEST! Unexpected value in spec: '$_'=". ref $cond;
+            };
+        };
+    };
 };
 
 =head1 LICENSE AND COPYRIGHT
