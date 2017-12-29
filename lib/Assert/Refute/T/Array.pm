@@ -2,7 +2,7 @@ package Assert::Refute::T::Array;
 
 use strict;
 use warnings;
-our $VERSION = 0.0502;
+our $VERSION = 0.0503;
 
 =head1 NAME
 
@@ -77,33 +77,31 @@ a I<separate> subcontract.
 
 =cut
 
-my $is_list = sub {
-    my ($report, $list, $match) = @_;
-
-    # TODO 0.30 mention list element number
-    if (ref $match eq 'Regexp') {
-        foreach (@$list) {
-            $report->like( $_, $match );
-        };
-    } elsif (blessed $match && $match->isa("Assert::Refute::Contract")) {
-        foreach (@$list) {
-            $report->subcontract( "list item" => $match, $_ );
-        };
-    } elsif (UNIVERSAL::isa( $match, 'CODE' )) {
-        foreach (@$list) {
-            $match->($report, $_);
-        };
-    } else {
-        croak "array_of: unknown criterion type: ".(ref $match || 'SCALAR');
-    };
-};
-
-sub array_of ($$;$) { ## no critic
-    my ($list, $match, $message) = @_;
+build_refute array_of => sub {
+    my ($self, $list, $match, $message) = @_;
 
     $message ||= "list of";
-    return subcontract $message => $is_list, $list, $match;
-}
+    $self->subcontract( $message => sub {
+        my $report = shift;
+
+        # TODO 0.30 mention list element number
+        if (ref $match eq 'Regexp') {
+            foreach (@$list) {
+                $report->like( $_, $match );
+            };
+        } elsif (blessed $match && $match->isa("Assert::Refute::Contract")) {
+            foreach (@$list) {
+                $report->subcontract( "list item" => $match, $_ );
+            };
+        } elsif (UNIVERSAL::isa( $match, 'CODE' )) {
+            foreach (@$list) {
+                $match->($report, $_);
+            };
+        } else {
+            croak "array_of: unknown criterion type: ".(ref $match || 'SCALAR');
+        };
+    } ); # end subcontract
+}, export => 1, manual => 1, args => 2;
 
 =head2 is_sorted
 

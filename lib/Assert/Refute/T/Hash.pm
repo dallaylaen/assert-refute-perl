@@ -2,7 +2,7 @@ package Assert::Refute::T::Hash;
 
 use strict;
 use warnings;
-our $VERSION = 0.0501;
+our $VERSION = 0.0502;
 
 =head1 NAME
 
@@ -85,11 +85,11 @@ an unconditionally failed test.
 
 =cut
 
-sub values_are {
-    my ($hash, $spec, $message) = @_;
+build_refute values_are => sub {
+    my ($self, $hash, $spec, $message) = @_;
 
     $message ||= "hash values as expected";
-    subcontract $message => sub {
+    $self->subcontract( $message => sub {
         foreach ( keys %$spec ) {
             my $cond = $spec->{$_};
             if (!ref $cond) {
@@ -104,8 +104,8 @@ sub values_are {
                 croak "FIX TEST! Unexpected value in spec: '$_'=". ref $cond;
             };
         };
-    };
-};
+    });
+}, manual => 1, args => 2, export => 1;
 
 =head1 LICENSE AND COPYRIGHT
 
