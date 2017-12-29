@@ -3,7 +3,7 @@ package Assert::Refute::Driver::More;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.05;
+our $VERSION = 0.0501;
 
 =head1 NAME
 
@@ -85,15 +85,34 @@ sub refute {
     $self->SUPER::refute($reason, $mess);
 };
 
+=head2 subcontract
+
+Proxy to L<Test::More>'s subtest.
+
+=cut
+
+sub subcontract {
+    my ($self, $mess, $todo, @args) = @_;
+
+    $self->{builder}->subtest( $mess => sub {
+        my $rep = (ref $self)->new( builder => $self->{builder} )->do_run(
+            $todo, @args
+        );
+        # TODO also save $rep result in $self
+    } );
+};
+
 =head2 done_testing
 
-This dies. Use C<done_testing> in L<Test::More> instead.
+Proxy for C<done_testing> in L<Test::More>.
 
 =cut
 
 sub done_testing {
-    # We never stop!
-    croak "Use Test::More native done_testing";
+    my $self = shift;
+
+    $self->{builder}->done_testing;
+    $self->SUPER::done_testing;
 };
 
 =head2 do_log( $indent, $level, $message )
