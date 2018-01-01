@@ -57,6 +57,11 @@ producing a summary of passed/failed checks.
 A **subcontract** is an application of a preexisting contract
 to the data at hand as a single check.
 
+The current implementations also allows arbitrary functions
+containing refutations to be used in `subcontract` call,
+in which case the subcontract execution report is always
+given as the  first argument.
+
 These three elements allow for creation of arbitarily complex checks
 applicable uniformly in production code or test scripts.
 
@@ -72,9 +77,10 @@ To install this module, run the following commands:
 # CONTENT OF THIS PACKAGE
 
 * `Changes` - change log
+* `examples` - really simple scripts demonstrating usage
 * `lib` - modules
 * `Makefile.PL`
-* `README.md` - this file
+* `README.md`/`README` - this file
 * `t` - tests required for installation
 * `TODO.md` - approximate roadmap
 * `xt` - tests required for development only

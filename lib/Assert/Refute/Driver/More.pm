@@ -3,7 +3,7 @@ package Assert::Refute::Driver::More;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.06;
+our $VERSION = 0.07;
 
 =head1 NAME
 

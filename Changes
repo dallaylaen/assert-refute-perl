@@ -1,5 +1,9 @@
 Revision history for Assert-Refute
 
+0.07    Mon Jan 1 2018
+        - MOD Add T::Numeric with is_between, within_delta, and within_relative
+        - TST Add examples
+
 0.06    Sat Dec 30 2017
         - TST Add cross-platform Test::More integration test
         - DRV Add subcontract, done_testing to Driver::More
