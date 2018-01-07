@@ -4,6 +4,9 @@ use strict;
 use warnings;
 use Test::More;
 
+# Make sure to work under cover -t
+$ENV{HARNESS_PERL_SWITCHES} ||= '';
+
 # Calculate where Assert::Refute loads from
 my $path;
 eval {
@@ -42,8 +45,9 @@ sub run_cmd {
 
     $cmd =~ /"'/ and die "No quotes in command, use qq{...} instead";
 
-    my $pid = open my $fd, "-|", qq{$^X -e ${q}$preamble$cmd${q}}
-        or die "Failed to run perl: $!";
+    my $pid = open my $fd, "-|"
+        , qq{$^X $ENV{HARNESS_PERL_SWITCHES} -e ${q}$preamble$cmd${q}}
+            or die "Failed to run perl: $!";
 
     local $/;
     my $out = <$fd>;
@@ -73,6 +77,10 @@ my $smoke_subtest = run_cmd( "subcontract inner => sub { refute reason => q{fail
 like $smoke_subtest, qr/\nnot ok 1 - inner/, "subtest failed";
 like $smoke_subtest, qr/\n +not ok 2/, "Inner test there";
 like $smoke_subtest, qr/\n +# reason/, "Fail reason present";
+
+note "NOTE";
+my $smoke_note = run_cmd( "current_contract->note(q{it works}); done_testing" );
+like $smoke_note, qr/^# it works/, "Note works";
 
 note "SUBTEST CONTENT\n$smoke_subtest/SUBTEST CONTENT";
 
