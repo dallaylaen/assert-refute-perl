@@ -3,7 +3,7 @@ package Assert::Refute::Contract;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.07;
+our $VERSION = 0.0701;
 
 =head1 NAME
 
@@ -78,12 +78,12 @@ Negative maximum value means unlimited.
 
 my @new_required  = qw( code );
 my @new_essential = (@new_required, qw( need_object args ));
-my @new_optional  = qw( backend );
+my @new_optional  = qw( driver );
 
 my %new_arg;
 $new_arg{$_}++ for @new_essential, @new_optional;
 
-my $def_backend = "Assert::Refute::Exec";
+my $def_driver = "Assert::Refute::Exec";
 
 sub new {
     my ($class, %opt) = @_;
@@ -102,18 +102,17 @@ sub new {
     # argument count:
     # * n means exactly n
     # * (n, m) means from n to m
-    # * (n, 0) means from n to inf
-    my $args = delete $opt{args};
+    # * (n, -1) means from n to inf
+    my $args = $opt{args};
     $args = [0, -1] unless defined $args; # == 0 is ok
     $args = [ $args, $args ] unless ref $args eq 'ARRAY';
     $args->[1] = 9**9**9 if $args->[1] < 0;
     croak "Meaningless argument limits [$args->[0], $args->[1]]"
         unless $args->[0] <= $args->[1];
-    $opt{minarg} = $args->[0];
-    $opt{maxarg} = $args->[1];
+    $opt{args} = $args;
 
-    # TODO validate backend
-    $opt{backend}    ||= $def_backend;
+    # TODO validate driver
+    $opt{driver}    ||= $def_driver;
 
     bless \%opt, $class;
 };
@@ -128,7 +127,7 @@ The name is not perfect, better ideas wanted.
 
 =over
 
-=item * backend - the class to perform tests.
+=item * driver - the class to perform tests.
 
 =back
 
@@ -140,6 +139,12 @@ sub adjust {
     my @dont = grep { $opt{$_} } @new_essential;
     croak( "Attempt to override essential parameters @dont" )
         if @dont;
+
+    if (defined $opt{backend}) {
+        # TODO 0.20 kill it
+        carp( (ref $self)."->adjust: 'backend' is deprecated, use 'driver' instead");
+        $opt{driver} = delete $opt{backend};
+    };
 
     return (ref $self)->new( %$self, %opt );
 };
@@ -155,12 +160,12 @@ Returns a locked L<Assert::Refute::Exec> instance.
 sub apply {
     my ($self, @args) = @_;
 
-    my $c = $self->{backend};
+    my $c = $self->{driver};
     $c = $c->new unless ref $c;
     # TODO plan tests, argument check etc
 
-    croak "contract->apply: expected from $self->{minarg} to $self->{maxarg} parameters"
-        unless $self->{minarg} <= @args and @args <= $self->{maxarg};
+    croak "contract->apply: expected from $self->{args}[0] to $self->{args}[1] parameters"
+        unless $self->{args}[0] <= @args and @args <= $self->{args}[1];
 
     unshift @args, $c if $self->{need_object};
     local $Assert::Refute::DRIVER = $c;
