@@ -3,7 +3,7 @@ package Assert::Refute;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0701;
+our $VERSION = 0.0702;
 
 =head1 NAME
 
@@ -11,83 +11,75 @@ Assert::Refute - Unified testing and assertion tool
 
 =head1 DESCRIPTION
 
-This module adds L<Test::More>-like code snippets called I<contracts>
+This module adds L<Test::More>-like code snippets
 to your production code, without turning the whole application
 into a giant testing script.
 
-Each contract is compiled once and executed multiple times,
-generating reports objects that can be queried to be successful
-or printed out as TAP if needed.
+This can be though of as a lightweight design-by-contract form.
 
-The condition arsenal may be extended, producing functions that will run
-uniformly both inside C<contract> blocks and in a unit-testing script.
+New testing conditions may be added quite easily,
+working exactly the same in both production environment and test scripts.
 
 =head1 SYNOPSIS
 
-The following would die if C<$foo> doesn't meet the requirements:
+The following code will issue a warning if required conditions are not met:
 
-    use Assert::Refute { on_fail => 'croak' };
+    use Assert::Refute qw( :all );
 
-    my $foo = frobnicate();
+    my ($foo, $bar, $baz);
+
+    # .......
+    # Big and hard to test chunk of code here
+    # .......
+
     refute_these {
-        like $foo->{text}, qr/f?o?r?m?a?t/;
-        is $foo->{error}, undef;
+        like $foo, qr/f?o?r?m?a?t/, "Format as expected";
+        can_ok $bar, qw( do_this do_that frobnicate ),
+            "Duck-typing an object";
+        cmp_ok $baz, ">", 0, "baz is positive";
     };
 
-Or if you want more control over the execution of checks:
+As the chunk-of-code is being rewritten into a proper function,
+the C<refute_these> block may serve as both a safety net
+and a prototype of a future unit test.
 
-    use Assert::Refute qw(:all);
+The same may be written without polluting the calling package's namespace:
 
-    my $spec = contract {
-        my ($foo, $bar) = @_;
-        is $foo, 42, "Life";
-        like $bar, qr/b.*a.*r/, "Regex";
+    use Assert::Refute;
+
+    refute_these {
+        my $report = shift;
+        $report->is( $foo, 42, "Meaning of life" );
+        $report->like( $bar, qr/f?o?r?m?a?t?/, "Text as expected" );
     };
 
-    # later
-    my $report = $spec->apply( 42, "bard" );
-    $report->get_count;  # 2
-    $report->is_passing; # true
-    $report->get_tap;    # printable summary *as if* it was Test::More
+For well-written and well-tested code the use cases may be more subtle.
+Still some invariants may be worth a runtime check just in case.
 
-Note that Assert::Refute aims to be as non-invasive as possible.
-You can muffle condition checks at will or make them fatal,
-or copy them from production code to a unit-test.
+The consequences of both passing and failing assertion block
+can be fine-tuned, as in:
 
-=head1 REFUTATIONS AND CONTRACTS
+    use Assert::Refute {
+        on_fail => 'croak',
+        on_pass => sub { my $report = shift; $logger->debug(...); },
+    };
 
-C<refute($condition, $message)> stands for an inverted assertion.
-If $condition is B<false>, it is regarded as a B<success>.
-If it is B<true>, however, it is considered to be the B<reason>
-for a failing test.
-
-This is similar to how Unix programs set their exit code,
-or to Perl's own C<$@> variable,
-or to the I<falsifiability> concept in science.
-
-A C<contract{ ... }> is as block of code containing various assumptions
-about its input.
-An execution of such block is considered successful if I<none>
-of these assumptions were refuted.
-
-A C<subcontract> is an execution of previously defined contract
-in scope of the current one, succeeding silently, but failing loudly.
-
-These three primitives can serve as building blocks for arbitrarily complex
-assertions, tests, and validations.
+See L</EXPORT> and L</configure> below.
+See also L<Assert::Refute::Exec> for the underlying object-oriented interface.
 
 =head1 EXPORT
 
 Per-package configuration parameters can be passed as hash refs in
-use statement. Anything that is I<not> hash is passed to exporter module:
+use statement. Anything that is I<not> hash is passed to L<Exporter> module:
 
-    use Assert::Refute { on_fail => 'croak' }, "carp_assert";
+    use Assert::Refute { on_fail => 'croak' }, "refute_these";
 
-Or more generally (though without any meaning and likely to die in the future):
+Or more generally
+(this actually dies because C<foo> and C<bar> parameters are not expected):
 
     use Assert::Refute { foo => 42 }, "refute", "contract", { bar => 137 };
 
-Valid configuration parameters are:
+Valid configuration parameters are (see L</configure> below):
 
 =over
 
@@ -96,6 +88,9 @@ The default is skip, i.e. do nothing.
 
 =item * on_fail => skip|carp|croak - what to do when conditions are I<not> met.
 The default is carp (issue a warning and continue on, even with wrong data).
+
+=item * driver => class - specify an L<Assert::Refute::Exec> subclass
+to actually execute the tests, if you need to.
 
 =back
 
@@ -123,8 +118,21 @@ C<contract_is>, C<subcontract>, C<is_deeply>, C<note>, C<diag>.
 
 See L<Assert::Refute::T::Basic> for more.
 
-Use L<Assert::Refute::Contract> if you insist on no exports and purely
-object-oriented interface.
+This distribution also bundles some extra conditions:
+
+=over
+
+=item * L<Assert::Refute::T::Array> - inspect list structure;
+
+=item * L<Assert::Refute::T::Errors> - verify exceptions and warnings;
+
+=item * L<Assert::Refute::T::Hash> - inspect hash keys and values;
+
+=item * L<Assert::Refute::T::Numeric> - make sure numbers fit certain intervals;
+
+=back
+
+Those need to be C<use>d explicitly.
 
 =cut
 
@@ -191,50 +199,6 @@ my %default_conf = (
     on_pass => 'skip',
 );
 
-=head2 contract { ... }
-
-Create a contract specification object for future use.
-The form is either
-
-    my $spec = contract {
-        my @args = @_;
-        # ... work on input
-        refute $condition, $message;
-    };
-
-or
-
-    my $spec = contract {
-        my ($contract, @args) = @_;
-        # ... work on input
-        $contract->refute( $condition, $message );
-    } need_object => 1;
-
-The C<need_object> form may be preferable if one doesn't want to pollute the
-main namespace with test functions (C<is>, C<ok>, C<like> etc)
-and instead intends to use object-oriented interface.
-
-Other options are TBD.
-
-Note that contract does B<not> validate anything by itself,
-it just creates a read-only L<Assert::Refute::Contract>
-object sitting there and waiting for an C<apply> call.
-
-The C<apply> call returns a L<Assert::Refute::Exec> object containing
-results of specific execution.
-
-This is much like C<prepare> / C<execute> works in L<DBI>.
-
-=cut
-
-sub contract (&@) { ## no critic
-    my ($todo, %opt) = @_;
-
-    # TODO check
-    $opt{code} = $todo;
-    return Assert::Refute::Contract->new( %opt );
-};
-
 =head2 refute_these { ... }
 
 Refute several conditions, warn or die if they fail,
@@ -273,16 +237,72 @@ sub refute_these(&;@) { ## no critic # need prototype
 
 =head2 refute( $condition, $message )
 
-Test a condition using the current contract.
-If no contract is being executed, dies.
+Test one condition in scope of the current contract.
 
-The test passes if the $condition is I<false>,
-and fails otherwise.
+The test passes if the C<$condition> is I<false>, and fails otherwise.
+C<$condition> is then assumed to be the I<reason> of failure.
+You can think of it as C<ok> and C<diag> combined.
+
+Returns true for a passing test and false for a failing one.
+Dies if no contract is being executed as the time.
 
 =cut
 
 sub refute ($$) { ## no critic
     current_contract()->refute(@_);
+};
+
+=head2 contract { ... }
+
+Create a contract specification object for future use:
+
+    use Assert::Refute qw(:all);
+
+    my $spec = contract {
+        my ($foo, $bar) = @_;
+        is $foo, 42, "Life";
+        like $bar, qr/b.*a.*r/, "Regex";
+    };
+
+    # later
+    my $report = $spec->apply( 42, "bard" );
+    $report->get_count;  # 2
+    $report->is_passing; # true
+    $report->get_tap;    # printable summary *as if* it was Test::More
+
+The same may be written as
+
+    my $spec = contract {
+        my ($report, @args) = @_;
+        $report->is( ... );
+        $report->like( ... );
+    } need_object => 1;
+
+The C<need_object> form may be preferable if one doesn't want to pollute the
+main namespace with test functions (C<is>, C<ok>, C<like> etc)
+and instead intends to use object-oriented interface.
+
+Other options are TBD.
+
+Note that contract does B<not> validate anything by itself,
+it just creates a read-only L<Assert::Refute::Contract>
+object sitting there and waiting for an C<apply> call.
+
+The C<apply> call returns a L<Assert::Refute::Exec> object containing
+results of specific execution.
+
+This is much like C<prepare> / C<execute> works in L<DBI>.
+
+See L<Assert::Refute::Contract> for the underlying object-oriented interface.
+
+=cut
+
+sub contract (&@) { ## no critic
+    my ($todo, %opt) = @_;
+
+    # TODO check
+    $opt{code} = $todo;
+    return Assert::Refute::Contract->new( %opt );
 };
 
 =head2 subcontract( "Message" => $contract, @arguments )
@@ -291,6 +311,9 @@ Execute a previously defined contract and fail loudly if it fails.
 
 B<[NOTE]> that the message comes first, unlike in C<refute> or other
 test conditions, and is I<required>.
+
+A I<contract> may be an L<Assert::Refute::Contract> object
+or just a subroutine accepting an L<Assert::Refute::Exec> as first argument.
 
 For instance, one could apply a previously defined validation to a
 structure member:
@@ -349,7 +372,8 @@ for even more fine-grained control.
     Assert::Refute->configure( \%options, "My::Package");
 
 Set per-caller package configuration values for given package.
-Called implicitly C<use Assert::Refute { ... }> if parameters are given.
+C<configure> is called implicitly by C<use Assert::Refute { ... }>
+if parameter hash is present.
 
 These are adhered to by L</refute_these>, mostly.
 
@@ -368,7 +392,7 @@ as execution report.
 =back
 
 The callbacks MUST be either
-a C<CODEREF> accepting L<Assert::Refute::Report> object,
+a C<CODEREF> accepting L<Assert::Refute::Exec> object,
 or one of predefined strings:
 
 =over
@@ -450,18 +474,71 @@ specialized tool exists for doing that.
 Use L<Assert::Refute::Build> to define new I<checks> as
 both prototyped exportable functions and their counterpart methods
 in L<Assert::Refute::Exec>.
-Such functions will then run just fine in both C<contract> blocks
-and usual unit-testing scripts built with L<Test::More>.
+These functions will perform absolutely the same
+under control of C<refute_these>, C<contract>, and L<Test::More>:
 
-Subclass L<Assert::Refute::Exec> to create new I<drivers>, for instance,
-to register failed/passed tests in your unit-testing framework of choice
+    package My::Prime;
+
+    use Assert::Refute::Build;
+    use parent qw(Exporter);
+
+    build_refute is_prime => sub {
+        my $n = shift;
+        return "Not a natural number: $n" unless $n =~ /^\d+$/;
+        return "$n is not prime" if $n <= 1;
+        for (my $i = 2; $i*$i <= $n; $i++) {
+            return "$i divides $n" unless $n % $i;
+        };
+        return '';
+    }, args => 1, export => 1;
+
+Much later:
+
+    use My::Prime;
+
+    is_prime 101, "101 is prime";
+    is_prime 42, "Life is simple"; # not true
+
+Note that the implementation C<sub {...}> only cares about its arguments,
+and doesn't do anything except returning a value - it's a I<pure function>.
+
+Yet the exact reason for $n not being a prime will be reflected in test output.
+
+One can also subclass L<Assert::Refute::Exec>
+to create new I<drivers>, for instance,
+to register failed/passed tests in a unit-testing framework of choice
 or generate warnings/exceptions when conditions are not met.
+
+That's how L<Test::More> integration is done -
+see L<Assert::Refute::Driver::More>.
+
+=head1 WHY REFUTE
+
+Communicating a passing test normally requires 1 bit of information:
+everything went as planned.
+For failing test, however, as much information as possible is desired.
+
+Thus C<refute($condition, $message)> stands for an inverted assertion.
+If $condition is B<false>, it is regarded as a B<success>.
+If it is B<true>, however, it is considered to be the B<reason>
+for a failing test.
+
+This is similar to how Unix programs set their exit code,
+or to Perl's own C<$@> variable,
+or to the I<falsifiability> concept in science.
+
+A C<subcontract> is a result of multiple checks,
+combined into a single refutation.
+It will succeed silently, yet spell out details if it doesn't pass.
+
+These primitives can serve as building blocks for arbitrarily complex
+assertions, tests, and validations.
 
 =head1 BUGS
 
 This module is still in ALPHA stage.
 
-Test coverage is maintained at >80%, but who knows what lurks in the other 20%.
+Test coverage is maintained at >90%, but who knows what lurks in the other 10%.
 
 See L<https://github.com/dallaylaen/assert-refute-perl/issues>
 to browse old bugs or report new ones.
