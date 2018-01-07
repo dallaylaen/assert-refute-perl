@@ -2,7 +2,7 @@ package Assert::Refute::T::Array;
 
 use strict;
 use warnings;
-our $VERSION = 0.07;
+our $VERSION = 0.0701;
 
 =head1 NAME
 
@@ -127,14 +127,13 @@ build_refute is_sorted => sub {
     # So localize them through a hack.
     my ($refa, $refb) = do {
         my $caller = caller 1;
-        no strict 'refs'; ## no critic
+        no strict 'refs'; ## no critic - need to localize $a and $b
         \(*{$caller."::a"}, *{$caller."::b"});
     };
     local (*$refa, *$refb);
 
     my @bad;
     for( my $i = 0; $i < @$list - 1; $i++) {
-        no strict 'refs'; ## no critic - need to localize caller's $a and $b
         *$refa = \$list->[$i];
         *$refb = \$list->[$i+1];
         $block->() or push @bad, "($i, ".($i+1).")";
