@@ -2,7 +2,7 @@ package Assert::Refute::T::Array;
 
 use strict;
 use warnings;
-our $VERSION = 0.0701;
+our $VERSION = 0.0702;
 
 =head1 NAME
 
@@ -110,10 +110,8 @@ build_refute array_of => sub {
 Check that condition about ($a, $b) holds
 for every two subsequent items in array.
 
-Note that conditions are not limited to just C<$a lt $b> and similar.
-I<Any falsifiable> statement about $a and $b would fit, for instance
-
-    is_sorted { $a->{end} == $b->{start} } \@list, "Entries are connected";
+Consider using C<reduce_subtest{ $a ... $b }> instead if there's a complex
+condition inside.
 
 =cut
 
@@ -141,6 +139,74 @@ build_refute is_sorted => sub {
 
     return !@bad ? '' : 'Not ordered pairs: '.join(', ', @bad);
 }, block => 1, args => 1, export => 1;
+
+=head2 map_subtest { ok $_ } \@list, "message";
+
+Execute a subcontract that applies checks in { ... }
+to every element of an array.
+
+Return value of code block is B<ignored>.
+
+Automatically succeeds if there are no elements.
+
+B<[EXPERIMENTAL]> Name and meaning may change in the future.
+
+=cut
+
+build_refute map_subtest => sub {
+    my ($self, $code, $data, $message) = @_;
+
+    $message ||= "map_subtest";
+
+    $self->subcontract( $message => sub {
+        $code->($_[0]) for @$data;
+    } );
+}, block => 1, export => 1, manual => 1, args => 1;
+
+=head2 reduce_subtest { $a ... $b } \@list, "message";
+
+Applies checks in { ... } to every pair of subsequent elements in list.
+The element with lower number is $a, and with higher number is $b.
+
+    reduce_subtest { ... } [1,2,3,4];
+
+would induce pairs:
+
+    ($a = 1, $b = 2), ($a = 2, $b = 3), ($a = 3, $b = 4)
+
+Return value of code block is B<ignored>.
+
+Automatically succeeds if list has less than 2 elements.
+
+B<[EXPERIMENTAL]> Name and meaning may change in the future.
+
+=cut
+
+build_refute reduce_subtest => sub {
+    my ($self, $block, $list, $name) = @_;
+
+    $name ||= "reduce_subtest";
+    # empty list always ok
+    return $self->refute( 0, $name ) if @$list < 2;
+
+    # Unfortunately, $a and $b are package variables
+    # of the *calling* package...
+    # So localize them through a hack.
+    my ($refa, $refb) = do {
+        my $caller = caller 1;
+        no strict 'refs'; ## no critic - need to localize $a and $b
+        \(*{$caller."::a"}, *{$caller."::b"});
+    };
+
+    $self->subcontract( $name => sub {
+        local (*$refa, *$refb);
+        for( my $i = 0; $i < @$list - 1; $i++) {
+            *$refa = \$list->[$i];
+            *$refb = \$list->[$i+1];
+            $block->($_[0]);
+        };
+    });
+}, block => 1, export => 1, manual => 1, args => 1;
 
 =head1 LICENSE AND COPYRIGHT
 
