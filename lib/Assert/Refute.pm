@@ -3,7 +3,7 @@ package Assert::Refute;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.07;
+our $VERSION = 0.0701;
 
 =head1 NAME
 
@@ -262,7 +262,7 @@ sub refute_these(&;@) { ## no critic # need prototype
         || __PACKAGE__->configure( {}, scalar caller );
 
     # This is generally a ripoff of A::R::Contract->apply
-    my $report = Assert::Refute::Exec->new->do_run($block);
+    my $report = $conf->{driver}->new->do_run($block);
 
     # perform whatever action is needed
     my $callback = $conf->{ $report->is_passing ? "on_pass" : "on_fail" };
@@ -362,6 +362,9 @@ Available %options include:
 =item * on_fail - callback to execute if tests fail (default: C<carp>,
 but not just C<Carp::carp> - see below).
 
+=item * driver - use that class instead of L<Assert::Refute::Exec>
+as execution report.
+
 =back
 
 The callbacks MUST be either
@@ -383,10 +386,13 @@ Returns the resulting config (with default values added,etc).
 =cut
 
 my %conf_known;
-$conf_known{$_}++ for qw( on_pass on_fail );
+$conf_known{$_}++ for qw( on_pass on_fail driver );
 
 sub configure {
     my ($class, $conf, $caller) = @_;
+
+    croak "Usage: $class->configure( \\%hash, \$target )"
+        unless ref $conf eq 'HASH';
 
     my @extra = grep { !$conf_known{$_} } keys %$conf;
     croak "$class->configure: unknown parameters (@extra)"
@@ -398,6 +404,17 @@ sub configure {
     $conf = { %default_conf, %$conf };
     $conf->{on_fail} = _coerce_cb($conf->{on_fail});
     $conf->{on_pass} = _coerce_cb($conf->{on_pass});
+
+    # Load driver
+    if( $conf->{driver} ) {
+        my $mod = "$conf->{driver}.pm";
+        $mod =~ s#::#/#g;
+        require $mod;
+        croak "$conf->{driver} is not Assert::Refute::Exec, cannot use as driver"
+            unless $conf->{driver}->isa('Assert::Refute::Exec');
+    } else {
+        $conf->{driver} = 'Assert::Refute::Exec'; # this works for sure
+    };
 
     $CALLER_CONF{$caller} = $conf;
 };
