@@ -3,7 +3,7 @@ package Assert::Refute::Exec;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.07;
+our $VERSION = 0.0701;
 
 =head1 NAME
 
@@ -304,7 +304,7 @@ Returns a list of test ids, preserving order.
 
 sub get_tests {
     my $self = shift;
-    return $self->{list} ? @{ $self->{list} } : ();
+    return 1 .. $self->{count};
 };
 
 =head3 get_result( $id )
@@ -525,7 +525,6 @@ sub set_result {
     $self->_croak( "Duplicate test id $id" )
         if exists $self->{fail}{$id};
 
-    push @{ $self->{list} }, $id;
     $self->{fail_count}++ if $result;
     $self->{fail}{$id} = $result;
 
