@@ -18,52 +18,17 @@ but do not require the enclosing code to be a unit test:
         can_ok $data->{baz}, qw(do_this do_that frobnicate);
     }; # this dies if conditions are not met
 
-This can be transferred *verbatim* into a unit-test, provided that
-the preconditions existing in production code can be reconstructed there.
+This can be transferred *verbatim* into a unit-test,
+allowing to find the sweet spot on the `speed <---> accuracy` scale.
 
-# DESCRIPTION
+# WHY REFUTE
 
-A **refutation** is an inverted form of assertion:
+Communicating a passing test/check requires 1 bit of information:
+exerything is fine.
+When something's not right, however, the more details, the better.
 
-    refute( $condition, $message );
-
-Succeeds silently if the condition is *false*, but fails loudly if it is *true*
-and asumes the condition value itself to be the *reason* of failure.
-
-Such inversion simplifies building and composition of conditions *a lot*.
-
-A **contract** is a group of assertions that is saved for later execution.
-Once defined, it can be applied to arbitrary data
-(user input, plug-in module, or output of internal method)
-producing a summary of passed/failed checks.
-
-    # once, at start up
-    use Assert::Refute;
-    my $spec = contract {
-        my ($foo, $bar) = @_;
-
-        is $foo, 42, "Got answer to life, universe, and everything";
-        like $bar, qr/b.*a.*r.*/, "Format as expected";
-
-        # insert more checks here
-    };
-
-    # much later
-    my $report = $spec->apply( $real_foo, $real_bar );
-    $report->is_passing; # true of false
-    $report->get_count;  # number of tests performed
-    $report->get_tap;    # summary in Test::More's format
-
-A **subcontract** is an application of a preexisting contract
-to the data at hand as a single check.
-
-The current implementations also allows arbitrary functions
-containing refutations to be used in `subcontract` call,
-in which case the subcontract execution report is always
-given as the  first argument.
-
-These three elements allow for creation of arbitarily complex checks
-applicable uniformly in production code or test scripts.
+Thus `refute`, an inverted assertion, is the central building block
+of this module.
 
 # INSTALLATION
 
@@ -88,19 +53,21 @@ To install this module, run the following commands:
 
 The modules include:
 
-* `Assert::Refute` - the main frontend with a lot of exports
+* `Assert::Refute` - the main frontend with a lot of exports.
+It also handles runtime assertions.
 
 * `Assert::Refute::Build` - helper module to build more test conditions
-(those would also work fine under Test::More)
+(those would also work fine under Test::More).
 
-* `Assert::Refute::Contract` - implementations of contract *specification*
+* `Assert::Refute::Contract` - implementations of contract *specification*.
 
-* `Assert::Refute::Exec` - implementation of contract execution *report*
+* `Assert::Refute::Exec` - implementation of contract execution *report*.
+This is where `refute` is implemented.
 
-* `Assert::Refute::Driver::*` - test backends
-(currently only Test::More compatibility layer there)
+* `Assert::Refute::Driver::*` - assertion/testing protocol implementations
+(currently only Test::More compatibility layer there).
 
-* `Assert::Refute::T::*` - extra conditions and checks
+* `Assert::Refute::T::*` - extra conditions and checks.
 
 # SUPPORT AND DOCUMENTATION
 

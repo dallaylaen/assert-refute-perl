@@ -1,5 +1,13 @@
 Revision history for Assert-Refute
 
+0.08    Mon Jan 8 2018
+        - DRV Improve Driver::More getters
+        - MOD T::Scalar: add experimental maybe_is ($var, $cond)
+        - MOD T::Array: add experimental map_subtest, reduce_subtest
+        - DOC Improve documentation in A::R NOCODE
+        - API Add 'driver' param to configure/use
+        - BUG bugfix & tests
+
 0.07    Mon Jan 1 2018
         - MOD Add T::Numeric with is_between, within_delta, and within_relative
         - TST Add examples

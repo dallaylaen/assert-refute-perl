@@ -3,7 +3,7 @@ package Assert::Refute::Contract;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.0701;
+our $VERSION = 0.08;
 
 =head1 NAME
 
