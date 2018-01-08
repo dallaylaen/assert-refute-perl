@@ -3,7 +3,7 @@ package Assert::Refute::Driver::More;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.07;
+our $VERSION = 0.0701;
 
 =head1 NAME
 
@@ -81,6 +81,7 @@ sub refute {
     local $Test::Builder::Level = $Test::Builder::Level + 2;
 
     # Keep track internally
+    $self->{count} = $self->{builder}->current_test;
     $self->{builder}->ok(!$reason, $mess);
     $self->SUPER::refute($reason, $mess);
 };
@@ -132,6 +133,50 @@ sub do_log {
     };
 
     $self->SUPER::do_log( $indent, $level, @mess );
+};
+
+=head2 get_count
+
+Current test number.
+
+=cut
+
+sub get_count {
+    my $self = shift;
+    return $self->{builder}->current_test;
+};
+
+=head2 is_passing
+
+Tell if the whole set is passing.
+
+=cut
+
+sub is_passing {
+    my $self = shift;
+    return $self->{builder}->is_passing;
+};
+
+=head2 get_result
+
+Fetch result of n-th test.
+
+0 is for passing tests, a true value is for failing ones.
+
+=cut
+
+sub get_result {
+    my ($self, $n) = @_;
+
+    return $self->{fail}{$n} || 0
+        if exists $self->{fail}{$n};
+
+    my @t = $self->{builder}->summary;
+    $self->_croak( "Test $n has never been performed" )
+        unless $n =~ /^[1-9]\d*$/ and $n <= @t;
+
+    # Alas, no reason here
+    return !$t[$n];
 };
 
 =head1 LICENSE AND COPYRIGHT

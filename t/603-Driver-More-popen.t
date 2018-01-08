@@ -84,4 +84,23 @@ like $smoke_note, qr/^# it works/, "Note works";
 
 note "SUBTEST CONTENT\n$smoke_subtest/SUBTEST CONTENT";
 
+my $getters = run_cmd( <<'PERL' );
+    ok 1;
+    ok 0;
+    current_contract->refute( q{foo bared}, q{fail} );
+    current_contract->refute( 0, q{pass} );
+
+    note q{#########};
+    note q{count=}.current_contract->get_count;
+    note q{pass=}.current_contract->is_passing;
+    note q{res2=}.current_contract->get_result(2);
+    note q{res3=}.current_contract->get_result(3);
+    done_testing;
+PERL
+
+like $getters, qr/# count=4\n/s, "Count";
+like $getters, qr/# pass=(0|)\n/s, "is_passing";
+like $getters, qr/# res2=1\n/s, "unknown reason";
+like $getters, qr/# res3=foo bared\n/s, "known reason";
+
 done_testing;
