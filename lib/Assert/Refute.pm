@@ -3,7 +3,8 @@ package Assert::Refute;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.08;
+our $VERSION = '0.08_01';
+$VERSION = eval $VERSION; ## no critic
 
 =head1 NAME
 
@@ -24,7 +25,7 @@ working exactly the same in both production environment and test scripts.
 
 The following code will issue a warning if required conditions are not met:
 
-    use Assert::Refute qw( :all );
+    use Assert::Refute qw( :all ), { on_fail => 'carp' };
 
     my ($foo, $bar, $baz);
 
@@ -47,7 +48,7 @@ The same may be written without polluting the calling package's namespace:
 
     use Assert::Refute;
 
-    refute_these {
+    my $report = refute_these {
         my $report = shift;
         $report->is( $foo, 42, "Meaning of life" );
         $report->like( $bar, qr/f?o?r?m?a?t?/, "Text as expected" );
@@ -166,10 +167,11 @@ our %CALLER_CONF;
 
 sub import {
     my $class = shift;
-    my (%conf, @exp);
+    my (%conf, @exp, $need_conf);
     foreach (@_) {
         if (ref $_ eq 'HASH') {
             %conf = (%conf, %$_);
+            $need_conf++;
         } elsif (!ref $_) {
             push @exp, $_;
         } else {
@@ -177,7 +179,7 @@ sub import {
         };
     };
 
-    $class->configure( \%conf, scalar caller );
+    $class->configure( \%conf, scalar caller ) if $need_conf;
     $class->export_to_level(1, undef, @exp);
 };
 
@@ -195,7 +197,7 @@ my %known_callback = (
     },
 );
 my %default_conf = (
-    on_fail => 'carp',
+    on_fail => 'skip',
     on_pass => 'skip',
 );
 
@@ -222,8 +224,11 @@ sub refute_these(&;@) { ## no critic # need prototype
     my ( $block, @arg ) = @_;
 
     # Should a missing config even happen? Ok, play defensively...
-    my $conf = $CALLER_CONF{+caller}
-        || __PACKAGE__->configure( {}, scalar caller );
+    my $conf = $CALLER_CONF{+caller};
+    if( !$conf ) {
+        carp "refute_these(): Usage without explicit configure() is DEPRECATED, assuming { on_fail => 'carp' }";
+        $conf = __PACKAGE__->configure( { on_fail => 'carp' }, scalar caller );
+    };
 
     # This is generally a ripoff of A::R::Contract->apply
     my $report = $conf->{driver}->new->do_run($block);
@@ -373,7 +378,7 @@ for even more fine-grained control.
 
 Set per-caller package configuration values for given package.
 C<configure> is called implicitly by C<use Assert::Refute { ... }>
-if parameter hash is present.
+if hash parameter(s) are present.
 
 These are adhered to by L</refute_these>, mostly.
 

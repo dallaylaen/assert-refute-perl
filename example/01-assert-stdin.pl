@@ -27,7 +27,7 @@ that is printed at the end.
 
 # This imports Test::More sibling subs
 #    use qw(:core) or just omit the argument to keep namespace clean
-use Assert::Refute qw(:all);
+use Assert::Refute qw(:all), { on_fail => 'carp' };
 
 my %list;
 while (<>) {
