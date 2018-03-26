@@ -3,7 +3,7 @@ package Assert::Refute::T::Basic;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.08;
+our $VERSION = 0.0801;
 
 =head1 NAME
 
@@ -183,7 +183,8 @@ sub _like_unlike {
 
     $reg = qr#^(?:$reg)$# unless ref $reg eq 'Regexp';
         # retain compatibility with Test::More
-    return 'unexpected undef' if !defined $str;
+    return "got (undef), expecting ".($reverse ? "anything except" : "")."\n$reg"
+        if !defined $str;
     return '' if $str =~ $reg xor $reverse;
     return "$str\n".($reverse ? "unexpectedly matches" : "doesn't match")."\n$reg";
 };
