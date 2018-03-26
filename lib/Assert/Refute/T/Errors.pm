@@ -3,7 +3,7 @@ package Assert::Refute::T::Errors;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.08;
+our $VERSION = 0.0801;
 
 =head1 NAME
 
@@ -111,11 +111,14 @@ This MAY change in the future.
 
 =cut
 
+# TODO better diagnostic
 my $multi_like = Assert::Refute::Contract->new( code => sub {
     my ($self, $got, $exp) = @_;
 
-    for (my $i = 0; $i < @$got and $i < @$exp; $i++) {
-        $self->like( $got->[$i], $exp->[$i] );
+    for (my $i = 0; $i < @$got or $i < @$exp; $i++) {
+        defined $exp->[$i]
+            ? $self->like( $got->[$i], $exp->[$i] )
+            : $self->is ( $got->[$i], undef );
     };
 }, need_object => 1 );
 
