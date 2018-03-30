@@ -1,5 +1,10 @@
 Revision history for Assert-Refute
 
+0.09    Fri Mar 30 2018
+        - API BREAK refute_these requires explicit parameter hash in Assert::Refute, will just generate report in the future
+        - BUG warns_like ignored extra/absent warnings
+        - BUG Improve diagnostics in like and unlike MINOR
+
 0.08    Mon Jan 8 2018
         - DRV Improve Driver::More getters
         - MOD T::Scalar: add experimental maybe_is ($var, $cond)
