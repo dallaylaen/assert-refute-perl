@@ -12,7 +12,7 @@ but do not require the enclosing code to be a unit test:
 
     # deep in the production code
     my $data = Some::Module->bloated_untestable_sub;
-    refute_these {
+    try_refute {
         like $data->{foo}, qr/f?o?r?m?a?t/;
         is $data->{bar}, 42;
         can_ok $data->{baz}, qw(do_this do_that frobnicate);
