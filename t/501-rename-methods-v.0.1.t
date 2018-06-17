@@ -13,7 +13,7 @@ warns_like {
 } qr/count.*deprecated.*get_count/, "count deprecated, alternative suggested";
 
 warns_like {
-    $ex->log_message( 1, 1, "Padded diag" );
+    $ex->log_message( 1, -1, "Padded diag" );
 } qr/log_message.*deprecated.*do_log/
     , "log_message deprecated, alternative suggested";
 

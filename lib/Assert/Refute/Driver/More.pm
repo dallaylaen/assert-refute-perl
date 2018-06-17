@@ -126,9 +126,9 @@ Indentation is ignored.
 sub do_log {
     my ($self, $indent, $level, @mess) = @_;
 
-    if ($level == 1) {
+    if ($level == -1) {
         $self->{builder}->diag($_) for @mess;
-    } elsif ($level > 1) {
+    } elsif ($level > 0) {
         $self->{builder}->note($_) for @mess;
     };
 

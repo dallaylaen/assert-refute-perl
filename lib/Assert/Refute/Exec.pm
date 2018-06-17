@@ -90,8 +90,8 @@ sub refute {
 
     if ($cond) {
         $self->set_result( $n, $cond );
-        $self->do_log( 0, -1, "not ok $n$msg" );
-        $self->do_log( 0,  1, $cond ) unless $cond eq 1;
+        $self->do_log( 0, -2, "not ok $n$msg" );
+        $self->do_log( 0, -1, $cond ) unless $cond eq 1;
         return 0;
     } else {
         $self->do_log( 0,  0, "ok $n$msg" );
@@ -118,13 +118,13 @@ References are explained to depth 1.
 sub diag {
     my $self = shift;
 
-    $self->do_log( 0, 1, join " ", map { to_scalar($_) } @_ );
+    $self->do_log( 0, -1, join " ", map { to_scalar($_) } @_ );
 };
 
 sub note {
     my $self = shift;
 
-    $self->do_log( 0, 2, join " ", map { to_scalar($_) } @_ );
+    $self->do_log( 0, 1, join " ", map { to_scalar($_) } @_ );
 };
 
 =head3 done_testing
@@ -338,23 +338,47 @@ sub get_error {
     return $self->{has_error} || '';
 };
 
-=head3 get_tap
+=head3 get_tap( $level )
 
 Return a would-be Test::More script output for current contract.
 
+The level parameter allows to adjust verbosity level.
+The default is 0 which includes passing tests,
+but not notes and/or debugging messages.
+
+B<[NOTE]> that C<diag> is higher than C<ok>.
+
+=over
+
+=item -3 - something totally horrible, like C<Bail out!>
+
+=item -2 - a failing test
+
+=item -1 - a diagnostic message, think C<Test::More/diag>
+
+=item 0 - a passing test
+
+=item 1+ - a normally ignored verbose message, think L<Test::More/note>
+
+=back
+
 =cut
+
+my %padding; # cache level => leading spaces mapping
 
 sub get_tap {
     my ($self, $verbosity) = @_;
 
-    $verbosity = 1 unless defined $verbosity;
+    $verbosity ||= 0;
     my @str;
     foreach (@{ $self->{mess} }) {
-        my ($indent, $lvl, $mess) = @$_;
-        next unless $lvl <= $verbosity;
+        my ($indent, $level, $mess) = @$_;
+        next if $level > $verbosity;
 
-        my $pad  = $indent > 0 ? '    ' x $indent : '';
-        $pad    .= $lvl > 0 ? '#' x $lvl . ' ' : '';
+        my $pad  = '    ' x $indent;
+        $pad    .= exists $padding{$level}
+            ? $padding{$level}
+            : ($padding{$level} = _get_padding( $level ));
         $mess    =~ s/\s*$//s;
 
         foreach (split /\n/, $mess) {
@@ -362,6 +386,14 @@ sub get_tap {
         };
     };
     return join '', @str;
+};
+
+sub _get_padding {
+    my $level = shift;
+
+    return '#' x $level . '# ' if $level > 0;
+    return '# ' if $level == -1;
+    return '';
 };
 
 =head3 get_sign
@@ -461,21 +493,8 @@ sub do_run {
 =head3 do_log( $indent, $level, $message )
 
 Append a message to execution log.
-Levels are:
 
-=over
-
-=item -2 - something totally horrible
-
-=item -1 - a failing test
-
-=item 0 - a passing test
-
-=item 1 - a diagnostic message, think C<Test::More/diag>
-
-=item 2+ - a normally ignored verbose message, think L<Test::More/note>
-
-=back
+See L</get_tap($level)> for level descriptions.
 
 =cut
 
