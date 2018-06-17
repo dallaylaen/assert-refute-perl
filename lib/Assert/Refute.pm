@@ -240,7 +240,11 @@ sub try_refute(&;@) { ## no critic # need prototype
 
     return $report;
 };
-*refute_these = *refute_these = \&try_refute;
+
+sub refute_these (&;@) { ## no critic # need prototype
+    carp "refute_these { ... } is DEPRECATED, use try_refute{ ... } instead";
+    goto \&try_refute; ## no critic
+}
 
 =head2 refute( $condition, $message )
 
