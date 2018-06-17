@@ -14,7 +14,7 @@ use Assert::Refute::T::Errors;
 
 dies_like {
     package Foo;
-    refute_these {
+    try_refute {
         is 42, 137, "This shall NOT be in the output";
         diag " *** IF YOU SEE THIS, TESTS ARE FAILING";
     };
@@ -22,7 +22,7 @@ dies_like {
 
 warns_like {
     package Foo;
-    refute_these {
+    try_refute {
         is 42, 42, "This shall NOT be in the output";
         diag " *** IF YOU SEE THIS, TESTS ARE FAILING";
     };
@@ -30,7 +30,7 @@ warns_like {
 
 dies_like {
     package Bar;
-    refute_these {
+    try_refute {
         is 42, 42, "This shall NOT be in the output";
         diag " *** IF YOU SEE THIS, TESTS ARE FAILING";
     };
@@ -39,7 +39,7 @@ dies_like {
 warns_like {
     dies_like {
         package Bar;
-        refute_these {
+        try_refute {
             is 42, 137, "This shall NOT be in the output";
             diag " *** IF YOU SEE THIS, TESTS ARE FAILING";
         };

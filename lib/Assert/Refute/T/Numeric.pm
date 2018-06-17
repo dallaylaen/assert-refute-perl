@@ -29,12 +29,12 @@ Same for production code:
     use Assert::Refute::T::Numeric;
 
     my $rotate = My::Rotation::Matrix->new( ... );
-    refute_these {
+    try_refute {
         within_delta $rotate->determinant, 1, 1e-6, "Rotation keeps distance";
     };
 
     my $total = calculate_price();
-    refute_these {
+    try_refute {
         is_between $total, 1, 100, "Price within reasonable limits";
     };
 

@@ -44,7 +44,7 @@ while (<>) {
     # String parsed, GO!
 
     # This issues a warning if conditions aren't met
-    my $report = refute_these {
+    my $report = try_refute {
         # Can copy these to a Test::More script, *verbatim*
         # You'll still need Assert::Refute for refute (antonym of ok) though
         like $name, qr/^[a-z][a-z_0-9]*$/i, "Name is an identifier";

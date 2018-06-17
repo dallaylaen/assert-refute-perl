@@ -24,7 +24,7 @@ use strict;
 use warnings;
 use JSON;
 
-# mute refute_these as we're going to print TAP anyway
+# mute try_refute as we're going to print TAP anyway
 use Assert::Refute qw(:all), {on_fail => 'skip', on_pass => 'skip'};
 use Assert::Refute::T::Array;
 use Assert::Refute::T::Hash;
@@ -38,7 +38,7 @@ my $data = do {
     decode_json( $content );
 };
 
-my $report = refute_these {
+my $report = try_refute {
     # keys_are \%hash, \@required, \@optional
     keys_are $data, [qw[users number]], [qw[complete]], "Hash keys";
 

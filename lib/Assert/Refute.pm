@@ -32,7 +32,7 @@ The following code will issue a warning if required conditions are not met:
     # Big and hard to test chunk of code here
     # .......
 
-    refute_these {
+    try_refute {
         like $foo, qr/f?o?r?m?a?t/, "Format as expected";
         can_ok $bar, qw( do_this do_that frobnicate ),
             "Duck-typing an object";
@@ -40,14 +40,14 @@ The following code will issue a warning if required conditions are not met:
     };
 
 As the chunk-of-code is being rewritten into a proper function,
-the C<refute_these> block may serve as both a safety net
+the L</try_refute> block may serve as both a safety net
 and a prototype of a future unit test.
 
 The same may be written without polluting the calling package's namespace:
 
     use Assert::Refute;
 
-    my $report = refute_these {
+    my $report = try_refute {
         my $report = shift;
         $report->is( $foo, 42, "Meaning of life" );
         $report->like( $bar, qr/f?o?r?m?a?t?/, "Text as expected" );
@@ -72,7 +72,7 @@ See also L<Assert::Refute::Exec> for the underlying object-oriented interface.
 Per-package configuration parameters can be passed as hash refs in
 use statement. Anything that is I<not> hash is passed to L<Exporter> module:
 
-    use Assert::Refute { on_fail => 'croak' }, "refute_these";
+    use Assert::Refute { on_fail => 'croak' }, "try_refute";
 
 Or more generally
 (this actually dies because C<foo> and C<bar> parameters are not expected):
@@ -147,7 +147,7 @@ my @basic = (
     @Assert::Refute::T::Basic::EXPORT,
 );
 my @core  = qw(
-    contract refute_these
+    contract refute_these try_refute
     refute subcontract contract_is current_contract
 );
 
@@ -200,7 +200,7 @@ my %default_conf = (
     on_pass => 'skip',
 );
 
-=head2 refute_these { ... }
+=head2 try_refute { ... }
 
 Refute several conditions, warn or die if they fail,
 as requested during C<use> of this module.
@@ -213,19 +213,21 @@ A contract report object is returned instead.
 
 This is basically what one expects from a module in C<Assert::*> namespace.
 
-B<[EXPERIMENTAL]> This name is preliminary and is likely to change
-in the nearest future.
-It will stay available (with a warning) for at least 5 releases after that.
+=head2 refute_these
+
+B<[DEPRECATED]> Same as above.
+
+It will stay available (with a warning) until as least 0.15.
 
 =cut
 
-sub refute_these(&;@) { ## no critic # need prototype
+sub try_refute(&;@) { ## no critic # need prototype
     my ( $block, @arg ) = @_;
 
     # Should a missing config even happen? Ok, play defensively...
     my $conf = $CALLER_CONF{+caller};
     if( !$conf ) {
-        carp "refute_these(): Usage without explicit configure() is DEPRECATED, assuming { on_fail => 'carp' }";
+        carp "try_refute(): Usage without explicit configure() is DEPRECATED, assuming { on_fail => 'carp' }";
         $conf = __PACKAGE__->configure( { on_fail => 'carp' }, scalar caller );
     };
 
@@ -238,6 +240,7 @@ sub refute_these(&;@) { ## no critic # need prototype
 
     return $report;
 };
+*refute_these = *refute_these = \&try_refute;
 
 =head2 refute( $condition, $message )
 
@@ -379,7 +382,7 @@ Set per-caller package configuration values for given package.
 C<configure> is called implicitly by C<use Assert::Refute { ... }>
 if hash parameter(s) are present.
 
-These are adhered to by L</refute_these>, mostly.
+These are adhered to by L</try_refute>, mostly.
 
 Available %options include:
 
@@ -479,7 +482,7 @@ Use L<Assert::Refute::Build> to define new I<checks> as
 both prototyped exportable functions and their counterpart methods
 in L<Assert::Refute::Exec>.
 These functions will perform absolutely the same
-under control of C<refute_these>, C<contract>, and L<Test::More>:
+under control of C<try_refute>, C<contract>, and L<Test::More>:
 
     package My::Prime;
 
