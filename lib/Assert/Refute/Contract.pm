@@ -3,7 +3,7 @@ package Assert::Refute::Contract;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = 0.09;
+our $VERSION = '0.10';
 
 =head1 NAME
 
@@ -187,7 +187,7 @@ sub apply {
 
 This module is part of L<Assert::Refute> suite.
 
-Copyright 2017 Konstantin S. Uvarin. C<< <khedin at gmail.com> >>
+Copyright 2017-2018 Konstantin S. Uvarin. C<< <khedin at cpan.org> >>
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the the Artistic License (2.0). You may obtain a

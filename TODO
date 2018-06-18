@@ -2,7 +2,6 @@
 +   +   API plan()
 +   +   API bail_out()
 +   +   API skip remaining tests
-+   +   REF rename ::Exec->::Report for great good & sanity
 
         -- backlog --
 +   ++  BUG Consistent reporting of caller under Test::More

@@ -1,5 +1,10 @@
 Revision history for Assert-Refute
 
+0.10    Mon Jun 18 2018
+        - API BREAK Rename refute_these => try_refute, deprecate refute_these until 0.15
+        - API BREAK Change log levels: diag{1=>-1}, not ok{-1=>-2}, fail{-2=>-3}, note{2=>1}
+        - REF Rename Assert::Refute::{Exec->Report}
+
 0.09    Fri Mar 30 2018
         - API BREAK refute_these requires explicit parameter hash in Assert::Refute, will just generate report in the future
         - BUG warns_like ignored extra/absent warnings
