@@ -586,9 +586,16 @@ L<http://search.cpan.org/dist/Assert-Refute/>
 
 =head1 ACKNOWLEDGEMENTS
 
+=over
+
+=item Thanks to L<Alexander Kuklev|https://github.com/akuklev>
+for C<try_refute> function name as well as many useful discussions.
+
+=back
+
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2017 Konstantin S. Uvarin. C<< <khedin at gmail.com> >>
+Copyright 2017-2018 Konstantin S. Uvarin. C<< <khedin at cpan.org> >>
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the the Artistic License (2.0). You may obtain a
