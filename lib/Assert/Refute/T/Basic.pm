@@ -170,9 +170,8 @@ but DOES match C<".*ob.*"> OR C<qr/ob/>.
 
 =cut
 
-build_refute like => sub {
-    _like_unlike( $_[0], $_[1], 0 );
-}, args => 2, export => 1;
+build_refute like => \&_like_unlike,
+    args => 2, export => 1;
 
 build_refute unlike => sub {
     _like_unlike( $_[0], $_[1], 1 );
