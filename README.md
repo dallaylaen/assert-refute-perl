@@ -47,7 +47,7 @@ To install this module, run the following commands:
 * `Makefile.PL`
 * `README.md`/`README` - this file
 * `t` - tests required for installation
-* `TODO.md` - approximate roadmap
+* `TODO` - approximate roadmap
 * `xt` - tests required for development only
 * `.githooks` - author's default pre-commit hooks
 
