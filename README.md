@@ -61,7 +61,7 @@ It also handles runtime assertions.
 
 * `Assert::Refute::Contract` - implementations of contract *specification*.
 
-* `Assert::Refute::Exec` - implementation of contract execution *report*.
+* `Assert::Refute::Report` - implementation of contract execution *report*.
 This is where `refute` is implemented.
 
 * `Assert::Refute::Driver::*` - assertion/testing protocol implementations

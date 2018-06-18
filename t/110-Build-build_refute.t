@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 use Assert::Refute::Build;
-use Assert::Refute::Exec; # Avoid T::M detection
+use Assert::Refute::Report; # Avoid T::M detection
 use Test::More tests => 2;
 
 BEGIN {
@@ -34,7 +34,7 @@ eval {
 note $@;
 like $@, qr/odd.*already.*Foo/, "Name already taken = no go";
 
-my $report = Assert::Refute::Exec->new->do_run(sub {
+my $report = Assert::Refute::Report->new->do_run(sub {
     package T;
     even 2, "pass";
     odd  3, "pass";

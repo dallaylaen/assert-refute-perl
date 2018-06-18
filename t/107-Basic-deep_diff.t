@@ -6,7 +6,7 @@ use warnings;
 # Avoid Test::More detection
 use Assert::Refute::Build qw(to_scalar);
 use Assert::Refute::T::Basic qw(deep_diff);
-use Assert::Refute::Exec;
+use Assert::Refute::Report;
 
 use Test::More;
 

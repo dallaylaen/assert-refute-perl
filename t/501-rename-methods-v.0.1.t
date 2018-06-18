@@ -4,9 +4,9 @@ use strict;
 use warnings;
 use Test::More;
 use Assert::Refute::T::Errors;
-use Assert::Refute::Exec;
+use Assert::Refute::Report;
 
-my $ex = Assert::Refute::Exec->new;
+my $ex = Assert::Refute::Report->new;
 
 warns_like {
     is $ex->count, 0, "No tests this far";

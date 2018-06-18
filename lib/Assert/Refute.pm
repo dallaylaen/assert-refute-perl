@@ -65,7 +65,7 @@ can be fine-tuned, as in:
     };
 
 See L</EXPORT> and L</configure> below.
-See also L<Assert::Refute::Exec> for the underlying object-oriented interface.
+See also L<Assert::Refute::Report> for the underlying object-oriented interface.
 
 =head1 EXPORT
 
@@ -89,7 +89,7 @@ The default is skip, i.e. do nothing.
 =item * on_fail => skip|carp|croak - what to do when conditions are I<not> met.
 The default is carp (issue a warning and continue on, even with wrong data).
 
-=item * driver => class - specify an L<Assert::Refute::Exec> subclass
+=item * driver => class - specify an L<Assert::Refute::Report> subclass
 to actually execute the tests, if you need to.
 
 =back
@@ -205,7 +205,7 @@ my %default_conf = (
 Refute several conditions, warn or die if they fail,
 as requested during C<use> of this module.
 The coderef shall accept one argument, the contract execution object
-(likely a L<Assert::Refute::Exec>, see C<need_object> above).
+(likely a L<Assert::Refute::Report>, see C<need_object> above).
 
 More arguments MAY be added in the future.
 Return value is ignored.
@@ -299,7 +299,7 @@ Note that contract does B<not> validate anything by itself,
 it just creates a read-only L<Assert::Refute::Contract>
 object sitting there and waiting for an C<apply> call.
 
-The C<apply> call returns a L<Assert::Refute::Exec> object containing
+The C<apply> call returns a L<Assert::Refute::Report> object containing
 results of specific execution.
 
 This is much like C<prepare> / C<execute> works in L<DBI>.
@@ -324,7 +324,7 @@ B<[NOTE]> that the message comes first, unlike in C<refute> or other
 test conditions, and is I<required>.
 
 A I<contract> may be an L<Assert::Refute::Contract> object
-or just a subroutine accepting an L<Assert::Refute::Exec> as first argument.
+or just a subroutine accepting an L<Assert::Refute::Report> as first argument.
 
 For instance, one could apply a previously defined validation to a
 structure member:
@@ -366,7 +366,7 @@ sub subcontract($$@) { ## no critic
 
 =head2 current_contract
 
-Returns the L<Assert::Refute::Exec> object being worked on.
+Returns the L<Assert::Refute::Report> object being worked on.
 Dies if no contract is being executed at the time.
 
 This is actually a clone of L<Assert::Refute::Build/current_contract>.
@@ -397,13 +397,13 @@ Available %options include:
 =item * on_fail - callback to execute if tests fail (default: C<carp>,
 but not just C<Carp::carp> - see below).
 
-=item * driver - use that class instead of L<Assert::Refute::Exec>
+=item * driver - use that class instead of L<Assert::Refute::Report>
 as execution report.
 
 =back
 
 The callbacks MUST be either
-a C<CODEREF> accepting L<Assert::Refute::Exec> object,
+a C<CODEREF> accepting L<Assert::Refute::Report> object,
 or one of predefined strings:
 
 =over
@@ -445,10 +445,10 @@ sub configure {
         my $mod = "$conf->{driver}.pm";
         $mod =~ s#::#/#g;
         require $mod;
-        croak "$conf->{driver} is not Assert::Refute::Exec, cannot use as driver"
-            unless $conf->{driver}->isa('Assert::Refute::Exec');
+        croak "$conf->{driver} is not Assert::Refute::Report, cannot use as driver"
+            unless $conf->{driver}->isa('Assert::Refute::Report');
     } else {
-        $conf->{driver} = 'Assert::Refute::Exec'; # this works for sure
+        $conf->{driver} = 'Assert::Refute::Report'; # this works for sure
     };
 
     $CALLER_CONF{$caller} = $conf;
@@ -484,7 +484,7 @@ specialized tool exists for doing that.
 
 Use L<Assert::Refute::Build> to define new I<checks> as
 both prototyped exportable functions and their counterpart methods
-in L<Assert::Refute::Exec>.
+in L<Assert::Refute::Report>.
 These functions will perform absolutely the same
 under control of C<try_refute>, C<contract>, and L<Test::More>:
 
@@ -515,7 +515,7 @@ and doesn't do anything except returning a value - it's a I<pure function>.
 
 Yet the exact reason for $n not being a prime will be reflected in test output.
 
-One can also subclass L<Assert::Refute::Exec>
+One can also subclass L<Assert::Refute::Report>
 to create new I<drivers>, for instance,
 to register failed/passed tests in a unit-testing framework of choice
 or generate warnings/exceptions when conditions are not met.

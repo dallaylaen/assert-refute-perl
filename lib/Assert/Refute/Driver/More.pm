@@ -38,14 +38,14 @@ B<if> Test::More has been loaded B<before> Assert::Refute.
 
 =head1 METHODS
 
-We override some methods of L<Assert::Refute::Exec> below so that
+We override some methods of L<Assert::Refute::Report> below so that
 test results are fed to the more backend.
 
 =cut
 
 use Carp;
 
-use parent qw(Assert::Refute::Exec);
+use parent qw(Assert::Refute::Report);
 
 =head2 new
 

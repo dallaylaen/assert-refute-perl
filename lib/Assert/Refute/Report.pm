@@ -1,4 +1,4 @@
-package Assert::Refute::Exec;
+package Assert::Refute::Report;
 
 use 5.006;
 use strict;
@@ -7,7 +7,7 @@ our $VERSION = 0.09;
 
 =head1 NAME
 
-Assert::Refute::Exec - Contract execution class for Assert::Refute suite
+Assert::Refute::Report - Contract execution class for Assert::Refute suite
 
 =head1 DESCRIPTION
 
@@ -21,7 +21,7 @@ See L<Assert::Refute::Contract> for contract I<definition>.
 
 =head1 SYNOPSIS
 
-    my $c = Assert::Refute::Exec->new;
+    my $c = Assert::Refute::Report->new;
     $c->refute ( $cond, $message );
     $c->refute ( $cond2, $message2 );
     # .......
@@ -47,7 +47,7 @@ my $ERROR_DONE = "done_testing was called, no more changes may be added";
 
 =head2 new
 
-    Assert::Refute::Exec->new( %options );
+    Assert::Refute::Report->new( %options );
 
 %options may include:
 
@@ -189,7 +189,7 @@ C<contract_is>, C<is_deeply>, C<note>, C<diag>.
 See L<Assert::Refute::T::Basic> for more details.
 
 Additionally, I<any> checks defined using L<Assert::Refute::Build>
-will be added to this L<Assert::Refute::Exec> by default.
+will be added to this L<Assert::Refute::Report> by default.
 
 =head3 subcontract( "Message" => $specification, @arguments ... )
 
@@ -200,11 +200,11 @@ $specification may be one of:
 =over
 
 =item * code reference - will be executed in C<eval> block, with a I<new>
-L<Assert::Refute::Exec> passed as argument;
+L<Assert::Refute::Report> passed as argument;
 
 =item * L<Assert::Refute::Contract> instance - apply() will be called;
 
-=item * L<Assert::Refute::Exec> instance implying a previously executed test.
+=item * L<Assert::Refute::Report> instance implying a previously executed test.
 
 =back
 
@@ -219,14 +219,14 @@ sub subcontract {
     my $rep;
     if ( blessed $sub and $sub->isa( "Assert::Refute::Contract" ) ) {
         $rep = $sub->apply(@args);
-    } elsif (blessed $sub and $sub->isa( "Assert::Refute::Exec" ) ) {
+    } elsif (blessed $sub and $sub->isa( "Assert::Refute::Report" ) ) {
         $self->_croak("pre-executed subcontract cannot take args")
             if @args;
         $self->_croak("pre-executed subcontract must be finished")
             unless $sub->is_done;
         $rep = $sub;
     } elsif (UNIVERSAL::isa( $sub, 'CODE' )) {
-        $rep = Assert::Refute::Exec->new;
+        $rep = Assert::Refute::Report->new;
         local $Assert::Refute::DRIVER = $rep;
         eval {
             $sub->($rep, @args);
@@ -469,7 +469,7 @@ Returns self.
 
 Example usage is
 
-    Assert::Refute::Exec->new->run( sub {
+    Assert::Refute::Report->new->run( sub {
         like $this, qr/.../;
         can_ok $that, qw(foo bar frobnicate);
     } );
@@ -665,4 +665,4 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =cut
 
-1; # End of Assert::Refute::Exec
+1; # End of Assert::Refute::Report

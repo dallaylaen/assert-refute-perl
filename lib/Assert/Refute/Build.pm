@@ -87,9 +87,9 @@ environment it is in, it just cares about its arguments
 (think I<pure function>).
 
 =item * builds an exportable wrapper around it that would talk to
-the most recent L<Assert::Refute::Exec> instance;
+the most recent L<Assert::Refute::Report> instance;
 
-=item * adds a method with the same name to L<Assert::Refute::Exec>
+=item * adds a method with the same name to L<Assert::Refute::Report>
 so that object-oriented and functional interfaces
 are as close to each other as possible.
 
@@ -116,7 +116,7 @@ L<Assert::Refute>'s methods.
 
 =item * C<manual> => 1 - don't generate any code.
 Instead, assume that user has already done that and just add a method
-to L<Assert::Refute::Exec> and a prototyped exportable wrapper.
+to L<Assert::Refute::Report> and a prototyped exportable wrapper.
 
 This may be useful to create refutations based on subcontract or such.
 
@@ -151,7 +151,7 @@ $known{$_}++ for qw(args list block no_proto manual
 sub build_refute(@) { ## no critic # Moose-like DSL for the win!
     my ($name, $cond, %opt) = @_;
 
-    my $class = "Assert::Refute::Exec";
+    my $class = "Assert::Refute::Report";
 
     if ($name =~ /^(get_|set_|do_)/) {
         croak "build_refute(): fucntion name shall not start with get_, set_, or do_";
@@ -231,7 +231,7 @@ sub build_refute(@) { ## no critic # Moose-like DSL for the win!
 
 =head2 current_contract
 
-Returns a L<Assert::Refute::Exec> object.
+Returns a L<Assert::Refute::Report> object.
 Dies if no contract is being executed at the time.
 
 =cut

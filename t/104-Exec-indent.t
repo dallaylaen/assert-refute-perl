@@ -4,9 +4,9 @@ use strict;
 use warnings;
 use Test::More;
 
-use Assert::Refute::Exec;
+use Assert::Refute::Report;
 
-my $c = Assert::Refute::Exec->new( indent => 1 );
+my $c = Assert::Refute::Report->new( indent => 1 );
 
 $c->refute (0);
 $c->diag( "Foobar" );

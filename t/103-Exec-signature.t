@@ -4,9 +4,9 @@ use strict;
 use warnings;
 use Test::More;
 
-use Assert::Refute::Exec;
+use Assert::Refute::Report;
 
-my $c = Assert::Refute::Exec->new;
+my $c = Assert::Refute::Report->new;
 
 is $c->get_sign, "tr", "Start with 0 tests";
 

@@ -88,7 +88,7 @@ $c = contract {
     package TT;
     our @ISA = 'T';
     package T;
-    isa_ok current_contract, "Assert::Refute::Exec";
+    isa_ok current_contract, "Assert::Refute::Report";
     isa_ok current_contract, "Foo::Bar";
     isa_ok "TT", "T";
     isa_ok "TT", "Foo::Bar";

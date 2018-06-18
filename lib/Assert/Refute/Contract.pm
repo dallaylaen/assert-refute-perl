@@ -13,7 +13,7 @@ Assert::Refute::Contract - Contract definition class for Assert::Refute suite
 
 This class represents a contract and is thus immutable.
 
-See L<Assert::Refute::Exec> for its I<application> to a specific case.
+See L<Assert::Refute::Report> for its I<application> to a specific case.
 
 =head1 SYNOPSIS
 
@@ -36,14 +36,14 @@ See L<Assert::Refute::Exec> for its I<application> to a specific case.
 =head1 DESCRIPTION
 
 This is a contract B<specification> class.
-See L<Assert::Refute::Exec> for execution log.
+See L<Assert::Refute::Report> for execution log.
 See L<Assert::Refute/contract> for convenient interface.
 
 =cut
 
 use Carp;
 
-use Assert::Refute::Exec;
+use Assert::Refute::Report;
 
 our @CARP_NOT = qw(Assert::Refute Assert::Refute::Build);
 
@@ -83,7 +83,7 @@ my @new_optional  = qw( driver );
 my %new_arg;
 $new_arg{$_}++ for @new_essential, @new_optional;
 
-my $def_driver = "Assert::Refute::Exec";
+my $def_driver = "Assert::Refute::Report";
 
 sub new {
     my ($class, %opt) = @_;
@@ -153,7 +153,7 @@ sub adjust {
 
 Spawn a new execution log object and run contract against it.
 
-Returns a locked L<Assert::Refute::Exec> instance.
+Returns a locked L<Assert::Refute::Report> instance.
 
 =cut
 

@@ -4,9 +4,9 @@ use strict;
 use warnings;
 use Test::More;
 
-use Assert::Refute::Exec;
+use Assert::Refute::Report;
 
-my $c = Assert::Refute::Exec->new;
+my $c = Assert::Refute::Report->new;
 
 ok $c->is_passing, "passing: empty = ok";
 is $c->get_count, 0, "0 tests run";
@@ -31,7 +31,7 @@ eval {
     $c->done_testing;
 };
 
-like $@, qr/Assert::Refute::Exec->done_testing.*done_testing.*no more/
+like $@, qr/Assert::Refute::Report->done_testing.*done_testing.*no more/
     , "done_testing locks execution log";
 
 done_testing;
