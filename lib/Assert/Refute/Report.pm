@@ -88,15 +88,27 @@ sub refute {
     $msg = $msg ? " - $msg" : '';
     my $n = ++$self->{count};
 
-    if ($cond) {
-        $self->set_result( $n, $cond );
-        $self->do_log( 0, -2, "not ok $n$msg" );
-        $self->do_log( 0, -1, $cond ) unless $cond eq 1;
-        return 0;
-    } else {
+    if (!$cond) {
+        # Test passed, return ASAP
         $self->do_log( 0,  0, "ok $n$msg" );
         return 1;
     };
+
+    # Test failed!
+    $self->set_result( $n, $cond );
+    $self->do_log( 0, -2, "not ok $n$msg" );
+
+    # Explain what went wrong
+    if (ref $cond eq 'ARRAY') {
+        # Array => detailed multiline summary
+        $self->do_log( 0, -1, to_scalar($_) )
+            for @$cond;
+    } elsif (ref $cond or $cond ne 1) {
+        # 1 is likely a boolean, don't log it
+        $self->do_log( 0, -1, to_scalar($cond) );
+    };
+
+    return 0;
 };
 
 =head3 diag
