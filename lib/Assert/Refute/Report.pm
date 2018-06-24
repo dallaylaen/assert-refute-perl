@@ -71,6 +71,42 @@ sub new {
 
 =head2 RUNNING PRIMITIVES
 
+=head3 plan( tests => n )
+
+Plan to run exactly n tests.
+This is not required, and L<done_testing> (see below)
+is needed at the end anyway.
+
+Dies if there's already a plan, or tests are being run, or done_testing
+was seen.
+
+If plan is not fullfilled by the time of C<done_testing> call,
+a failing test and a message indicating plan violation will be added.
+
+=cut
+
+sub plan {
+    my ($self, $todo, @args) = @_;
+
+    $self->_croak( $ERROR_DONE )
+        if $self->{done};
+
+    if ($todo eq 'tests') {
+        $self->_croak( "Usage: plan tests => n")
+            unless @args == 1 and defined $args[0] and $args[0] =~ /^\d+$/;
+        $self->_croak( "Plan already defined" )
+            if defined $self->{plan_tests};
+        $self->_croak( "Testing already started" )
+            if $self->{count} > 0;
+        $self->{plan_tests} = $args[0];
+        $self->do_log( 0, 0, "1..$args[0]" );
+    } else {
+        $self->_croak( "Unknown 'plan $todo ...' command" );
+    };
+
+    return $self;
+};
+
 =head3 refute( $condition, $message )
 
 An inverted assertion. That is, it B<passes> if C<$condition> is B<false>.
@@ -165,18 +201,28 @@ sub done_testing {
     my ($self, $exception) = @_;
 
     if ($exception) {
+        # Record a totally failing contract.
+        # Make sure there *is* a failing test on the outside
         delete $self->{done};
         $self->{has_error} = $exception;
-        # Make sure there *is* a failing test on the outside
         $self->refute( $exception, "unexpected exception: $exception" );
-        $self->do_log( 0, 1, "Looks like test execution was interrupted" );
+        $self->diag( "Looks like test execution was interrupted" );
     } elsif ($self->{done}) {
         return $self if defined $exception;
         $self->_croak( $ERROR_DONE );
+    } elsif (defined $self->{plan_tests}) {
+        # Check plan
+        if ($self->{count} != $self->{plan_tests}) {
+            my $bad_plan = "Looks like you planned $self->{plan_tests}"
+                ." tests but ran $self->{count}";
+            $self->{has_error} = $bad_plan;
+            $self->refute( $bad_plan, "Plan failed" );
+        };
     } else {
-        $self->do_log(0, 0, "1..$self->{count}");
+        # Output plan if there was none
+        $self->do_log(0, 0, "1..$self->{count}")
     };
-    $self->do_log(0, 1,
+    $self->diag(
         "Looks like $self->{fail_count} tests of $self->{count} have failed")
             if $self->{fail_count};
 
