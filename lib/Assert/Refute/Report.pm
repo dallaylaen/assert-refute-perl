@@ -99,7 +99,6 @@ sub plan {
         $self->_croak( "Testing already started" )
             if $self->{count} > 0;
         $self->{plan_tests} = $args[0];
-        $self->do_log( 0, 0, "1..$args[0]" );
     } else {
         $self->_croak( "Unknown 'plan $todo ...' command" );
     };
@@ -121,29 +120,19 @@ See L<Assert::Refute/refute> for more detailed discussion.
 sub refute {
     my ($self, $cond, $msg) = @_;
 
-    $msg = $msg ? " - $msg" : '';
-    my $n = ++$self->{count};
+    $self->_croak( $ERROR_DONE )
+        if $self->{done};
 
-    if (!$cond) {
-        # Test passed, return ASAP
-        $self->do_log( 0,  0, "ok $n$msg" );
-        return 1;
-    };
+    my $n = ++$self->{count};
+    $self->{name}{$n} = $msg if defined $msg;
+    delete $self->{log};
+
+    # Pass, return ASAP
+    return $n unless $cond;
 
     # Test failed!
-    $self->set_result( $n, $cond );
-    $self->do_log( 0, -2, "not ok $n$msg" );
-
-    # Explain what went wrong
-    if (ref $cond eq 'ARRAY') {
-        # Array => detailed multiline summary
-        $self->do_log( 0, -1, to_scalar($_) )
-            for @$cond;
-    } elsif (ref $cond or $cond ne 1) {
-        # 1 is likely a boolean, don't log it
-        $self->do_log( 0, -1, to_scalar($cond) );
-    };
-
+    $self->{fail}{$n} = $cond;
+    $self->{fail_count}++;
     return 0;
 };
 
@@ -220,7 +209,6 @@ sub done_testing {
         };
     } else {
         # Output plan if there was none
-        $self->do_log(0, 0, "1..$self->{count}")
     };
     $self->diag(
         "Looks like $self->{fail_count} tests of $self->{count} have failed")
@@ -274,6 +262,9 @@ test conditions, and is required.
 sub subcontract {
     my ($self, $msg, $sub, @args) = @_;
 
+    $self->_croak( $ERROR_DONE )
+        if $self->{done};
+
     my $rep;
     if ( blessed $sub and $sub->isa( "Assert::Refute::Contract" ) ) {
         $rep = $sub->apply(@args);
@@ -297,13 +288,8 @@ sub subcontract {
         $self->_croak("subcontract must be a contract definition or execution log");
     };
 
-    my $stop = !$rep->is_passing;
-    $self->refute( $stop, "$msg (subtest)" );
-    if ($stop) {
-        my $log = $rep->get_log;
-        $self->do_log( $_->[0]+1, $_->[1], $_->[2] )
-            for @$log;
-    };
+    $self->{subcontract}{ $self->get_count + 1 } = $rep;
+    $self->refute( !$rep->is_passing, "$msg (subtest)" );
 };
 
 =head2 QUERYING PRIMITIVES
@@ -384,6 +370,68 @@ sub get_result {
     $self->_croak( "Test $n has never been performed" );
 };
 
+=head3 get_result_details ($id)
+
+Returns a hash containing information about a test:
+
+=over
+
+=item ok - whether the test was successful;
+
+=item name - name of the test.
+
+=item reason - the reason for test failing, if it failed.
+Undefined for "ok" tests.
+
+=item log - any log messages that followed the test (see get_log for format)
+
+=item subcontract - if test was a subcontract, contains the report
+
+=back
+
+Returns empty hash for nonexistent tests, and dies if test number is not integer.
+
+As a special case, test number 0 only contains the log
+for C<diag>/C<note> messages that were written before any tests.
+
+See also L<Test::Tester>.
+
+B<[EXPERIMENTAL]>. Name and meaning may change in the future.
+
+=cut
+
+sub get_result_details {
+    my ($self, $n) = @_;
+
+    $self->_croak( "Bad test number $n, must be nonnegatine integer" )
+        unless defined $n and $n =~ /^[0-9]+$/;
+
+    return {} if $n > $self->{count};
+
+    my $reason = $self->{fail}{$n};
+
+    my @log;
+
+    # return explanation first
+    if (ref $reason eq 'ARRAY') {
+        push @log, [ $self->{indent}, -1, to_scalar($_) ] for @$reason;
+    } elsif ( $reason and $reason ne 1 ) {
+        push @log, [ $self->{indent}, -1, to_scalar($reason) ];
+    };
+
+    # whatever was output via diag/note
+    push @log, @{ $self->{messages}{$n} }
+        if $self->{messages}{$n};
+
+    return {
+        ok          => !$reason,
+        name        => $self->{name}{$n},
+        reason      => $reason,
+        log         => \@log,
+        subcontract => $self->{subcontract}{$n},
+    };
+};
+
 =head3 get_error
 
 Return last error that was recorded during contract execution,
@@ -423,13 +471,17 @@ B<[NOTE]> that C<diag> is higher than C<ok>.
 =cut
 
 my %padding; # cache level => leading spaces mapping
+my $tab = '    ';
 
 sub get_tap {
     my ($self, $verbosity) = @_;
 
     $verbosity ||= 0;
+
+    my $mess = $self->get_log( $verbosity );
+
     my @str;
-    foreach (@{ $self->{mess} }) {
+    foreach (@$mess) {
         my ($indent, $level, $mess) = @$_;
         next if $level > $verbosity;
 
@@ -440,10 +492,11 @@ sub get_tap {
         $mess    =~ s/\s*$//s;
 
         foreach (split /\n/, $mess) {
-            push @str, "$pad$_\n";
+            push @str, "$pad$_";
         };
     };
-    return join '', @str;
+
+    return join "\n", @str, '';
 };
 
 sub _get_padding {
@@ -564,7 +617,8 @@ sub do_log {
 
     $indent += $self->{indent};
 
-    push @{ $self->{mess} }, [$indent, $level, $mess];
+    $self->{log} ||= $self->{messages}{ $self->{count} } ||= [];
+    push @{ $self->{log} }, [$indent, $level, $mess];
 
     return $self;
 };
@@ -581,43 +635,44 @@ This MAY change in the future.
 =cut
 
 sub get_log {
-    my $self = shift;
-    # TODO copy or smth
-    return $self->{mess};
-};
+    my ($self, $verbosity) = @_;
+    $verbosity = 9**9**9 unless defined $verbosity;
 
-=head3 set_result( $id, $result )
+    my @mess;
 
-Add a refutation to the failed tests log.
+    # output plan if there was plan
+    if (defined $self->{plan_tests}) {
+        push @mess, [ $self->{indent}, 0, "1..$self->{plan_tests}" ]
+            unless $verbosity < 0;
+    };
 
-This is not guaranteed to be called for passing tests.
+    foreach my $n ( 0 .. $self->get_count ) {
+        my $hash = $self->get_result_details( $n );
 
-=cut
+        # test name
+        if ($n) {
+            my $name   = $hash->{name} ? "$n - $hash->{name}" : $n;
+            my $prefix = $hash->{ok} ? "ok" : "not ok";
+            my $level  = $hash->{ok} ? 0    : -2;
+            push @mess, [ $self->{indent}, $level, "$prefix $name" ]
+                unless $verbosity < $level;
+            if ($hash->{subcontract}) {
+                push @mess, map {
+                    [ $_->[0]+1, $_->[1], $_->[2] ];
+                } @{ $hash->{subcontract}->get_log( $verbosity ) };
+            };
+        };
 
-sub set_result {
-    my ($self, $id, $result) = @_;
+        # and all following diags
+        push @mess, grep { $_->[1] <= $verbosity } @{ $hash->{log} };
+    };
 
-    $self->_croak( $ERROR_DONE )
-        if $self->{done};
-    $self->_croak( "Duplicate test id $id" )
-        if exists $self->{fail}{$id};
+    if (!defined $self->{plan_tests} and $self->{done}) {
+        push @mess, [ $self->{indent}, 0, "1..".$self->get_count ]
+            unless $verbosity < 0;
+    };
 
-    $self->{fail_count}++ if $result;
-    $self->{fail}{$id} = $result;
-
-    return $self;
-};
-
-=head3 get_proxy
-
-Return ($self, indent) pair in list content, or just $self in scalar context.
-
-=cut
-
-sub get_proxy {
-    my $self = shift;
-
-    return wantarray ? ($self, $self->{indent}) : $self;
+    return \@mess;
 };
 
 sub _croak {
@@ -634,49 +689,20 @@ sub _croak {
 
 =head2 DEPRECATED METHODS
 
-The following methods were added in the beginning and will disappear
-in 0.10.
-
 =over
 
-=item count       => "get_count"
+=item set_result
 
-=item add_result  => "set_result"
-
-=item result      => "get_result"
-
-=item last_error  => "get_error"
-
-=item signature   => "get_sign"
-
-=item as_tap      => "get_tap"
-
-=item log_message => "do_log"
+Was used inside refute() prior to 0.10. This is no more the case.
+This function just dies and will be removed completely in 0.15.
 
 =back
 
 =cut
 
-_deprecate( count       => "get_count" );
-_deprecate( add_result  => "set_result" );
-_deprecate( result      => "get_result" );
-_deprecate( last_error  => "get_error" );
-_deprecate( signature   => "get_sign" );
-_deprecate( as_tap      => "get_tap" );
-_deprecate( log_message => "do_log" );
-
-sub _deprecate {
-    my ($legacy, $new) = @_;
-
-    my $impl = \&$new;
-
-    no strict 'refs';           ## no critic
-    no warnings 'redefine';     ## no critic
-    *$legacy = sub {
-        carp "$legacy() is deprecated, use $new() instead";
-        *$legacy = $impl;
-        goto &$impl;            ## no critic
-    };
+sub set_result {
+    my $self = shift;
+    $self->_croak( "set_result() is removed, use refute() instead" );
 };
 
 =head1 LICENSE AND COPYRIGHT

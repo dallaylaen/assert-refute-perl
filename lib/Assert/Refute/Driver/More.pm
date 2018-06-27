@@ -46,6 +46,7 @@ test results are fed to the more backend.
 use Carp;
 
 use parent qw(Assert::Refute::Report);
+use Assert::Refute::Build qw(to_scalar);
 
 =head2 new
 
@@ -80,9 +81,17 @@ sub refute {
     # TODO bug - if refute() is called by itself, will report wrong
     local $Test::Builder::Level = $Test::Builder::Level + 2;
 
-    # Keep track internally
     $self->{count} = $self->{builder}->current_test;
     $self->{builder}->ok(!$reason, $mess);
+
+    # see Assert::Refute::Report->get_result_detail
+    if (ref $reason eq 'ARRAY') {
+        $self->{builder}->diag(to_scalar($_)) for @$reason;
+    } elsif ($reason and $reason ne 1) {
+        $self->{builder}->diag(to_scalar($reason));
+    };
+
+    # Do we even need to track it here?
     $self->SUPER::refute($reason, $mess);
 };
 
