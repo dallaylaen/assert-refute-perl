@@ -26,7 +26,7 @@ subtest "bad plan" => sub {
     $rep->done_testing;
 
     ok !$rep->is_passing, "Tests are not passing";
-    is $rep->get_sign, "t4NE", "1 failing test added";
+    is $rep->get_sign, "t4E", "1 failing test added";
     like $rep->get_tap, qr/^#.* planned 5.*but ran 4/m
         , "There's diag for bad plan";
 };

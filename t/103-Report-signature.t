@@ -32,6 +32,6 @@ my $live = eval {
 is $live, 1, "done_testing with error lives"
     or diag "Exception was: $@";
 
-is $c->get_sign, "t2N3NE", "Exception added - second fail & E at the end";
+is $c->get_sign, "t2N3E", "Exception added - so E at the end";
 
 done_testing;

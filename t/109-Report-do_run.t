@@ -16,6 +16,6 @@ is $rep->get_sign, "tNd", "Failed test";
 
 $rep = Assert::Refute::Report->new->do_run( sub { die "Foobared" } );
 
-is $rep->get_sign, "tNE", "Interrupt";
+is $rep->get_sign, "tE", "Interrupt";
 like $rep->get_error, qr/^Foobared at/, "Exception retained";
 

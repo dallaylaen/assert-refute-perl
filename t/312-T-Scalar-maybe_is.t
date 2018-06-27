@@ -35,6 +35,6 @@ contract_is $smart->apply( "foo", sub { $_[0]->like( $_[1], qr/foo/) }),
 contract_is $smart->apply( "foo", sub { $_[0]->like( $_[1], qr/bar/) }),
     "tNd", "no match sub arg";
 
-contract_is $smart->apply( "foo", {} ), "tNE", "Dies if wrong condition";
+contract_is $smart->apply( "foo", {} ), "tE", "Dies if wrong condition";
 
 done_testing;

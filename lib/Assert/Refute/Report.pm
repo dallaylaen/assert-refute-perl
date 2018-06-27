@@ -33,6 +33,13 @@ See L<Assert::Refute::Contract> for contract I<definition>.
 
 =cut
 
+# Now this module is the CORE of Assert::Refute.
+# There are 3 things for which performance matters:
+# 1) new()
+# 2) refute( 0, ... )
+# 3) done_testing()
+# The rest can wait.
+
 use Carp;
 use Scalar::Util qw(blessed);
 
@@ -81,7 +88,8 @@ Dies if there's already a plan, or tests are being run, or done_testing
 was seen.
 
 If plan is not fullfilled by the time of C<done_testing> call,
-a failing test and a message indicating plan violation will be added.
+a message indicating plan violation will be added,
+and the report will unconditionally failing.
 
 =cut
 
@@ -125,7 +133,8 @@ sub refute {
 
     my $n = ++$self->{count};
     $self->{name}{$n} = $msg if defined $msg;
-    delete $self->{log};
+    delete $self->{log}; # log is a shortcut to $self->{messages}{$n}
+                         # see do_log()
 
     # Pass, return ASAP
     return $n unless $cond;
@@ -189,14 +198,13 @@ Returns self.
 sub done_testing {
     my ($self, $exception) = @_;
 
-    if ($exception) {
+    if (defined $exception) {
         # Record a totally failing contract.
-        # Make sure there *is* a failing test on the outside
         delete $self->{done};
         $self->{has_error} = $exception;
-        $self->refute( $exception, "unexpected exception: $exception" );
-        $self->diag( "Looks like test execution was interrupted" );
+        $self->diag( "Looks like contract was interrupted by", $exception );
     } elsif ($self->{done}) {
+        # A special case - done_testing(0) means "tentative stop"
         return $self if defined $exception;
         $self->_croak( $ERROR_DONE );
     } elsif (defined $self->{plan_tests}) {
@@ -205,10 +213,8 @@ sub done_testing {
             my $bad_plan = "Looks like you planned $self->{plan_tests}"
                 ." tests but ran $self->{count}";
             $self->{has_error} = $bad_plan;
-            $self->refute( $bad_plan, "Plan failed" );
+            $self->diag( $bad_plan );
         };
-    } else {
-        # Output plan if there was none
     };
     $self->diag(
         "Looks like $self->{fail_count} tests of $self->{count} have failed")

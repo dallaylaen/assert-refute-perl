@@ -22,7 +22,7 @@ my $ce = contract {
     package T;
     cmp_ok 1, "<<", 2;
 }->apply;
-is $ce->get_sign, 'tNE', "Bad operator died";
+is $ce->get_sign, 'tE', "Bad operator died";
 like $ce->get_error, qr/cmp_ok.*Comparison.*<</, "Error as expected";
 
 done_testing;

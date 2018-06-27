@@ -17,6 +17,6 @@ is $c->apply( 42, "food" )->get_sign, "t2d", "Passing contract";
 
 is $c->apply( 42, "bard" )->get_sign, "t1Nd", "Failing contract";
 
-is $c->apply( 42, "food", "kaboom" )->get_sign, "t2NE", "Exception => fail";
+is $c->apply( 42, "food", "kaboom" )->get_sign, "t2E", "Exception => fail";
 
 done_testing;
