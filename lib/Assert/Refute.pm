@@ -144,7 +144,7 @@ use Assert::Refute::Build qw(current_contract);
 use Assert::Refute::T::Basic;
 
 my @basic = (
-    @Assert::Refute::T::Basic::EXPORT,
+    @Assert::Refute::T::Basic::EXPORT, 'plan'
 );
 my @core  = qw(
     contract refute_these try_refute
@@ -245,6 +245,20 @@ sub refute_these (&;@) { ## no critic # need prototype
     carp "refute_these { ... } is DEPRECATED, use try_refute{ ... } instead";
     goto \&try_refute; ## no critic
 }
+
+=head2 plan tests => n
+
+Plan exactly C<n> refutations.
+
+The contract will fail unconditionally if plan is not fullfilled.
+
+C<plan> can only be called before executing any checks.
+
+=cut
+
+sub plan(@) { ## no critic
+    current_contract->plan( @_ );
+};
 
 =head2 refute( $condition, $message )
 
