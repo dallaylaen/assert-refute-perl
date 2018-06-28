@@ -276,6 +276,8 @@ sub subcontract {
 
     $self->_croak( $ERROR_DONE )
         if $self->{done};
+    $self->_croak( "Name is required for subcontract" )
+        unless $msg;
 
     my $rep;
     if ( blessed $sub and $sub->isa( "Assert::Refute::Contract" ) ) {
