@@ -664,26 +664,34 @@ sub get_log {
     };
 
     foreach my $n ( 0 .. $self->{count} + 1 ) {
-        my $hash = $self->get_result_details( $n );
-
         # Report test details.
         # Only append the logs for
         #   premature (0) and postmortem (count+1) messages
         if ($n and $n <= $self->{count}) {
-            my $name   = $hash->{name} ? "$n - $hash->{name}" : $n;
-            my $prefix = $hash->{ok} ? "ok" : "not ok";
-            my $level  = $hash->{ok} ? 0    : -2;
-            push @mess, [ $self->{indent}, $level, "$prefix $name" ]
-                unless $verbosity < $level;
-            if ($hash->{subcontract}) {
+            my $reason = $self->{fail}{$n};
+            my ($level, $prefix)  = $reason ? (-2, "not ok") : (0, "ok");
+            my $name   = $self->{name}{$n} ? "$n - $self->{name}{$n}" : $n;
+            push @mess, [ $self->{indent}, $level, "$prefix $name" ];
+
+            if ($self->{subcontract}{$n}) {
                 push @mess, map {
                     [ $_->[0]+1, $_->[1], $_->[2] ];
-                } @{ $hash->{subcontract}->get_log( $verbosity ) };
+                } @{ $self->{subcontract}{$n}->get_log( $verbosity ) };
+            };
+
+            if (ref $reason eq 'ARRAY') {
+                push @mess, map {
+                    [ $self->{indent}, -1, to_scalar( $_ ) ]
+                } @$reason;
+            } elsif ($reason and $reason ne 1) {
+                push @mess, [ $self->{indent}, -1, to_scalar( $reason ) ];
             };
         };
 
         # and all following diags
-        push @mess, grep { $_->[1] <= $verbosity } @{ $hash->{log} };
+        if (my $rest = $self->{messages}{$n} ) {
+            push @mess, grep { $_->[1] <= $verbosity } @$rest;
+        };
     };
 
     if (!defined $self->{plan_tests} and $self->{done}) {
