@@ -198,7 +198,7 @@ Returns self.
 sub done_testing {
     my ($self, $exception) = @_;
 
-    if (defined $exception) {
+    if ($exception) {
         # Record a totally failing contract.
         delete $self->{done};
         $self->{has_error} = $exception;
@@ -217,7 +217,7 @@ sub done_testing {
         };
     };
     $self->diag(
-        "Looks like $self->{fail_count} tests of $self->{count} have failed")
+        "Looks like $self->{fail_count} tests out of $self->{count} have failed")
             if $self->{fail_count};
 
     $self->{done}++;
