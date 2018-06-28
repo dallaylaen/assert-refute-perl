@@ -207,15 +207,21 @@ sub done_testing {
         # A special case - done_testing(0) means "tentative stop"
         return $self if defined $exception;
         $self->_croak( $ERROR_DONE );
-    } elsif (defined $self->{plan_tests}) {
+    };
+
+    # Any post-mortem messages go to a separate bucket
+    $self->{log} = $self->{messages}{ $self->{count}+1 } = [];
+
+    if (defined $self->{plan_tests}) {
         # Check plan
         if ($self->{count} != $self->{plan_tests}) {
             my $bad_plan = "Looks like you planned $self->{plan_tests}"
                 ." tests but ran $self->{count}";
-            $self->{has_error} = $bad_plan;
+            $self->{has_error} ||= $bad_plan;
             $self->diag( $bad_plan );
         };
     };
+
     $self->diag(
         "Looks like $self->{fail_count} tests out of $self->{count} have failed")
             if $self->{fail_count};
@@ -412,28 +418,31 @@ sub get_result_details {
     $self->_croak( "Bad test number $n, must be nonnegatine integer" )
         unless defined $n and $n =~ /^[0-9]+$/;
 
-    return {} if $n > $self->{count};
-
-    my $reason = $self->{fail}{$n};
-
-    my @log;
-
-    # return explanation first
-    if (ref $reason eq 'ARRAY') {
-        push @log, [ $self->{indent}, -1, to_scalar($_) ] for @$reason;
-    } elsif ( $reason and $reason ne 1 ) {
-        push @log, [ $self->{indent}, -1, to_scalar($reason) ];
+    # Process messages, return if premature(0) or post-mortem (n+1)
+    my @messages;
+    if (my $array = $self->{messages}{$n} ) {
+        @messages = @$array;
     };
 
-    # whatever was output via diag/note
-    push @log, @{ $self->{messages}{$n} }
-        if $self->{messages}{$n};
+    if ($n < 1 or $n > $self->{count} ) {
+        return { log => \@messages };
+    };
+
+    # now analyze the test itself
+    my $reason = $self->{fail}{$n};
+    my @diag;
+
+    if (ref $reason eq 'ARRAY') {
+        push @diag, [ $self->{indent}, -1, to_scalar($_) ] for @$reason;
+    } elsif ( $reason and $reason ne 1 ) {
+        push @diag, [ $self->{indent}, -1, to_scalar($reason) ];
+    };
 
     return {
         ok          => !$reason,
         name        => $self->{name}{$n},
         reason      => $reason,
-        log         => \@log,
+        log         => [@diag, @messages],
         subcontract => $self->{subcontract}{$n},
     };
 };
@@ -652,11 +661,13 @@ sub get_log {
             unless $verbosity < 0;
     };
 
-    foreach my $n ( 0 .. $self->get_count ) {
+    foreach my $n ( 0 .. $self->{count} + 1 ) {
         my $hash = $self->get_result_details( $n );
 
-        # test name
-        if ($n) {
+        # Report test details.
+        # Only append the logs for
+        #   premature (0) and postmortem (count+1) messages
+        if ($n and $n <= $self->{count}) {
             my $name   = $hash->{name} ? "$n - $hash->{name}" : $n;
             my $prefix = $hash->{ok} ? "ok" : "not ok";
             my $level  = $hash->{ok} ? 0    : -2;
