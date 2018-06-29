@@ -171,6 +171,9 @@ sub import {
         if (ref $_ eq 'HASH') {
             %conf = (%conf, %$_);
             $need_conf++;
+        } elsif (!ref $_ and $_ eq '{}') {
+            # TODO 0.15 remove together with auto-carp
+            $need_conf++; # allow for -MAssert::Refute={}
         } elsif (!ref $_) {
             push @exp, $_;
         } else {
