@@ -13,11 +13,16 @@ use Test::More;
 
 note "TESTING deep_diff() negative";
 
-ok !deep_diff( undef, undef),                      "deep_diff undef";
-ok !deep_diff( 42, 42 ),                           "deep_diff equal";
-ok !deep_diff( [ foo => 42 ], [ foo => 42 ] ),     "deep_diff array";
-ok !deep_diff( { foo => 42 }, { foo => 42 } ),     "deep_diff hash";
-ok !deep_diff( [ \*STDERR ], [ \*STDERR ] ),       "deep_diff the same object";
+my $rep = Assert::Refute::Report->new;
+$rep->is_deeply( undef, undef,                  "deep_diff undef" );
+$rep->is_deeply( 42, 42 ,                       "deep_diff equal" );
+$rep->is_deeply( [ foo => 42 ], [ foo => 42 ] , "deep_diff array" );
+$rep->is_deeply( { foo => 42 }, { foo => 42 } , "deep_diff hash"  );
+$rep->is_deeply( [ \*STDERR ], [ \*STDERR ] ,   "deep_diff the same object" );
+$rep->done_testing;
+
+is $rep->get_sign, "t5d", "All negative tests succeeded"
+    or diag "<report>\n", $rep->get_tap, "</report>";
 
 note "TESTING deep_diff() positive";
 
