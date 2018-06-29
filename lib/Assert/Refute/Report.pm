@@ -54,26 +54,17 @@ my $ERROR_DONE = "done_testing was called, no more changes may be added";
 
 =head2 new
 
-    Assert::Refute::Report->new( %options );
+    Assert::Refute::Report->new();
 
-%options may include:
-
-=over
-
-=item * indent - log indentation (will be shown as 4 spaces in C<get_tap>);
-
-=back
+No arguments are currently supported.
 
 =cut
 
 sub new {
-    my ($class, %opt) = @_;
-
     bless {
-        indent => $opt{indent} || 0,
         fail   => {},
         count  => 0,
-    }, $class;
+    }, shift;
 };
 
 =head2 RUNNING PRIMITIVES
@@ -435,9 +426,9 @@ sub get_result_details {
     my @diag;
 
     if (ref $reason eq 'ARRAY') {
-        push @diag, [ $self->{indent}, -1, to_scalar($_) ] for @$reason;
+        push @diag, [ 0, -1, to_scalar($_) ] for @$reason;
     } elsif ( $reason and $reason ne 1 ) {
-        push @diag, [ $self->{indent}, -1, to_scalar($reason) ];
+        push @diag, [ 0, -1, to_scalar($reason) ];
     };
 
     return {
@@ -632,8 +623,6 @@ sub do_log {
     $self->_croak( $ERROR_DONE )
         if $self->{done};
 
-    $indent += $self->{indent};
-
     $self->{log} ||= $self->{messages}{ $self->{count} } ||= [];
     push @{ $self->{log} }, [$indent, $level, $mess];
 
@@ -659,7 +648,7 @@ sub get_log {
 
     # output plan if there was plan
     if (defined $self->{plan_tests}) {
-        push @mess, [ $self->{indent}, 0, "1..$self->{plan_tests}" ]
+        push @mess, [ 0, 0, "1..$self->{plan_tests}" ]
             unless $verbosity < 0;
     };
 
@@ -671,7 +660,7 @@ sub get_log {
             my $reason = $self->{fail}{$n};
             my ($level, $prefix)  = $reason ? (-2, "not ok") : (0, "ok");
             my $name   = $self->{name}{$n} ? "$n - $self->{name}{$n}" : $n;
-            push @mess, [ $self->{indent}, $level, "$prefix $name" ];
+            push @mess, [ 0, $level, "$prefix $name" ];
 
             if ($self->{subcontract}{$n}) {
                 push @mess, map {
@@ -681,10 +670,10 @@ sub get_log {
 
             if (ref $reason eq 'ARRAY') {
                 push @mess, map {
-                    [ $self->{indent}, -1, to_scalar( $_ ) ]
+                    [ 0, -1, to_scalar( $_ ) ]
                 } @$reason;
             } elsif ($reason and $reason ne 1) {
-                push @mess, [ $self->{indent}, -1, to_scalar( $reason ) ];
+                push @mess, [ 0, -1, to_scalar( $reason ) ];
             };
         };
 
@@ -695,7 +684,7 @@ sub get_log {
     };
 
     if (!defined $self->{plan_tests} and $self->{done}) {
-        push @mess, [ $self->{indent}, 0, "1..".$self->get_count ]
+        push @mess, [ 0, 0, "1..".$self->get_count ]
             unless $verbosity < 0;
     };
 
