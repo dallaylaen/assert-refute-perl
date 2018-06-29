@@ -61,6 +61,7 @@ All functions are exportable.
 =cut
 
 use Carp;
+use Data::Dumper;
 use Scalar::Util qw(weaken blessed set_prototype looks_like_number refaddr);
 use parent qw(Exporter);
 our @EXPORT = qw(build_refute current_contract to_scalar);
@@ -250,59 +251,44 @@ sub current_contract() { ## nocritic
 
 =head2 to_scalar
 
-Convert an arbitrary data structure to a human-readable string.
+Convert an arbitrary value into a human-readable string.
 
-=over
+    to_scalar( $value )
+    to_scalar( $value, $depth )
 
-=item * C<to_scalar( undef )> # returns C<'(undef)'>
+If $value is undefined and $depth is not given, returns C<'(undef)'>
+(so that it's harder to confuse with a literal C<'undef'>).
 
-=item * C<to_scalar( string )> # returns the string as is in quotes
+If $value is a scalar and $depth is not given, returns $value as is,
+without quoted or anything.
 
-=item * C<to_scalar( \%ref || \@array, $depth )>
+Otherwise returns L<Data::Dumper> to depth $depth (or unlimited by default).
 
-Only goes C<$depth> levels deep. Default depth is 1.
-
-=back
-
-Hashes/arrays are only penetrated 1 level deep by default.
-
-C<undef> is returned as C<"(undef)"> so it can't be confused with other types.
-
-Strings are quoted unless numeric or depth is omitted.
-
-Refs are returned as C<My::Module/1a2c3f> (NOT in perl's own format
-C<My::Module=HASH(0x20f9190)>). This MAY change in the future.
+One SHOULD NOT rely on exact format of returned data.
 
 =cut
 
-my %replace = ( "\n" => "n", "\\" => "\\", '"' => '"', "\0" => "0", "\t" => "t" );
 sub to_scalar {
     my ($data, $depth) = @_;
 
-    return '(undef)' unless defined $data;
-    if (!ref $data) {
-        return $data if !defined $depth or looks_like_number($data);
-        $data =~ s/([\0"\n\t\\])/\\$replace{$1}/g;
-        $data =~ s/([^\x20-\x7E])/sprintf "\\x%02x", ord $1/ge;
-        return "\"$data\"";
+    if (!ref $data and !defined $depth) {
+        # auto-explain
+        return defined $data ? $data : '(undef)';
     };
 
-    $depth = 1 unless defined $depth;
+    $depth = 0 unless defined $depth;
 
-    if ($depth) {
-        if (UNIVERSAL::isa($data, 'ARRAY')) {
-            return (ref $data eq 'ARRAY' ? '' : ref $data)
-                ."[".join(", ", map { to_scalar($_, $depth-1) } @$data )."]";
-        };
-        if (UNIVERSAL::isa($data, 'HASH')) {
-            return (ref $data eq 'HASH' ? '' : ref $data)
-            . "{".join(", ", map {
-                 to_scalar($_, 0) .":".to_scalar( $data->{$_}, $depth-1 );
-            } sort keys %$data )."}";
-        };
-    };
-    return sprintf "%s/%x", ref $data, refaddr $data;
+    local $Data::Dumper::Indent    = 0;
+    local $Data::Dumper::Sortkeys  = 1;
+    local $Data::Dumper::Maxdepth  = $depth;
+    local $Data::Dumper::Quotekeys = 0;
+    local $Data::Dumper::Useqq     = 1;
+    my $str = Dumper($data);
+    $str =~ s/^\$VAR1 *= *//;
+    $str =~ s/;\s*$//s;
+    return $str;
 };
+
 =head1 LICENSE AND COPYRIGHT
 
 This module is part of L<Assert::Refute> suite.

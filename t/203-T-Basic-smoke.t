@@ -35,7 +35,7 @@ $report = contract {
     diag "bared";
 }->apply;
 
-like $report->get_tap(2), qr/^## foo \{ *"x" *: *42 *\}/, "note works";
+like $report->get_tap(2), qr/^## foo \{ *["']?x["']? *=> *42 *\}/, "note works";
 like $report->get_tap(2), qr/\n# bared/, "diag works";
 
 $report = contract {
@@ -47,6 +47,5 @@ $report = contract {
 is $report->get_count, 2, "is + like bad: 2 tests run";
 ok !$report->is_passing, "is + like bad: not passing";
 note $report->get_tap;
-
 
 done_testing;

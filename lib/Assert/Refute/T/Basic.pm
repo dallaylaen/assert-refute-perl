@@ -307,111 +307,95 @@ Better difference formatting wanted.
 
 push @EXPORT_OK, qw(deep_diff);
 
-build_refute is_deeply => sub {
-    my $diff = deep_diff( shift, shift );
-    return unless $diff;
-    return "Structures differ (got != expected):\n$diff";
-}, export => 1, args => 2;
+build_refute is_deeply => \&deep_diff, export => 1, args => 2;
 
 =head2 deep_diff( $old, $new )
 
 Not exported by default.
 Compares 2 scalars recursively, outputs nothing if they are identical,
-or a (somewhat strange) in-depth summary if they differ.
+or a I<complete> difference if they differ.
+
+The exact difference format shall not be relied upon.
 
 =cut
 
 sub deep_diff {
     my ($old, $new, $known, $path) = @_;
 
-    $known ||= {};
-    $path ||= '&';
+    $path ||= '$deep';
 
-    # TODO combine conditions, too much branching
-    # diff refs => isn't right away
+    # First compare types. Report if different.
     if (ref $old ne ref $new or (defined $old xor defined $new)) {
-        return join "!=", to_scalar($old), to_scalar($new);
+        return _deep_not($path, $old, $new);
     };
 
-    # not deep - return right away
-    return '' unless defined $old;
+    # Check scalar values. compare with eq.
     if (!ref $old) {
-        return $old ne $new && join "!=", to_scalar($old), to_scalar($new),
+        return unless defined $old;
+        return $old eq $new
+            ? ()
+            : _deep_not($path, $old, $new),
     };
 
-    # recursion
-    # check topology first to avoid looping
-    # new is likely to be simpler (it is the "expected" one)
-    # FIXME BUG here - if new is tree, and old is DAG, this code won't catch it
-    if (my $new_path = $known->{refaddr $new}) {
-        my $old_path = $known->{-refaddr($old)};
-        return to_scalar($old)."!=$new_path" unless $old_path;
-        return $old_path ne $new_path && "$old_path!=$new_path";
+    # Topology check (and also avoid infinite loop)
+    # If we've seen these structures before,
+    #    just compare the place where it happened
+    # if not, remember for later
+    # From now on, $path eq $seen_* really means "never seen before"
+    my $seen_old = $known->{-refaddr $old} ||= $path;
+    my $seen_new = $known->{ refaddr $new} ||= $path;
+
+    # Seen previously in different places - report
+    if ($seen_old ne $seen_new) {
+        # same as _deep_not, but with addresses
+        return [
+            "At $path: ",
+            "     Got: ".($seen_old ne $path ? "Same as $seen_old" : to_scalar($old,2)),
+            "Expected: ".($seen_new ne $path ? "Same as $seen_new" : to_scalar($new,2)),
+        ];
     };
-    $known->{-refaddr($old)} = $path;
-    $known->{refaddr $new} = $path;
+    # these structures have already been compared elsewhere - skip
+    return if $seen_old ne $path;
+
+    # this is the same structure - skip
+    return if refaddr $old eq refaddr $new;
+
+    # descend into deep structures
+    $known ||= {};
 
     if (UNIVERSAL::isa( $old , 'ARRAY') ) {
         my @diff;
+        # FIXME bug - confuses [ undef ] and []
         for (my $i = 0; $i < @$old || $i < @$new; $i++ ) {
             my $off = deep_diff( $old->[$i], $new->[$i], $known, $path."[$i]" );
-            push @diff, "$i:$off" if $off;
+            push @diff, @$off if $off;
         };
-        return @diff ? _array2str( \@diff, ref $old ) : '';
+        return @diff ? \@diff : ();
     };
+
     if (UNIVERSAL::isa( $old, 'HASH') ) {
-        my ($both_k, $old_k, $new_k) = _both_keys( $old, $new );
-        my %diff;
-        $diff{$_} = to_scalar( $old->{$_} )."!=(none)" for @$old_k;
-        $diff{$_} = "(none)!=".to_scalar( $new->{$_} ) for @$new_k;
-        foreach (@$both_k) {
+        my %both;
+        $both{$_}++ for keys %$old, keys %$new;
+        # FIXME must account for nonexistent keys
+        my @diff;
+        foreach (sort keys %both) {
             my $off = deep_diff( $old->{$_}, $new->{$_}, $known, $path."{$_}" );
-            $diff{$_} = $off if $off;
+            push @diff, @$off if $off;
         };
-        return %diff ? _hash2str( \%diff, ref $old ) : '';
+        return @diff ? \@diff : ();
     };
 
-    # finally - don't know what to do, compare refs
-    $old = to_scalar($old);
-    $new = to_scalar($new);
-    return $old ne $new && join "!=", $old, $new;
+    # finally - totally different - just output them
+    return _deep_not($path, $old, $new);
 };
 
-sub _hash2str {
-    my ($hash, $type) = @_;
-    $type = '' if $type eq 'HASH';
-    return $type.'{'
-            . join(", ", map { to_scalar($_, 0).":$hash->{$_}" } sort keys %$hash)
-        ."}";
-};
-
-sub _array2str {
-    my ($array, $type) = @_;
-    $type = '' if $type eq 'ARRAY';
-    return "$type\[".join(", ", @$array)."]";
-};
-
-# in: hash + hash
-# out: common keys +
-sub _both_keys {
-    my ($old, $new) = @_;
-    # TODO write shorter
-    my %uniq;
-    $uniq{$_}++ for keys %$new;
-    $uniq{$_}-- for keys %$old;
-    my (@o_k, @n_k, @b_k);
-    foreach (sort keys %uniq) {
-        if (!$uniq{$_}) {
-            push @b_k, $_;
-        }
-        elsif ( $uniq{$_} < 0 ) {
-            push @o_k, $_;
-        }
-        else {
-            push @n_k, $_;
-        };
-    };
-    return (\@b_k, \@o_k, \@n_k);
+sub _deep_not {
+    my ($path, $old, $new) = @_;
+    return [
+        "At $path: ",
+        "     Got: ".to_scalar( $old, 2 ),
+        "Expected: ".to_scalar( $new, 2 ),
+    ];
 };
 
 =head1 LICENSE AND COPYRIGHT

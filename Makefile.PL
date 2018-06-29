@@ -15,13 +15,12 @@ WriteMakefile(
         'ExtUtils::MakeMaker' => '0',
     },
     BUILD_REQUIRES => {
-        'Test::More'          => 0.87,
+        'Test::More'          => 0.87, # done_testing + subtest
     },
     PREREQ_PM => {
         'Scalar::Util'        => 1.14, # set_prototype
-        $] >= 5.010 ? () : (
-            'parent'          => 0,
-        ),
+        'parent'              => 0,
+        'Data::Dumper'        => 2,
     },
     META_MERGE => {
         'meta-spec' => { version => 2 },
