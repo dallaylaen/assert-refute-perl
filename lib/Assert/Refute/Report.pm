@@ -381,12 +381,17 @@ Returns a hash containing information about a test:
 
 =over
 
+=item number - the number of test (this is equal to argument);
+
 =item ok - whether the test was successful;
 
-=item name - name of the test.
+=item name - name of the test (if any);
 
-=item reason - the reason for test failing, if it failed.
+=item reason - the reason for test failing, if it failed;
+
 Undefined for "ok" tests.
+
+=item diag - diagnostic messages as one array, without leading C<#>;
 
 =item log - any log messages that followed the test (see get_log for format)
 
@@ -396,7 +401,7 @@ Undefined for "ok" tests.
 
 Returns empty hash for nonexistent tests, and dies if test number is not integer.
 
-As a special case, test number 0 only contains the log
+As a special case, test number 0 only contains the C<log> and C<diag> fields
 for C<diag>/C<note> messages that were written before any tests.
 
 See also L<Test::Tester>.
@@ -417,27 +422,33 @@ sub get_result_details {
         @messages = @$array;
     };
 
-    if ($n < 1 or $n > $self->{count} ) {
-        return { log => \@messages };
+    my %ret = ( number => $n );
+
+    if ($n >= 1 and $n <= $self->{count} ) {
+        # a real test - add some information
+        my $reason = $self->{fail}{$n};
+        my @diag;
+
+        if (ref $reason eq 'ARRAY') {
+            push @diag, [ 0, -1, to_scalar($_) ] for @$reason;
+        } elsif ( $reason and $reason ne 1 ) {
+            push @diag, [ 0, -1, to_scalar($reason) ];
+        };
+
+        $ret{ok}          = !$reason;
+        $ret{name}        = $self->{name}{$n};
+        $ret{reason}      = $reason;
+        $ret{log}         = [@diag, @messages];
+        $ret{subcontract} = $self->{subcontract}{$n};
+    } else {
+        # leading or trailing messages
+        $ret{log} = \@messages,
     };
 
-    # now analyze the test itself
-    my $reason = $self->{fail}{$n};
-    my @diag;
+    # Strip extra trash from internal log format
+    $ret{diag} = [ map { $_->[2] } grep { $_->[1] < 0 } @{ $ret{log} } ];
 
-    if (ref $reason eq 'ARRAY') {
-        push @diag, [ 0, -1, to_scalar($_) ] for @$reason;
-    } elsif ( $reason and $reason ne 1 ) {
-        push @diag, [ 0, -1, to_scalar($reason) ];
-    };
-
-    return {
-        ok          => !$reason,
-        name        => $self->{name}{$n},
-        reason      => $reason,
-        log         => [@diag, @messages],
-        subcontract => $self->{subcontract}{$n},
-    };
+    return \%ret;
 };
 
 =head3 get_error
