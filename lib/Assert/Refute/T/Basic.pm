@@ -365,22 +365,46 @@ sub deep_diff {
 
     if (UNIVERSAL::isa( $old , 'ARRAY') ) {
         my @diff;
-        # FIXME bug - confuses [ undef ] and []
-        for (my $i = 0; $i < @$old || $i < @$new; $i++ ) {
+        my $i = 0;
+        for (; $i < @$old && $i < @$new; $i++) {
             my $off = deep_diff( $old->[$i], $new->[$i], $known, $path."[$i]" );
             push @diff, @$off if $off;
+        };
+        for (; $i < @$old; $i++) {
+            push @diff,
+                "At $path"."[$i]:",
+                "     Got: ".to_scalar( $old->[$i], 2 ),
+                "Expected: "."Does not exist",
+        };
+        for (; $i < @$new; $i++) {
+            push @diff,
+                "At $path"."[$i]:",
+                "     Got: "."Does not exist",
+                "Expected: ".to_scalar( $new->[$i], 2 ),
         };
         return @diff ? \@diff : ();
     };
 
     if (UNIVERSAL::isa( $old, 'HASH') ) {
         my %both;
-        $both{$_}++ for keys %$old, keys %$new;
-        # FIXME must account for nonexistent keys
+        $both{$_}-- for keys %$old;
+        $both{$_}++ for keys %$new;
         my @diff;
         foreach (sort keys %both) {
-            my $off = deep_diff( $old->{$_}, $new->{$_}, $known, $path."{$_}" );
-            push @diff, @$off if $off;
+            if ($both{$_} < 0) {
+                push @diff,
+                    "At $path"."{$_}:",
+                    "     Got: ".to_scalar( $old->{$_}, 2 ),
+                    "Expected: "."Does not exist",
+            } elsif ($both{$_} > 0) {
+                push @diff,
+                    "At $path"."{$_}:",
+                    "     Got: "."Does not exist",
+                    "Expected: ".to_scalar( $new->{$_}, 2 ),
+            } else {
+                my $off = deep_diff( $old->{$_}, $new->{$_}, $known, $path."{$_}" );
+                push @diff, @$off if $off;
+            };
         };
         return @diff ? \@diff : ();
     };

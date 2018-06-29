@@ -54,15 +54,31 @@ multi_like (
 
 multi_like (
     scalar deep_diff(
+        { long => [ undef, undef ], short => [ undef, undef, undef ] },
+        { long => [ undef, undef, undef ], short => [ undef, undef ] },
+    ),
+    [
+        qr/At.*\Q{long}[2]\E/,
+        qr/Got.*Does not exist/,
+        qr/Expected.*undef/,
+        qr/At.*\Q{short}[2]\E/,
+        qr/Got.*undef/,
+        qr/Expected.*Does not exist/,
+    ],
+    "Can tell apart missing from undef"
+);
+
+multi_like (
+    scalar deep_diff(
             { foo => { bar => 42 } },
             { foo => { baz => 42 } }
     ),
     [
         qr/At.*\Q{foo}{bar}\E/,
         qr/Got *: *42/,
-        qr/Expected *:/,
+        qr/Expected *: *Does not exist/,
         qr/At.*\Q{foo}{baz}\E/,
-        qr/Got *: */,
+        qr/Got *: *Does not exist/,
         qr/Expected *: *42/,
     ],
     "Differing data structures explained correctly, multiple diff returned",
@@ -166,9 +182,9 @@ sub multi_like {
     subtest $message => sub {
         for (my $i = 0; $i < @$regexen; $i++ ) {
             if (ref $regexen->[$i] eq 'Regexp') {
-                like $array->[$i], $regexen->[$i], "Line $i matches";
+                like $array->[$i], $regexen->[$i], "Line $i matches $regexen->[$i]";
             } else {
-                is $array->[$i], $regexen->[$i], "Line $i equals";
+                is $array->[$i], $regexen->[$i], "Line $i equals ".explain($regexen->[$i]);
             }
         };
         is scalar @$array, scalar @$regexen,
