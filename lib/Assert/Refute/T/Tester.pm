@@ -15,6 +15,9 @@ While C<contract_is> is a good way to quickly determine
 whether a test condition holds any water, a more detailed
 inspection is desirable.
 
+B<[EXPERIMENTAL]> This module is under active development and
+its interface may change in the future.
+
 =head1 SYNOPSIS
 
     use Test::More;
@@ -140,5 +143,19 @@ sub _like_or_ok {
         $rep->is( $got, $exp, $msg );
     };
 };
+
+=head1 LICENSE AND COPYRIGHT
+
+This module is part of L<Assert::Refute> suite.
+
+Copyright 2017-2018 Konstantin S. Uvarin. C<< <khedin at cpan.org> >>
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the the Artistic License (2.0). You may obtain a
+copy of the full license at:
+
+L<http://www.perlfoundation.org/artistic_license_2_0>
+
+=cut
 
 1;
