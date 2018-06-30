@@ -271,6 +271,11 @@ The test passes if the C<$condition> is I<false>, and fails otherwise.
 C<$condition> is then assumed to be the I<reason> of failure.
 You can think of it as C<ok> and C<diag> combined.
 
+As a special case, an C<\@arrayref> condition will be unfolded into multiple
+C<diag> lines, for instance
+
+    refute [ $answer, "isn't", 42 ], "life, universe, and everything";
+
 Returns true for a passing test and false for a failing one.
 Dies if no contract is being executed as the time.
 
@@ -528,7 +533,8 @@ Much later:
     is_prime 42, "Life is simple"; # not true
 
 Note that the implementation C<sub {...}> only cares about its arguments,
-and doesn't do anything except returning a value - it's a I<pure function>.
+and doesn't do anything except returning a value.
+Suddenly it's a L<pure function|https://en.wikipedia.org/wiki/Pure_function>!
 
 Yet the exact reason for $n not being a prime will be reflected in test output.
 
@@ -539,6 +545,22 @@ or generate warnings/exceptions when conditions are not met.
 
 That's how L<Test::More> integration is done -
 see L<Assert::Refute::Driver::More>.
+
+=head1 PERFORMANCE
+
+Unlike some other assertion modules, C<Assert::Refute> does not provide
+an easy way to optimize itself out.
+
+Use L<Keyword::DEVELOPMENT> if needed, or just define a DEBUG constant and
+append an C<if DEBUG;> statement to C<try_refute{ ... }> blocks.
+
+That said, refute is reasonably fast.
+Special care is taken to minimize the CPU usage by I<passing> contracts.
+
+The C<example/00-benchmark.pl> file in this distribution is capable of
+verifying around 4000 contracts of 100 statements each in just under a second
+on my 4500 C<BOGOMIPS> laptop.
+Your mileage may vary!
 
 =head1 WHY REFUTE
 
@@ -564,7 +586,13 @@ assertions, tests, and validations.
 
 =head1 BUGS
 
-This module is still in ALPHA stage.
+This module is still under heavy development.
+See C<TODO> file in this distribution for an approximate roadmap.
+
+New features are marked as B<[EXPERIMENTAL]>.
+Features that are to be removed will
+stay B<[DEPRECATED]> (with a corresponding warning) for at least 5 releases,
+unless such deprecation is extremely cumbersome.
 
 Test coverage is maintained at >90%, but who knows what lurks in the other 10%.
 
@@ -581,7 +609,8 @@ You can also look for information at:
 
 =over
 
-=item * First and foremost, use Github!
+=item * First and foremost, use
+L<Github|https://github.com/dallaylaen/assert-refute-perl/>!
 
 =item * C<RT>: CPAN's request tracker (report bugs here)
 
@@ -597,7 +626,7 @@ L<http://cpanratings.perl.org/d/Assert-Refute>
 
 =item * Search CPAN
 
-L<http://search.cpan.org/dist/Assert-Refute/>
+L<https://metacpan.org/pod/Assert::Refute>
 
 =back
 
@@ -606,7 +635,11 @@ L<http://search.cpan.org/dist/Assert-Refute/>
 =over
 
 =item Thanks to L<Alexander Kuklev|https://github.com/akuklev>
-for C<try_refute> function name as well as many useful discussions.
+for C<try_refute> function name as well as a lot of feedback.
+
+=item This L<rant|https://www.perlmonks.org/?node_id=1122667>
+by C<Daniel Dragan> inspired me to actually start working
+on the first incarnation of this project.
 
 =back
 
