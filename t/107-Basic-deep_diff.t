@@ -70,8 +70,22 @@ multi_like (
 
 multi_like (
     scalar deep_diff(
-            { foo => { bar => 42 } },
-            { foo => { baz => 42 } }
+        { long => [ undef, undef ], short => [ undef, undef, undef ] },
+        { long => [ undef, undef, undef ], short => [ undef, undef ] },
+        0,
+    ),
+    [
+        qr/At.*\Q{long}[2]\E/,
+        qr/Got.*Does not exist/,
+        qr/Expected.*undef/,
+    ],
+    "Same as above, but short circuit"
+);
+
+multi_like (
+    scalar deep_diff(
+        { foo => { bar => 42 } },
+        { foo => { baz => 42 } },
     ),
     [
         qr/At.*\Q{foo}{bar}\E/,
@@ -83,6 +97,37 @@ multi_like (
     ],
     "Differing data structures explained correctly, multiple diff returned",
 );
+
+multi_like (
+    scalar deep_diff(
+        { foo => { bar => 42 } },
+        { foo => { baz => 42 } },
+        0,
+    ),
+    [
+        qr/At.*\Q{foo}{bar}\E/,
+        qr/Got *: *42/,
+        qr/Expected *: *Does not exist/,
+    ],
+    "Same as above, short circuit",
+);
+
+my @very_long_spec;
+for (1..10) {
+    push @very_long_spec,
+         qr/At .*\{\d+\}/,
+         qr/Got *: *["']?\d+/,
+         qr/Expected *: *Does not exist/;
+};
+multi_like (
+    scalar deep_diff(
+        { 11 .. 90 },
+        {},
+    ),
+    \@very_long_spec,
+    "A ton of difference - only 10 shown",
+);
+
 
 my $leaf1 = [];
 my $leaf2 = [];
@@ -189,5 +234,6 @@ sub multi_like {
         };
         is scalar @$array, scalar @$regexen,
             "Exactly ".scalar @$regexen." lines present";
-    };
+    }
+        or diag explain $array;
 };

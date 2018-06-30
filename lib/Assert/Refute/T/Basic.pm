@@ -296,18 +296,26 @@ sub note (@) { ## no critic
     my $check = contract {
         my $arg = shift;
         my $expected = naive_impl( $arg );
-        is_deeply fast_impl( $arg ), $expected, "fast_impl ok for";
+        is_deeply fast_impl( $arg ), $expected, "fast_impl generates same data";
     };
 
-Unlike the L<Test::More> counterpart, prints all found discrepancies,
-although in a weird format.
-Better difference formatting wanted.
+Unlike the L<Test::More> counterpart, it will not first after first mismatch
+and print details about 10 mismatching entries.
+
+=head2 is_deeply_diff( $got, $expected, $max_diff )
+
+Same as above, but the third parameter specifies the number
+of mismatches in data to be reported.
+
+B<[EXPERIMENTAL]> name and meaning may change in the future.
+a C<$max_diff> of 0 would lead to unpredictable results.
 
 =cut
 
 push @EXPORT_OK, qw(deep_diff);
 
 build_refute is_deeply => \&deep_diff, export => 1, args => 2;
+build_refute is_deeply_diff => \&deep_diff, export => 1, args => 3;
 
 =head2 deep_diff( $old, $new )
 
@@ -320,9 +328,10 @@ The exact difference format shall not be relied upon.
 =cut
 
 sub deep_diff {
-    my ($old, $new, $known, $path) = @_;
+    my ($old, $new, $maxdiff, $known, $path) = @_;
 
     $path ||= '$deep';
+    $maxdiff = 10 unless defined $maxdiff;
 
     # First compare types. Report if different.
     if (ref $old ne ref $new or (defined $old xor defined $new)) {
@@ -365,22 +374,20 @@ sub deep_diff {
 
     if (UNIVERSAL::isa( $old , 'ARRAY') ) {
         my @diff;
-        my $i = 0;
-        for (; $i < @$old && $i < @$new; $i++) {
-            my $off = deep_diff( $old->[$i], $new->[$i], $known, $path."[$i]" );
-            push @diff, @$off if $off;
+        my $min = @$old < @$new ? scalar @$old : scalar @$new;
+        my $max = @$old > @$new ? scalar @$old : scalar @$new;
+        foreach my $i( 0 .. $min - 1 ) {
+            my $off = deep_diff( $old->[$i], $new->[$i], $maxdiff, $known, $path."[$i]" );
+            if ($off) {
+                push @diff, @$off;
+                $maxdiff -= @$off / 3;
+            };
+            last if $maxdiff <= 0;
         };
-        for (; $i < @$old; $i++) {
-            push @diff,
-                "At $path"."[$i]:",
-                "     Got: ".to_scalar( $old->[$i], 2 ),
-                "Expected: "."Does not exist",
-        };
-        for (; $i < @$new; $i++) {
-            push @diff,
-                "At $path"."[$i]:",
-                "     Got: "."Does not exist",
-                "Expected: ".to_scalar( $new->[$i], 2 ),
+        foreach my $i ($min .. $max - 1) {
+            push @diff, _deep_noexist( $path."[$i]", $old->[$i], $new->[$i], @$new - @$old );
+            $maxdiff--;
+            last if $maxdiff <= 0;
         };
         return @diff ? \@diff : ();
     };
@@ -391,19 +398,18 @@ sub deep_diff {
         $both{$_}++ for keys %$new;
         my @diff;
         foreach (sort keys %both) {
-            if ($both{$_} < 0) {
-                push @diff,
-                    "At $path"."{$_}:",
-                    "     Got: ".to_scalar( $old->{$_}, 2 ),
-                    "Expected: "."Does not exist",
-            } elsif ($both{$_} > 0) {
-                push @diff,
-                    "At $path"."{$_}:",
-                    "     Got: "."Does not exist",
-                    "Expected: ".to_scalar( $new->{$_}, 2 ),
+            if ($both{$_}) {
+                # nonzero = only one side exists
+                push @diff, _deep_noexist( $path."{$_}", $old->{$_}, $new->{$_}, $both{$_} );
+                $maxdiff--;
+                last if $maxdiff <= 0;
             } else {
-                my $off = deep_diff( $old->{$_}, $new->{$_}, $known, $path."{$_}" );
-                push @diff, @$off if $off;
+                my $off = deep_diff( $old->{$_}, $new->{$_}, $maxdiff, $known, $path."{$_}" );
+                if ($off) {
+                    push @diff, @$off;
+                    $maxdiff -= @$off/3;
+                };
+                last if $maxdiff <= 0;
             };
         };
         return @diff ? \@diff : ();
@@ -420,6 +426,18 @@ sub _deep_not {
         "     Got: ".to_scalar( $old, 2 ),
         "Expected: ".to_scalar( $new, 2 ),
     ];
+};
+
+# $sign < 0 = $old exists, $sign > 0 $new exists
+# $sign == 0 and see above
+sub _deep_noexist {
+    my ($path, $old, $new, $sign) = @_;
+    # return array, not arrayref, as this is getting pushed
+    return (
+        "At $path: ",
+        "     Got: ".($sign < 0 ? to_scalar( $old, 2 ) : "Does not exist"),
+        "Expected: ".($sign > 0 ? to_scalar( $new, 2 ) : "Does not exist"),
+    );
 };
 
 =head1 LICENSE AND COPYRIGHT
