@@ -634,10 +634,10 @@ L<https://metacpan.org/pod/Assert::Refute>
 
 =over
 
-=item Thanks to L<Alexander Kuklev|https://github.com/akuklev>
+=item * Thanks to L<Alexander Kuklev|https://github.com/akuklev>
 for C<try_refute> function name as well as a lot of feedback.
 
-=item This L<rant|https://www.perlmonks.org/?node_id=1122667>
+=item * This L<rant|https://www.perlmonks.org/?node_id=1122667>
 by C<Daniel Dragan> inspired me to actually start working
 on the first incarnation of this project.
 
