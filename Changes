@@ -1,5 +1,16 @@
 Revision history for Assert-Refute
 
+0.12    Sun Jul 1 2018
+        - DOC Alpha status removed
+        - MOD Add experimental T::Tester with test_test condition
+        - API Improve get_result_details() greatly
+        - MOD Add experimental is_deeply_diff() with extra parameter
+        - API BREAK make is_deeply generate a limited, multiline report
+        - API BREAK Switch to Data::Dumper instead of homegrown to_scalar
+        - API Allow perl -MAssert::Refute={} -e '...' on CLI
+        - API BREAK Remove 'indent' argument in Report->new
+        - TST Add benchmark.pl script
+
 0.11    Fri Jun 29 2018
         - API Add plan tests => nnn
         - API BREAK Remove an extra failing test for interrupted execution

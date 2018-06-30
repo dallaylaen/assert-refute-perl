@@ -2,7 +2,7 @@ package Assert::Refute::T::Tester;
 
 use strict;
 use warnings;
-our $VERSION = 0.10;
+our $VERSION = '0.12';
 
 =head1 NAME
 

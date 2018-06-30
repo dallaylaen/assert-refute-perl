@@ -1,9 +1,10 @@
         -- next big thing --
 +   +   API bail_out()
-+   ++  MOD Make `is_deeply` report multiline
 
         -- backlog --
-+   ++  MOD Saner `to_scalar` format
+++  +   MOD multiline like
++   ++  MOD port Test::Deep to refute
++   ++  MOD port Test::Differences to refute
 +   ++  TST Even more examples
 +   +++ BUG Consistent reporting of caller under Test::More
 ++  +   MOD T::Array: point out misbehaving elements in all tests
@@ -17,6 +18,7 @@
 +++ +   API verbosity switch to include more/less info in report
 +++ +   MOD T::Array: block subs curry if no second arg
 +++ +   API skip remaining tests [workaround: return]
+++  +++ DRV add Test-based driver
 ++  +++ MOD Provide what Test::Most can
 ++  +++ MOD import Test::Builder-based tests
 +++ ++  MOD `is_diff` LCS-based multiline test

@@ -71,16 +71,14 @@ This is where `refute` is implemented.
 
 # SUPPORT AND DOCUMENTATION
 
-This module is still in ALPHA version, contributions wanted.
+See https://metacpan.org/pod/Assert::Refute
 
-Test coverage is maintained at about 90%, but who knows what lurks in the
-remaining 10!
+This package is under heavy development.
+Bugs may be lurking!
 
 Please report bugs and ask for features here:
 
     https://github.com/dallaylaen/assert-refute-perl/issues
-
-**ANY FEEDBACK WOULD BE APPRECIATED**
 
 # LICENSE AND COPYRIGHT
 
