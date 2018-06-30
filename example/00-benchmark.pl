@@ -55,6 +55,8 @@ for (1 .. $repeat) {
 };
 my $cpu_time = clock() - $t0;
 
+printf "Used Assert::Refute version %s under perl %s\n",
+    Assert::Refute->VERSION, $^V;
 printf "Refuted %d contracts of %d statements each in %0.3fs\n",
     $repeat, $count, $cpu_time;
 printf "%0.0f statements per second\n",
