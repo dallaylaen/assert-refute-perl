@@ -72,7 +72,7 @@ sub new {
 =head3 plan( tests => n )
 
 Plan to run exactly n tests.
-This is not required, and L<done_testing> (see below)
+This is not required, and L</done_testing> (see below)
 is needed at the end anyway.
 
 Dies if there's already a plan, or tests are being run, or done_testing
