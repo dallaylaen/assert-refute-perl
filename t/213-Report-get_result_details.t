@@ -38,7 +38,7 @@ subtest "failing test" => sub {
 };
 
 subtest "tail notes" => sub {
-    my $hash = $report->get_result_details(3);
+    my $hash = $report->get_result_details(-1);
     is $hash->{ok}, undef, "ok undefined";
     is $hash->{reason}, undef, "No reason";
     is_deeply $hash->{log},

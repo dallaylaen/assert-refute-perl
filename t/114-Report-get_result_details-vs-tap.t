@@ -22,7 +22,7 @@ note "<report>\n", $report->get_tap, "</report>";
 
 my @diag_from_tap = grep { /^#/ } split /\n/, $report->get_tap;
 my @diag_by_hand  = map { "# $_" } map { @$_ }
-    map { $report->get_result_details( $_ )->{diag} } 0 .. $report->get_count+1;
+    map { $report->get_result_details( $_ )->{diag} } 0 .. $report->get_count, -1;
 
 subtest "diag is the same both ways" => sub {
     foreach ( 1 .. @diag_from_tap ) {

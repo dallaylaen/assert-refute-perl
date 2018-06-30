@@ -201,7 +201,7 @@ sub done_testing {
     };
 
     # Any post-mortem messages go to a separate bucket
-    $self->{log} = $self->{messages}{ $self->{count}+1 } = [];
+    $self->{log} = $self->{messages}{ -1 } = [];
 
     if (defined $self->{plan_tests}) {
         # Check plan
@@ -401,8 +401,9 @@ Undefined for "ok" tests.
 
 Returns empty hash for nonexistent tests, and dies if test number is not integer.
 
-As a special case, test number 0 only contains the C<log> and C<diag> fields
-for C<diag>/C<note> messages that were written before any tests.
+As a special case, tests number 0 and -1 represent the output before any
+tests and postmortem output, respectively.
+These only contains the C<log> and C<diag> fields.
 
 See also L<Test::Tester>.
 
@@ -414,7 +415,7 @@ sub get_result_details {
     my ($self, $n) = @_;
 
     $self->_croak( "Bad test number $n, must be nonnegatine integer" )
-        unless defined $n and $n =~ /^[0-9]+$/;
+        unless defined $n and $n =~ /^(?:[0-9]+|-1)$/;
 
     # Process messages, return if premature(0) or post-mortem (n+1)
     my @messages;
@@ -424,7 +425,7 @@ sub get_result_details {
 
     my %ret = ( number => $n );
 
-    if ($n >= 1 and $n <= $self->{count} ) {
+    if ($n >= 1) {
         # a real test - add some information
         my $reason = $self->{fail}{$n};
         my @diag;
@@ -663,11 +664,11 @@ sub get_log {
             unless $verbosity < 0;
     };
 
-    foreach my $n ( 0 .. $self->{count} + 1 ) {
+    foreach my $n ( 0 .. $self->{count}, -1 ) {
         # Report test details.
         # Only append the logs for
         #   premature (0) and postmortem (count+1) messages
-        if ($n and $n <= $self->{count}) {
+        if ($n > 0) {
             my $reason = $self->{fail}{$n};
             my ($level, $prefix)  = $reason ? (-2, "not ok") : (0, "ok");
             my $name   = $self->{name}{$n} ? "$n - $self->{name}{$n}" : $n;

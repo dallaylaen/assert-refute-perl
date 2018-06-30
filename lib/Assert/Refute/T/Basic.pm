@@ -315,7 +315,7 @@ a C<$max_diff> of 0 would lead to unpredictable results.
 push @EXPORT_OK, qw(deep_diff);
 
 build_refute is_deeply => \&deep_diff, export => 1, args => 2;
-build_refute is_deeply_diff => \&deep_diff, export => 1, args => 3;
+build_refute is_deeply_diff => \&deep_diff, export_ok => 1, args => 3;
 
 =head2 deep_diff( $old, $new )
 
