@@ -260,7 +260,7 @@ If $value is undefined and $depth is not given, returns C<'(undef)'>
 (so that it's harder to confuse with a literal C<'undef'>).
 
 If $value is a scalar and $depth is not given, returns $value as is,
-without quoted or anything.
+without quotes or anything.
 
 Otherwise returns L<Data::Dumper> to depth $depth (or unlimited by default).
 

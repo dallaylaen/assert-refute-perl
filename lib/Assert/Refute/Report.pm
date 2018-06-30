@@ -141,14 +141,14 @@ sub refute {
     diag "Message", \%reference, ...;
 
 Add human-readable diagnostic message to report.
-References are explained to depth 1.
+References are auto-explained via L<Data::Dumper>.
 
 =head3 note
 
     diag "Message", \%reference, ...;
 
 Add human-readable notice message to report.
-References are explained to depth 1.
+References are auto-explained via L<Data::Dumper>.
 
 =cut
 

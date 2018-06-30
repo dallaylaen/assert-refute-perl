@@ -59,7 +59,7 @@ use Assert::Refute::Build;
 
     test_test \%result_details, \%spec, "Message";
 
-Result details come from L<Assert::Refute/get_result_details>.
+Result details come from L<Assert::Refute::Report/get_result_details($id)>.
 
 The exact format MAY change in the future, but this test should keep working.
 
@@ -67,17 +67,15 @@ The exact format MAY change in the future, but this test should keep working.
 
 =over
 
-=item C<ok> - whether the test passed or not.
+=item * C<ok> - whether the test passed or not.
 
-=item C<name> - test name (without the number)
-
+=item * C<name> - test name (without the number)
 Can be exact string or regular expression.
 
-=item C<diag> - an array of regular expressions.
+=item * C<diag> - an array of exact strings or regular expressions.
+Each line of output will be matched against exactly one expectation.
 
-Each line of output will be matched against exactly one expression.
-
-Output produced by note() is ignored.
+Output produced by C<note()> is ignored.
 
 =back
 
