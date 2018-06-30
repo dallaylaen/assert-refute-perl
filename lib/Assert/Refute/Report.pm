@@ -80,7 +80,7 @@ was seen.
 
 If plan is not fullfilled by the time of C<done_testing> call,
 a message indicating plan violation will be added,
-and the report will unconditionally failing.
+and the report will become unconditionally failing.
 
 =cut
 
@@ -238,7 +238,8 @@ C<contract_is>, C<is_deeply>, C<note>, C<diag>.
 See L<Assert::Refute::T::Basic> for more details.
 
 Additionally, I<any> checks defined using L<Assert::Refute::Build>
-will be added to this L<Assert::Refute::Report> by default.
+will be added to L<Assert::Refute::Report> as methods
+unless explicitly told otherwise.
 
 =head3 subcontract( "Message" => $specification, @arguments ... )
 
@@ -381,21 +382,20 @@ Returns a hash containing information about a test:
 
 =over
 
-=item number - the number of test (this is equal to argument);
+=item * number - the number of test (this is equal to argument);
 
-=item ok - whether the test was successful;
+=item * name - name of the test (if any);
 
-=item name - name of the test (if any);
+=item * ok - whether the test was successful;
 
-=item reason - the reason for test failing, if it failed;
-
+=item * reason - the reason for test failing, if it failed;
 Undefined for "ok" tests.
 
-=item diag - diagnostic messages as one array, without leading C<#>;
+=item * diag - diagnostic messages as one array, without leading C<#>;
 
-=item log - any log messages that followed the test (see get_log for format)
+=item * log - any log messages that followed the test (see get_log for format)
 
-=item subcontract - if test was a subcontract, contains the report
+=item * subcontract - if test was a subcontract, contains the report.
 
 =back
 
@@ -405,7 +405,7 @@ As a special case, tests number 0 and -1 represent the output before any
 tests and postmortem output, respectively.
 These only contains the C<log> and C<diag> fields.
 
-See also L<Test::Tester>.
+See also L<Assert::Refute::T::Tester>.
 
 B<[EXPERIMENTAL]>. Name and meaning may change in the future.
 
@@ -476,15 +476,15 @@ B<[NOTE]> that C<diag> is higher than C<ok>.
 
 =over
 
-=item -3 - something totally horrible, like C<Bail out!>
+=item * -3 - something totally horrible, like C<Bail out!>
 
-=item -2 - a failing test
+=item * -2 - a failing test
 
-=item -1 - a diagnostic message, think C<Test::More/diag>
+=item * -1 - a diagnostic message, think C<Test::More/diag>
 
-=item 0 - a passing test
+=item * 0 - a passing test
 
-=item 1+ - a normally ignored verbose message, think L<Test::More/note>
+=item * 1+ - a normally ignored verbose message, think L<Test::More/note>
 
 =back
 
@@ -536,17 +536,17 @@ The format is C<"t(\d+|N)*[rdE]">.
 
 =over
 
-=item C<t> is always present at the start;
+=item * C<t> is always present at the start;
 
-=item a number stands for a series of passing tests;
+=item * a number stands for a series of passing tests;
 
-=item C<N> stands for a I<single> failing test;
+=item * C<N> stands for a I<single> failing test;
 
-=item C<r> stands for a contract that is still B<r>unning;
+=item * C<r> stands for a contract that is still B<r>unning;
 
-=item C<E> stands for a an B<e>xception during execution;
+=item * C<E> stands for a an B<e>xception during execution;
 
-=item C<d> stands for a contract that is B<d>one.
+=item * C<d> stands for a contract that is B<d>one.
 
 =back
 
