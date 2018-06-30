@@ -351,8 +351,9 @@ sub deep_diff {
     #    just compare the place where it happened
     # if not, remember for later
     # From now on, $path eq $seen_* really means "never seen before"
-    my $seen_old = $known->{-refaddr $old} ||= $path;
-    my $seen_new = $known->{ refaddr $new} ||= $path;
+    # NOTE refaddr(...) to get rid of warning under older perls
+    my $seen_old = $known->{-refaddr($old)} ||= $path;
+    my $seen_new = $known->{ refaddr($new)} ||= $path;
 
     # Seen previously in different places - report
     if ($seen_old ne $seen_new) {
@@ -367,7 +368,7 @@ sub deep_diff {
     return if $seen_old ne $path;
 
     # this is the same structure - skip
-    return if refaddr $old eq refaddr $new;
+    return if refaddr($old) eq refaddr($new);
 
     # descend into deep structures
     $known ||= {};
