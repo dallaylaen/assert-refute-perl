@@ -1,5 +1,8 @@
 Revision history for Assert-Refute
 
+0.1201  Sun Jul 1 2018
+        - DOC Minor POD fixes
+
 0.12    Sun Jul 1 2018
         - DOC Alpha status removed
         - MOD Add experimental T::Tester with test_test condition
