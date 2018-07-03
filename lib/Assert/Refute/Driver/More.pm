@@ -78,8 +78,9 @@ The allmighty refute() boils down to
 sub refute {
     my ($self, $reason, $mess) = @_;
 
-    # TODO bug - if refute() is called by itself, will report wrong
-    local $Test::Builder::Level = $Test::Builder::Level + 2;
+    # TODO bug - if refute() is called directly as $contract->refute,
+    # it will report the wrong file & line
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
 
     $self->{count} = $self->{builder}->current_test;
     $self->{builder}->ok(!$reason, $mess);
