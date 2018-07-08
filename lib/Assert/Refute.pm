@@ -267,60 +267,9 @@ sub refute_these (&;@) { ## no critic # need prototype
     goto \&try_refute; ## no critic
 }
 
-=head2 plan tests => n
-
-Plan to run exactly C<n> assertions within a contract block.
-A contract may have no plan, this is fine.
-
-A contract will fail unconditionally if plan is present and is not fullfilled.
-
-C<plan> may only be called before executing any assertions.
-C<plan> dies if called outside a contract block.
-
-Not exported by default to avoid namespace pollution.
-
-=cut
-
-sub plan(@) { ## no critic
-    current_contract->plan( @_ );
-};
-
-=head2 refute( $reason, $message )
-
-Verify (or, rather, try hard to disprove)
-an assertion in scope of the current contract.
-
-The test passes if the C<$reason> is I<false>, i.e. an empty string, C<0>,
-or C<undef>.
-Otherwise the C<$reason> is assumed to be a description of what went wrong.
-
-You can think of it as C<ok> and C<diag> from L<Test::More> combined:
-
-    ok !$reason, $message
-        or diag $reason;
-
-As a special case, a literal C<1> is considered to be a boolean value
-and the assertions just fails, without further explanation.
-
-As another special case, an C<\@arrayref> reason
-will be unfolded into multiple C<diag> lines, for instance
-
-    refute [ $answer, "isn't", 42 ], "life, universe, and everything";
-
-will output 3 diag lines.
-
-Returns true for a passing assertion and false for a failing one.
-Dies if no contract is being executed at the time.
-
-=cut
-
-sub refute ($$) { ## no critic
-    current_contract()->refute(@_);
-};
-
 =head2 contract { ... }
 
-Create a contract specification object for future use:
+Save a contract BLOCK for future use:
 
     use Assert::Refute qw(:all);
 
@@ -372,6 +321,57 @@ sub contract (&@) { ## no critic
     # TODO check
     $opt{code} = $todo;
     return Assert::Refute::Contract->new( %opt );
+};
+
+=head2 plan tests => n
+
+Plan to run exactly C<n> assertions within a contract block.
+A contract may have no plan, this is fine.
+
+A contract will fail unconditionally if plan is present and is not fullfilled.
+
+C<plan> may only be called before executing any assertions.
+C<plan> dies if called outside a contract block.
+
+Not exported by default to avoid namespace pollution.
+
+=cut
+
+sub plan(@) { ## no critic
+    current_contract->plan( @_ );
+};
+
+=head2 refute( $reason, $message )
+
+Verify (or, rather, try hard to disprove)
+an assertion in scope of the current contract.
+
+The test passes if the C<$reason> is I<false>, i.e. an empty string, C<0>,
+or C<undef>.
+Otherwise the C<$reason> is assumed to be a description of what went wrong.
+
+You can think of it as C<ok> and C<diag> from L<Test::More> combined:
+
+    ok !$reason, $message
+        or diag $reason;
+
+As a special case, a literal C<1> is considered to be a boolean value
+and the assertions just fails, without further explanation.
+
+As another special case, an C<\@arrayref> reason
+will be unfolded into multiple C<diag> lines, for instance
+
+    refute [ $answer, "isn't", 42 ], "life, universe, and everything";
+
+will output 3 diag lines.
+
+Returns true for a passing assertion and false for a failing one.
+Dies if no contract is being executed at the time.
+
+=cut
+
+sub refute ($$) { ## no critic
+    current_contract()->refute(@_);
 };
 
 =head2 subcontract( "Message" => $contract, @arguments )
