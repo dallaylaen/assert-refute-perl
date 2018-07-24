@@ -170,7 +170,7 @@ our %EXPORT_TAGS = (
     all   => [@core, @basic],
 );
 
-our $DRIVER;
+our $DRIVER; # Used by other modules, declaration JFYI
 our %CALLER_CONF;
 
 sub import {
@@ -251,6 +251,7 @@ sub try_refute(&;@) { ## no critic # need prototype
         carp "try_refute(): Usage without explicit configure() is DEPRECATED, assuming { on_fail => 'carp' }";
         $conf = __PACKAGE__->configure( { on_fail => 'carp' }, scalar caller );
     };
+    return $conf->{skip_all} if exists $conf->{skip_all};
 
     # This is generally a ripoff of A::R::Contract->apply
     my $report = $conf->{driver}->new->do_run($block);
@@ -500,22 +501,22 @@ As of current, this method only affects C<try_refute>.
 =cut
 
 my %conf_known;
-$conf_known{$_}++ for qw( on_pass on_fail driver );
+$conf_known{$_}++ for qw( on_pass on_fail driver skip_all );
 
 sub configure {
-    my ($class, $conf, $caller) = @_;
+    my ($class, $given_conf, $caller) = @_;
 
     croak "Usage: $class->configure( \\%hash, \$target )"
-        unless ref $conf eq 'HASH';
+        unless ref $given_conf eq 'HASH';
 
-    my @extra = grep { !$conf_known{$_} } keys %$conf;
+    my @extra = grep { !$conf_known{$_} } keys %$given_conf;
     croak "$class->configure: unknown parameters (@extra)"
         if @extra;
 
     # configure whoever called us by default
     $caller ||= scalar caller;
 
-    $conf = { %default_conf, %$conf };
+    my $conf = { %default_conf, %$given_conf };
     $conf->{on_fail} = _coerce_cb($conf->{on_fail});
     $conf->{on_pass} = _coerce_cb($conf->{on_pass});
 
@@ -528,6 +529,21 @@ sub configure {
             unless $conf->{driver}->isa('Assert::Refute::Report');
     } else {
         $conf->{driver} = 'Assert::Refute::Report'; # this works for sure
+    };
+
+    if ($ENV{NO_DEVELOPMENT} and !$conf->{skip_all}) {
+        $conf->{skip_all} = "Assert::Refute turned off via NO_DEVELOPMENT="
+            .$ENV{NO_DEVELOPMENT};
+    };
+
+    if ($conf->{skip_all}) {
+        my $default_report = Assert::Refute::Report->new;
+        # TODO plan skip_all instead
+        $default_report->diag( "SKIP $conf->{skip_all}" );
+        $default_report->done_testing;
+        $conf->{skip_all} = $default_report;
+    } else {
+        delete $conf->{skip_all};
     };
 
     $CALLER_CONF{$caller} = $conf;
