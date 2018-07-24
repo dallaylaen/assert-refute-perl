@@ -324,10 +324,10 @@ sub contract (&@) { ## no critic
     return Assert::Refute::Contract->new( %opt );
 };
 
-=head2 plan tests => n
+=head2 plan tests => $n
 
 Plan to run exactly C<n> assertions within a contract block.
-A contract may have no plan, this is fine.
+Plan is optional, contract blocks can run fine without a plan.
 
 A contract will fail unconditionally if plan is present and is not fullfilled.
 
@@ -335,6 +335,15 @@ C<plan> may only be called before executing any assertions.
 C<plan> dies if called outside a contract block.
 
 Not exported by default to avoid namespace pollution.
+
+=head2 plan skip_all => $reason
+
+B<[EXPERIMENTAL]>.
+Like above, but plan is assumed to be zero and a reason for that is specified.
+
+Note that the contract block is not interrupted,
+it's up to the user to call return.
+This MAY change in the future.
 
 =cut
 
@@ -537,9 +546,8 @@ sub configure {
     };
 
     if ($conf->{skip_all}) {
-        my $default_report = Assert::Refute::Report->new;
-        # TODO plan skip_all instead
-        $default_report->diag( "SKIP $conf->{skip_all}" );
+        my $default_report = $conf->{driver}->new;
+        $default_report->plan( skip_all => $conf->{skip_all} );
         $default_report->done_testing;
         $conf->{skip_all} = $default_report;
     } else {
