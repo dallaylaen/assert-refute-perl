@@ -173,6 +173,10 @@ our %EXPORT_TAGS = (
 our $DRIVER; # Used by other modules, declaration JFYI
 our %CALLER_CONF;
 
+our $NDEBUG;
+$NDEBUG = $ENV{PERL_NDEBUG} unless defined $NDEBUG;
+$NDEBUG = $ENV{NDEBUG} unless defined $NDEBUG;
+
 sub import {
     my $class = shift;
     my (%conf, @exp, $need_conf);
@@ -231,6 +235,10 @@ A read-only report instance is returned by C<try_refute> instead.
 
 If C<on_pass>/C<on_fail> callbacks were specified during C<use> or
 using C<configure>, they will also be executed if appropriate.
+
+If C<NDEBUG> or C<PERL_NDEBUG> environment variable is set at compile time,
+this block is replaced with a stub
+which returns an unconditionally passing report.
 
 This is basically what one expects from a module in C<Assert::*> namespace.
 
@@ -468,6 +476,7 @@ Use these methods to configure Assert::Refute globally.
 
 =head2 configure
 
+    use Assert::Refute \%options;
     Assert::Refute->configure( \%options );
     Assert::Refute->configure( \%options, "My::Package");
 
@@ -485,7 +494,13 @@ if hash parameter(s) are present.
 but not just C<Carp::carp> - see below).
 
 =item * driver - use that class instead of L<Assert::Refute::Report>
-as execution report.
+as contract report.
+
+=item * skip_all - reason for skipping ALL C<try_refute> blocks
+in the affected package.
+This defaults to C<PERL_NDEBUG> or C<NDEBUG> environment variable.
+
+B<[EXPERIMENTAL]>. Name and meaning MAY change in the future.
 
 =back
 
@@ -540,9 +555,8 @@ sub configure {
         $conf->{driver} = 'Assert::Refute::Report'; # this works for sure
     };
 
-    if ($ENV{NO_DEVELOPMENT} and !$conf->{skip_all}) {
-        $conf->{skip_all} = "Assert::Refute turned off via NO_DEVELOPMENT="
-            .$ENV{NO_DEVELOPMENT};
+    if ($NDEBUG and !$conf->{skip_all}) {
+        $conf->{skip_all} = "Assert::Refute turned off via NDEBUG=$NDEBUG";
     };
 
     if ($conf->{skip_all}) {
@@ -629,10 +643,12 @@ see L<Assert::Refute::Driver::More>.
 
 =head1 PERFORMANCE
 
-Unlike some other assertion modules, C<Assert::Refute> does not provide
-an easy way to optimize itself out.
+Set C<NDEBUG> or C<PERL_NDEBUG> (takes precedence)
+environment variable to true to replace I<all> C<try_refute> blocks with a stub.
+L<Carp::Assert> was used as reference.
 
-Use L<Keyword::DEVELOPMENT> if needed, or just define a DEBUG constant and
+If that's not enough, use L<Keyword::DEVELOPMENT>
+or just define a DEBUG constant and
 append an C<if DEBUG;> statement to C<try_refute{ ... }> blocks.
 
 That said, refute is reasonably fast.
@@ -664,6 +680,10 @@ It will succeed silently, yet spell out details if it doesn't pass.
 
 These primitives can serve as building blocks for arbitrarily complex
 assertions, tests, and validations.
+
+=head1 SEE ALSO
+
+L<Test::More>, L<Carp::Assert>, L<Keyword::DEVELOPMENT>
 
 =head1 BUGS
 

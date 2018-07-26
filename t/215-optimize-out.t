@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Test::More;
 BEGIN{
-    $ENV{NO_DEVELOPMENT} = "Some weird reason";
+    $ENV{NDEBUG} = "Some weird reason";
 };
 
 use Assert::Refute {};
