@@ -8,6 +8,7 @@
 
 use strict;
 use warnings;
+BEGIN{ delete @ENV{qw(NDEBUG PERL_NDEBUG)} };
 use Test::More;
 
 # Make sure to work under cover -t
