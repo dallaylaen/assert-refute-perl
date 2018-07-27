@@ -1,5 +1,8 @@
 Revision history for Assert-Refute
 
+0.13    Fri Jul 27 2018
+        - API Honor NDEBUG/PERL_NDEBUG environment variable
+
 0.1201  Sun Jul 1 2018
         - DOC Minor POD fixes
 
