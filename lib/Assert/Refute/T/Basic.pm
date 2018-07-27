@@ -87,9 +87,10 @@ build_refute ok => sub {
     return !$got;
 }, args => 1, export => 1;
 
-=head2 use_ok
+=head2 use_ok $module, [ @arguments ]
 
-Not really tested well.
+Check whether the module can be loaded correctly with given arguments.
+This never dies, only returns a failure.
 
 =cut
 
@@ -100,6 +101,13 @@ build_refute use_ok => sub {
     eval "package $caller; use $mod \@arg; 1" and return ''; ## no critic
     return "Failed to use $mod: ".($@ || "(unknown error)");
 }, list => 1, export => 1;
+
+=head1 require_ok My::Module
+
+Require, but do not call import.
+This never dies, only returns a failure.
+
+=cut
 
 build_refute require_ok => sub {
     my ($mod, @arg) = @_;
