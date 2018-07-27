@@ -111,7 +111,7 @@ as well as
 
     use Assert::Refute qw(:core);
 
-would only export C<contract>, C<refute>,
+would only export C<try_refute>, C<contract>, C<refute>,
 C<contract_is>, C<subcontract>, and C<current_contract> functions.
 
 Also for convenience some basic assertions mirroring the L<Test::More> suite
