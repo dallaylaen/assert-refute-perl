@@ -3,10 +3,20 @@
 use strict;
 use warnings;
 BEGIN{ delete @ENV{qw(NDEBUG PERL_NDEBUG)} };
-use Test::Tester;
+my $no_test_tester;
+BEGIN {
+    $no_test_tester = eval "use Test::Tester 1.302107; 0; "; ## no critic
+    $no_test_tester = $@ || "Failed to load Test::Tester"
+        unless defined $no_test_tester;
+};
 use Test::More;
 
 use Assert::Refute;
+
+if ($no_test_tester) {
+    plan skip_all => $no_test_tester;
+    exit 0;
+};
 
 # Test plumbing first
 my $t = eval {
