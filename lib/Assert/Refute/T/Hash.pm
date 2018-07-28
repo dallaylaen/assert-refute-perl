@@ -2,7 +2,7 @@ package Assert::Refute::T::Hash;
 
 use strict;
 use warnings;
-our $VERSION = '0.13';
+our $VERSION = '0.1301';
 
 =head1 NAME
 
