@@ -206,7 +206,6 @@ sub done_testing {
         # Record a totally failing contract.
         delete $self->{done};
         $self->{has_error} = $exception;
-        $self->diag( "Looks like contract was interrupted by", $exception );
     } elsif ($self->{done}) {
         # A special case - done_testing(0) means "tentative stop"
         return $self if defined $exception;
@@ -214,7 +213,11 @@ sub done_testing {
     };
 
     # Any post-mortem messages go to a separate bucket
-    $self->{log} = $self->{messages}{ -1 } = [];
+    $self->{log} = $self->{messages}{ -1 } ||= [];
+
+    if ($self->{has_error}) {
+        $self->diag( "Looks like contract was interrupted by", $self->{has_error} );
+    };
 
     if (defined $self->{plan_tests}) {
         # Check plan
@@ -716,7 +719,7 @@ sub get_log {
     foreach my $n ( 0 .. $self->{count}, -1 ) {
         # Report test details.
         # Only append the logs for
-        #   premature (0) and postmortem (count+1) messages
+        #   premature (0) and postmortem (-1) messages
         if ($n > 0) {
             my $reason = $self->{fail}{$n};
             my ($level, $prefix)  = $reason ? (-2, "not ok") : (0, "ok");
