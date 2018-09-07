@@ -303,6 +303,8 @@ Use L<Assert::Refute::Contract/contract> instead.
 =cut
 
 sub contract (&@) { ## no critic
+    carp "contract{ ... } is DEPRECATED, use Assert::Refute::Contract::contract instead";
+
     require Assert::Refute::Contract;
     goto &Assert::Refute::Contract::contract;
 };
