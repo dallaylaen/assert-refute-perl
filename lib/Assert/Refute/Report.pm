@@ -50,9 +50,9 @@ use Assert::Refute::T::Basic qw();
 
 my $ERROR_DONE = "done_testing was called, no more changes may be added";
 
-=head1 OBJECT-ORIENTED INTERFACE
+=head1 METHODS
 
-=head2 new
+=head3 new
 
     Assert::Refute::Report->new();
 
@@ -226,11 +226,47 @@ sub done_testing {
         };
     };
 
-    $self->diag(
-        "Looks like $self->{fail_count} tests out of $self->{count} have failed")
-            if $self->{fail_count};
+    if ($self->{fail_count}) {
+        $self->diag(
+            "Looks like $self->{fail_count} tests out of $self->{count} have failed");
+        my $ctx = $self->context;
+        foreach (keys %$ctx) {
+            $self->diag("context: $_:", $ctx->{$_});
+        };
+    };
 
     $self->{done}++;
+    return $self;
+};
+
+=head3 context()
+
+Get execution context hash with arbitrary user data.
+
+Upon failure, the hash content is going to be appended to the log at diag level.
+
+=cut
+
+sub context {
+    my $self = shift;
+    return $self->{context} ||= {};
+};
+
+=head3 set_context( \%hash )
+
+Set the context hash.
+
+Only plain (not blessed) hash is allowed as argument.
+
+=cut
+
+sub set_context {
+    my ($self, $hash) = @_;
+
+    $self->_croak( "argument must be a HASH reference" )
+        unless ref $hash eq 'HASH';
+
+    $self->{context} = $hash;
     return $self;
 };
 
@@ -654,7 +690,7 @@ sub do_log {
     return $self;
 };
 
-=head2 get_log
+=head3 get_log
 
 Return log messages "as is" as array reference
 containing triads of (indent, level, message).
