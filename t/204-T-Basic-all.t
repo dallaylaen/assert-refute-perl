@@ -111,7 +111,7 @@ note $report->get_tap;
 $report = try_refute {
     # TODO write a better new_ok
     package T;
-    new_ok "Assert::Refute::Contract", [ code => sub {} ];
+    new_ok "Assert::Refute::Report", [];
     new_ok "No::Such::Package", [];
 };
 is $report->get_sign, "t1Nd", "new_ok()";

@@ -148,7 +148,7 @@ These need to be C<use>d explicitly.
 use Carp;
 use Exporter;
 
-use Assert::Refute::Contract;
+use Assert::Refute::Report;
 use Assert::Refute::Build qw(current_contract);
 use Assert::Refute::T::Basic;
 
@@ -280,56 +280,31 @@ sub refute_these (&;@) { ## no critic # need prototype
 
 Save a contract BLOCK for future use:
 
-    use Assert::Refute qw(:all);
-
-    my $spec = contract {
+    my $contract = contract {
         my ($foo, $bar) = @_;
-        is $foo, 42, "Life";
-        like $bar, qr/b.*a.*r/, "Regex";
+        # conditions here
     };
 
-    # later
-    my $report = $spec->apply( 42, "bard" );
-    $report->get_count;  # 2
-    $report->is_passing; # true
-    $report->get_tap;    # printable summary *as if* it was Test::More
-
-The same may be written as
-
-    my $spec = contract {
-        my ($report, @args) = @_;
-        $report->is( ... );
-        $report->like( ... );
-    } need_object => 1;
-
-The C<need_object> form may be preferable if one doesn't want to pollute the
-main namespace with test functions (C<is>, C<ok>, C<like> etc)
-and instead intends to use object-oriented interface.
-
-Note that contract does B<not> validate anything by itself,
-it just creates a read-only L<Assert::Refute::Contract>
-object sitting there and waiting for an C<apply> call.
-
-The C<apply> call returns a L<Assert::Refute::Report> object containing
-results of specific execution.
+    # much later
+    my $report = $contract->apply( $real_foo, $real_bar );
+    # Returns an Assert::Refute::Report with conditions applied
 
 This is similar to how C<prepare> / C<execute> works in L<DBI>.
 
-See L<Assert::Refute::Contract> for the underlying object-oriented interface.
+B<[DEPRECATED]> This function will disappear in v.0.20.
 
 Prior to advent of C<try_refute>, this call used to be the main entry point
 to this module.
 This is no more the case, and a simple subroutine containing assertions
 would fit in most places where C<contract> is appropriate.
 
+Use L<Assert::Refute::Contract/contract> instead.
+
 =cut
 
 sub contract (&@) { ## no critic
-    my ($todo, %opt) = @_;
-
-    # TODO check
-    $opt{code} = $todo;
-    return Assert::Refute::Contract->new( %opt );
+    require Assert::Refute::Contract;
+    goto &Assert::Refute::Contract::contract;
 };
 
 =head2 plan tests => $n
