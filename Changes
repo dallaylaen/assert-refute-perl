@@ -1,5 +1,10 @@
 Revision history for Assert-Refute
 
+0.14    Sat Sep 8 2018
+        - API Add context() and set_context() to report
+        - API BREAK deprecate contract { ... }, add replacement
+        - BUG bugfix in done_testing()
+
 0.1301  Sat Jul 28 2018
         - BUG Require proper Test::Tester version, skip 1 test otherwise
 
