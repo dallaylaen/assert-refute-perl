@@ -17,6 +17,20 @@ my $report;
 
 $report = try_refute {
     package T;
+    pass 'foo';
+};
+is $report->get_sign, "t1d", "pass()";
+note $report->get_tap;
+
+$report = try_refute {
+    package T;
+    fail 'foo';
+};
+is $report->get_sign, "tNd", "fail()";
+note $report->get_tap;
+
+$report = try_refute {
+    package T;
     is 42, 42;
     is 42, 137;
     is undef, '';
