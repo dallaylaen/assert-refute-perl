@@ -123,7 +123,7 @@ would also export the following assertions:
 
 C<is>, C<isnt>, C<ok>, C<use_ok>, C<require_ok>, C<cmp_ok>,
 C<like>, C<unlike>, C<can_ok>, C<isa_ok>, C<new_ok>,
-C<is_deeply>, C<note>, C<diag>.
+C<is_deeply>, C<fail>, C<pass>, C<note>, C<diag>.
 
 See L<Assert::Refute::T::Basic> for more.
 

@@ -46,27 +46,6 @@ use Assert::Refute::Build;
 our @EXPORT = qw( diag note );
 our @EXPORT_OK;
 
-=head2 pass "explanation"
-
-Declare the test ok. Synonym for ok(1)
-
-=cut
-
-build_refute pass => sub {
-    return 0;
-}, args => 0, export => 1;
-
-=head2 fail "explanation"
-
-Declare the test not ok. Synonym for ok(0)
-
-=cut
-
-build_refute fail => sub {
-    return 1;
-}, args => 0, export => 1;
-
-
 =head2 is $got, $expected, "explanation"
 
 Check for equality, C<undef> equals C<undef> and nothing else.
@@ -469,6 +448,26 @@ sub _deep_noexist {
         "Expected: ".($sign > 0 ? to_scalar( $new, 2 ) : "Does not exist"),
     );
 };
+
+=head2 pass "explanation"
+
+Declare the test ok. Synonym for ok(1)
+
+=cut
+
+build_refute pass => sub {
+    return 0;
+}, args => 0, export => 1;
+
+=head2 fail "explanation"
+
+Declare the test not ok. Synonym for ok(0)
+
+=cut
+
+build_refute fail => sub {
+    return 1;
+}, args => 0, export => 1;
 
 =head1 LICENSE AND COPYRIGHT
 
