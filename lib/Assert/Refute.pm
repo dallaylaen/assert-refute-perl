@@ -3,7 +3,7 @@ package Assert::Refute;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = '0.14';
+our $VERSION = '0.15';
 
 =head1 NAME
 
@@ -718,6 +718,8 @@ for C<try_refute> function name as well as a lot of feedback.
 =item * This L<rant|https://www.perlmonks.org/?node_id=1122667>
 by C<Daniel Dragan> inspired me to actually start working
 on the first incarnation of this project.
+
+=item * Thanks to C<Jacobo Chamorro> for pass() and fail() calls.
 
 =back
 

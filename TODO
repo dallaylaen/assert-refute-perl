@@ -1,8 +1,8 @@
         -- next big thing --
++   ++  MOD split out T::Numeric, T::Array, and T::Hash
 
         -- backlog --
 +   ++  API one-line report format for dying/warning
-+   ++  MOD split out T::Numeric, T::Array, and T::Hash
 ++  +   MOD multiline like
 +   ++  MOD port Test::Differences to refute
 +   ++  TST Even more examples
