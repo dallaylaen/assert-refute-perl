@@ -19,7 +19,7 @@ This can be though of as a lightweight design-by-contract form.
 
 =head1 SYNOPSIS
 
-The following code will die unless the conditions listed there are fullfilled:
+The following code will die unless the conditions listed there are fulfilled:
 
     use Assert::Refute ":all", { on_fail => 'croak' };
 
@@ -221,7 +221,7 @@ my %default_conf = (
 Check whether given contract BLOCK containing zero or more assertions passes.
 
 Contract will fail if any of the assertions fails,
-a C<plan> is declared and not fullfilled,
+a C<plan> is declared and not fulfilled,
 or an exception is thrown.
 Otherwise it is assumed to pass.
 
@@ -314,7 +314,7 @@ sub contract (&@) { ## no critic
 Plan to run exactly C<n> assertions within a contract block.
 Plan is optional, contract blocks can run fine without a plan.
 
-A contract will fail unconditionally if plan is present and is not fullfilled.
+A contract will fail unconditionally if plan is present and is not fulfilled.
 
 C<plan> may only be called before executing any assertions.
 C<plan> dies if called outside a contract block.
@@ -425,7 +425,7 @@ sub subcontract($$@) { ## no critic
 
     contract_is $report, $signature, "Message";
 
-Assert that a contract is fullfilled exactly to the specified extent.
+Assert that a contract is fulfilled exactly to the specified extent.
 See L<Assert::Refute::Report/get_sign> for signature format.
 
 This may be useful for verifying assertions and contracts themselves.
