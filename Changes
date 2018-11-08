@@ -1,5 +1,8 @@
 Revision history for Assert-Refute
 
+0.1501  Fri Nov 9 2018
+        - BUG Fix typo (thx MANWAR)
+
 0.15    Thu Nov 8 2018
         - API Add fail() and pass() (thx Jacobo Chamorro)
 
