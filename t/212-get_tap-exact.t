@@ -10,7 +10,7 @@ use strict;
 use warnings;
 BEGIN{ delete @ENV{qw(NDEBUG PERL_NDEBUG)} };
 # instantiate before Test::More to avoid autodetect
-use Assert::Refute {};
+use Assert::Refute;
 
 # plan in advance to increase probability of abstraction leak detection
 use Test::More tests => 10;

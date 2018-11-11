@@ -8,7 +8,7 @@ BEGIN{
     $ENV{NDEBUG} = "Some weird reason";
 };
 
-use Assert::Refute {};
+use Assert::Refute;
 
 my $report = try_refute {
     refute [ 42, 137 ], "Life is fine";

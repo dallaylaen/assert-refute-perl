@@ -5,7 +5,7 @@ use warnings;
 BEGIN{ delete @ENV{qw(NDEBUG PERL_NDEBUG)} };
 use Test::More;
 
-use Assert::Refute {};
+use Assert::Refute;
 use Assert::Refute::T::Numeric;
 
 note "TESTING is_between";

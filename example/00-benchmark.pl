@@ -10,7 +10,7 @@ use strict;
 use warnings;
 use Time::HiRes qw(clock);
 use Getopt::Long;
-use Assert::Refute {}, ":all";
+use Assert::Refute ":all";
 
 BEGIN {
     if (Assert::Refute->VERSION < 0.05) {

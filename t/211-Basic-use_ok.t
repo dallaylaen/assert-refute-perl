@@ -5,7 +5,7 @@ use warnings;
 BEGIN{ delete @ENV{qw(NDEBUG PERL_NDEBUG)} };
 use Test::More;
 
-use Assert::Refute qw(:core), {};
+use Assert::Refute qw(:core);
 
 my $report = try_refute {
     package T;
