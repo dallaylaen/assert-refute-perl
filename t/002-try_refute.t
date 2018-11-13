@@ -5,7 +5,7 @@ use warnings;
 BEGIN{ delete @ENV{qw(NDEBUG PERL_NDEBUG)} };
 use Test::More tests => 1;
 
-use Assert::Refute;
+use Assert::Refute {};
 
 my $sign = eval {
     try_refute {

@@ -5,7 +5,7 @@ use warnings;
 BEGIN{ delete @ENV{qw(NDEBUG PERL_NDEBUG)} };
 use Test::More;
 
-use Assert::Refute qw(try_refute);
+use Assert::Refute qw(try_refute), {};
 
 {
     # Be extra careful not to pollute the main namespace
