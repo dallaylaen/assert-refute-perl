@@ -409,6 +409,18 @@ sub get_tests {
     return 1 .. $self->{count};
 };
 
+=head3 get_failed_ids
+
+List the numbers of tests that failed.
+
+=cut
+
+sub get_failed_ids {
+    my $self = shift;
+
+    return my @list = sort { $a <=> $b } keys %{ $self->{fail} || {} };
+};
+
 =head3 get_result( $id )
 
 Returns result of test denoted by $id, dies if such test was never performed.
