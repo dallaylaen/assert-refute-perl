@@ -242,12 +242,6 @@ which returns an unconditionally passing report.
 
 This is basically what one expects from a module in C<Assert::*> namespace.
 
-=head2 refute_these
-
-B<[DEPRECATED]> Same as above.
-
-It will stay available (with a warning) until as least 0.15.
-
 =cut
 
 sub try_refute(&;@) { ## no critic # need prototype
@@ -270,11 +264,6 @@ sub try_refute(&;@) { ## no critic # need prototype
 
     return $report;
 };
-
-sub refute_these (&;@) { ## no critic # need prototype
-    carp "refute_these { ... } is DEPRECATED, use try_refute{ ... } instead";
-    goto \&try_refute; ## no critic
-}
 
 =head2 contract { ... }
 
@@ -570,6 +559,20 @@ sub _coerce_cb {
         unless ref $sub and UNIVERSAL::isa( $sub, 'CODE' );
     return $sub;
 };
+
+=head2 refute_these
+
+B<[DEPRECATED]> This used to be the old name of C<try_refute>.
+It just dies now and will be removed completely in the future.
+
+=cut
+
+# TODO v.0.20 remove completely
+# Keep it prototyped just in case some poor guy/gal forgot to change it
+#     or else they'll get a very confusing error message
+sub refute_these (&;@) { ## no critic # need prototype
+    croak "refute_these { ... } is no more supported, use try_refute{ ... } instead";
+}
 
 =head1 EXTENDING THE SUITE
 
