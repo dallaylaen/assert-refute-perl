@@ -50,7 +50,7 @@ The same can be done without polluting the main package namespace:
 
 Relying on a global (in fact, per-package) callback is not required:
 
-    use Assert::Refute ":all";
+    use Assert::Refute {}, ":all";
 
     my $report = try_refute {
         # ... assertions here
@@ -99,8 +99,9 @@ See L</PERFORMANCE> below for limitations, though.
 
 =head1 EXPORT
 
-Zero or more hash references may be added to the C<use> statement,
+Any number of hash references may be added to the C<use> statement,
 resulting in an implicit C<Assert::Refute-E<gt>configure> call.
+A literal C<{}> will also trigger C<configure>.
 
 Everything else will be passed on to L<Exporter>.
 
@@ -155,7 +156,7 @@ my @basic = (
     @Assert::Refute::T::Basic::EXPORT, 'plan'
 );
 my @core  = qw(
-    contract try_refute
+    contract refute_these try_refute
     refute subcontract contract_is current_contract
 );
 
@@ -182,6 +183,10 @@ sub import {
     foreach (@_) {
         if (ref $_ eq 'HASH') {
             %conf = (%conf, %$_);
+            $need_conf++;
+        } elsif (!ref $_ and $_ eq '{}') {
+            # TODO 0.15 remove together with auto-carp
+            $need_conf++; # allow for -MAssert::Refute={}
         } elsif (!ref $_) {
             push @exp, $_;
         } else {
@@ -189,7 +194,7 @@ sub import {
         };
     };
 
-    $class->configure( \%conf, scalar caller );
+    $class->configure( \%conf, scalar caller ) if $need_conf;
     $class->export_to_level(1, undef, @exp);
 };
 
@@ -221,7 +226,7 @@ or an exception is thrown.
 Otherwise it is assumed to pass.
 
 The BLOCK must accept one argument, the contract execution report,
-likely an L<Assert::Refute::Report> instance.
+likely a L<Assert::Refute::Report> instance.
 
 More arguments MAY be added in the future.
 Return value is ignored.
@@ -237,13 +242,11 @@ which returns an unconditionally passing report.
 
 This is basically what one expects from a module in C<Assert::*> namespace.
 
-B<[NOTE]> As of current, C<try_refute> catches exceptions within BLOCK
-so they only result in a contract failure.
-This turned out to cause confusion, and is likely to be replaced
-with exception propagation in the future.
+=head2 refute_these
 
-This function was formerly known as C<refute_these>,
-that name is no more supported.
+B<[DEPRECATED]> Same as above.
+
+It will stay available (with a warning) until as least 0.15.
 
 =cut
 
@@ -253,7 +256,8 @@ sub try_refute(&;@) { ## no critic # need prototype
     # Should a missing config even happen? Ok, play defensively...
     my $conf = $CALLER_CONF{+caller};
     if( !$conf ) {
-        $conf = __PACKAGE__->configure( {}, scalar caller );
+        carp "try_refute(): Usage without explicit configure() is DEPRECATED, assuming { on_fail => 'carp' }";
+        $conf = __PACKAGE__->configure( { on_fail => 'carp' }, scalar caller );
     };
     return $conf->{skip_all} if exists $conf->{skip_all};
 
@@ -266,6 +270,11 @@ sub try_refute(&;@) { ## no critic # need prototype
 
     return $report;
 };
+
+sub refute_these (&;@) { ## no critic # need prototype
+    carp "refute_these { ... } is DEPRECATED, use try_refute{ ... } instead";
+    goto \&try_refute; ## no critic
+}
 
 =head2 contract { ... }
 

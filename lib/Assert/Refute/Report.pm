@@ -776,6 +776,24 @@ sub _croak {
     croak "$fun(): $mess";
 };
 
+=head2 DEPRECATED METHODS
+
+=over
+
+=item set_result
+
+Was used inside refute() prior to 0.10. This is no more the case.
+This function just dies and will be removed completely in 0.15.
+
+=back
+
+=cut
+
+sub set_result {
+    my $self = shift;
+    $self->_croak( "set_result() is removed, use refute() instead" );
+};
+
 =head1 LICENSE AND COPYRIGHT
 
 This module is part of L<Assert::Refute> suite.
