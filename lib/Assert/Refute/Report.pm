@@ -41,12 +41,12 @@ See L<Assert::Refute::Contract> for contract I<definition>.
 # The rest can wait.
 
 use Carp;
-use Scalar::Util qw(blessed);
+use Scalar::Util qw( blessed weaken );
 
 use Assert::Refute::Build qw(to_scalar);
 
 # Always add basic testing primitives to the arsenal
-use Assert::Refute::T::Basic qw();
+require Assert::Refute::T::Basic;
 
 my $ERROR_DONE = "done_testing was called, no more changes may be added";
 
@@ -60,6 +60,7 @@ No arguments are currently supported.
 
 =cut
 
+# NOTE keep it simple for performance reasons
 sub new {
     bless {
         fail   => {},
@@ -333,7 +334,7 @@ sub subcontract {
             unless $sub->is_done;
         $rep = $sub;
     } elsif (UNIVERSAL::isa( $sub, 'CODE' )) {
-        $rep = Assert::Refute::Report->new;
+        $rep = Assert::Refute::Report->new->set_parent($self);
         local $Assert::Refute::DRIVER = $rep;
         eval {
             $sub->($rep, @args);
@@ -774,6 +775,58 @@ sub _plan_to_tap {
     $line .= " # SKIP $skip"
         if defined $skip;
     return [ 0, 0, $line ];
+};
+
+=head2 set_parent
+
+    $report->set_parent($bigger_report);
+    $report->set_parent(undef);
+
+Indicate that a contract is part of a larger one.
+The parent object should be an L<Assert::Refute::Report> instance.
+The parent object reference will be weakened to avoid memory leak.
+
+Provide C<undef> as argument to erase parent information.
+
+Returns self, so that calls to set_parent can be chained.
+
+This is used internally by L</subcontract>.
+
+B<NOTE> As of 0.16, no C<isa>/C<DOES> check on the argument is enforced.
+It must be blessed, however.
+This MAY change in the future.
+
+=cut
+
+sub set_parent {
+    my ($self, $parent) = @_;
+
+    if (blessed $parent) {
+        $self->{parent} = $parent;
+        # avoid a circular loop because $self is likely to be stored
+        # in parent as subcontract
+        weaken $self->{parent};
+    } elsif (!defined $parent) {
+        delete $self->{parent};
+    } else {
+        $self->_croak('parent must be a Report object, not a '.(ref $parent || 'scalar'))
+    };
+    return $self;
+};
+
+=head2 get_parent
+
+Return parent contract, i.e. the contract we are subcontract of, if any.
+
+Always check get_parent to be defined
+as it will vanish if parent object goes out of scope.
+This is done so to avoid memory leak in subcontract call.
+
+=cut
+
+# Dumb getter
+sub get_parent {
+    return $_[0]->{parent};
 };
 
 sub _croak {
