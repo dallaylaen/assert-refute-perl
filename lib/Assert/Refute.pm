@@ -159,15 +159,16 @@ my @core  = qw(
     contract refute_these try_refute
     refute subcontract contract_is current_contract
 );
+my @extra = qw( refute_and_report assert_refute );
 
 our @ISA = qw(Exporter);
 our @EXPORT = @core;
-our @EXPORT_OK = @basic;
+our @EXPORT_OK = (@basic, @extra);
 
 our %EXPORT_TAGS = (
-    basic => \@basic,
-    core  => \@core,
-    all   => [@core, @basic],
+    basic => [@basic],
+    core  => [@core, @extra],
+    all   => [@EXPORT, @EXPORT_OK],
 );
 
 our $DRIVER; # Used by other modules, declaration JFYI
@@ -263,6 +264,99 @@ sub try_refute(&;@) { ## no critic # need prototype
     $callback->($report) if $callback;
 
     return $report;
+};
+
+=head2 assert_refute { ... }
+
+Check whether given contract BLOCK containing zero or more assertions passes.
+
+Contract will fail if any of the assertions fail
+or a C<plan> is declared and not fulfilled.
+Otherwise it is assumed to pass.
+
+Unlike with try_refute, exceptions are just let through.
+
+The BLOCK must accept one argument, the contract execution report,
+likely a L<Assert::Refute::Report> instance.
+
+More arguments MAY be added in the future.
+Return value is ignored.
+
+A read-only report instance is returned by C<try_refute> instead.
+
+If C<on_pass>/C<on_fail> callbacks were specified during C<use> or
+using C<configure>, they will also be executed if appropriate.
+
+If C<NDEBUG> or C<PERL_NDEBUG> environment variable is set at compile time,
+this block is replaced with a stub
+which returns an unconditionally passing report.
+
+This is basically what one expects from a module in C<Assert::*> namespace.
+
+B<[EXPERIMENTAL]>. Name and behavior MAY change in the future.
+Should this function prove useful, it will become the successor
+or C<try_refute>.
+
+=cut
+
+sub assert_refute(&;@) { ## no critic # need prototype
+    my ( $block, @arg ) = @_;
+
+    # Should a missing config even happen? Ok, play defensively...
+    my $conf = $CALLER_CONF{+caller};
+    if( !$conf ) {
+        # TODO add configure_global & use default configuration
+        $conf = __PACKAGE__->configure( { on_fail => 'carp' }, scalar caller );
+    };
+    return $conf->{skip_all} if exists $conf->{skip_all};
+
+    # This is generally a ripoff of A::R::Contract->apply (not true anymore)
+    my $report = $conf->{driver}->new->do_run($block);
+
+    # perform whatever action is needed
+    my $callback = $conf->{ $report->is_passing ? "on_pass" : "on_fail" };
+    $callback->($report) if $callback;
+
+    return $report;
+};
+
+=head2 refute_and_report { ... }
+
+Run a block of code with a fresh L<Assert::Refute::Report> object as argument.
+Lock the report afterwards and return it.
+
+For instance,
+
+    my $report = refute_and_report {
+        my $c = shift;
+        $c->is( $price * $amount, $total, "Numbers add up" );
+        $c->like( $header, qr/<h1>/, "Header as expected" );
+        $c->can_ok( $duck, "quack" );
+    };
+
+Or alternatively one may resort to L<Test::More>-like DSL:
+
+    use Assert::Refute qw(:all);
+    my $report = refute_and_report {
+        is      $price * $amount, $total, "Numbers add up";
+        like    $header, qr/<h1>/, "Header as expected";
+        can_ok  $duck, "quack";
+    };
+
+This method does not adhere C<NDEBUG>, apply callbacks, or handle expections.
+It just executes the checks.
+Not exported by default.
+
+B<[EXPERIMENTAL]>. Name and behavior MAY change in the future.
+Should this function prove useful, it will become the successor
+or C<try_refute>.
+
+=cut
+
+sub refute_and_report (&;@) { ## no critic # need prototype
+    my ( $block, @arg ) = @_;
+
+    return Assert::Refute::Report->new->do_run($block);
 };
 
 =head2 contract { ... }

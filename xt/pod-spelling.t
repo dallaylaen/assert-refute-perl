@@ -17,7 +17,7 @@ BEGIN {
                 github metacpan annocpan CPAN
                 regex min max
                 diag isnt ok qr
-                TBD
+                TBD DSL
             ]],
         }
     );
