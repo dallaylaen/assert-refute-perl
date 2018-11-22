@@ -661,6 +661,10 @@ Run given CODEREF, passing self as both first argument I<and>
 current_contract().
 Report object is locked afterwards via L</done_testing> call.
 
+Exceptions are rethrown.
+As of current, an exception in CODEREF leaves report in an unfinished state.
+This may or may not change in the future.
+
 Returns self.
 
 Example usage is
@@ -674,15 +678,11 @@ Example usage is
 
 sub do_run {
     my ($self, $code, @args) = @_;
+
     local $Assert::Refute::DRIVER = $self;
-    eval {
-        $code->($self, @args);
-        $self->done_testing(0);
-        1;
-    } || do {
-        $self->done_testing(
-            $@ || Carp::shortmess( 'Contract execution interrupted' ) );
-    };
+    $code->($self, @args);
+    $self->done_testing(0);
+
     return $self;
 };
 

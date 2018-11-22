@@ -251,13 +251,18 @@ sub try_refute(&;@) { ## no critic # need prototype
     # Should a missing config even happen? Ok, play defensively...
     my $conf = $CALLER_CONF{+caller};
     if( !$conf ) {
-        carp "try_refute(): Usage without explicit configure() is DEPRECATED, assuming { on_fail => 'carp' }";
         $conf = __PACKAGE__->configure( { on_fail => 'carp' }, scalar caller );
     };
     return $conf->{skip_all} if exists $conf->{skip_all};
 
-    # This is generally a ripoff of A::R::Contract->apply
-    my $report = $conf->{driver}->new->do_run($block);
+    my $report = $conf->{driver}->new;
+    eval {
+        $report->do_run($block);
+        1;
+    } || do {
+        $report->done_testing(
+            $@ || Carp::shortmess( 'Contract execution interrupted' ) );
+    };
 
     # perform whatever action is needed
     my $callback = $conf->{ $report->is_passing ? "on_pass" : "on_fail" };
@@ -310,7 +315,6 @@ sub assert_refute(&;@) { ## no critic # need prototype
     };
     return $conf->{skip_all} if exists $conf->{skip_all};
 
-    # This is generally a ripoff of A::R::Contract->apply (not true anymore)
     my $report = $conf->{driver}->new->do_run($block);
 
     # perform whatever action is needed
