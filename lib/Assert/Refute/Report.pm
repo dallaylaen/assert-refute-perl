@@ -332,7 +332,7 @@ sub subcontract {
     $self->_croak( $ERROR_DONE )
         if $self->{done};
     $self->_croak( "Name is required for subcontract" )
-        unless $msg;
+        if !$msg or ref $msg;
 
     my $rethrow;
     my $rep;
@@ -357,7 +357,7 @@ sub subcontract {
             $rep->done_testing( $rethrow );
         };
     } else {
-        $self->_croak("subcontract must be a contract definition or execution log");
+        $self->_croak("subcontract must be a coderef, a Contract object, or a finished Report object");
     };
 
     $self->{subcontract}{ $self->get_count + 1 } = $rep;
