@@ -3,7 +3,7 @@ package Assert::Refute;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = '0.1501';
+our $VERSION = '0.16';
 
 =head1 NAME
 
@@ -758,6 +758,23 @@ It will succeed silently, yet spell out details if it doesn't pass.
 
 These primitives can serve as building blocks for arbitrarily complex
 assertions, tests, and validations.
+
+=head1 DEPRECATION WARNING
+
+The following modules used to be part of this package, but are separate
+CPAN distributions now:
+
+=over
+
+=item * L<Assert::Refute::T::Array>
+
+=item * L<Assert::Refute::T::Hash>
+
+=item * L<Assert::Refute::T::Numeric>
+
+=item * L<Assert::Refute::T::Scalar>
+
+=back
 
 =head1 SEE ALSO
 
