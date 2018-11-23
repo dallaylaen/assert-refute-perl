@@ -7,7 +7,7 @@ use Test::More;
 
 use Assert::Refute qw(:core), {};
 
-my $report = try_refute {
+my $report = refute_and_report {
     package T;
     my $self = shift;
 

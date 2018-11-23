@@ -11,7 +11,7 @@ use Test::More;
 use Scalar::Util qw(refaddr);
 
 my @trace;
-my $report = try_refute {
+my $report = refute_and_report {
     push @trace, current_contract;
     push @trace, "alive";
 };

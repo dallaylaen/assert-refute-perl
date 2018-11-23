@@ -5,7 +5,7 @@ use warnings;
 BEGIN{ delete @ENV{qw(NDEBUG PERL_NDEBUG)} };
 use Test::More;
 
-use Assert::Refute qw(try_refute), {};
+use Assert::Refute qw(refute_and_report), {};
 
 {
     # Be extra careful not to pollute the main namespace
@@ -15,21 +15,21 @@ use Assert::Refute qw(try_refute), {};
 
 my $report;
 
-$report = try_refute {
+$report = refute_and_report {
     package T;
     pass 'foo';
 };
 is $report->get_sign, "t1d", "pass()";
 note $report->get_tap;
 
-$report = try_refute {
+$report = refute_and_report {
     package T;
     fail 'foo';
 };
 is $report->get_sign, "tNd", "fail()";
 note $report->get_tap;
 
-$report = try_refute {
+$report = refute_and_report {
     package T;
     is 42, 42;
     is 42, 137;
@@ -47,7 +47,7 @@ $report = try_refute {
 is $report->get_sign, "t1NNN2NNN1d", "is()";
 note $report->get_tap;
 
-$report = try_refute {
+$report = refute_and_report {
     package T;
     isnt 42, 137;
     isnt 42, 42;
@@ -60,7 +60,7 @@ $report = try_refute {
 is $report->get_sign, "t1NN4d", "isnt()";
 note $report->get_tap;
 
-$report = try_refute {
+$report = refute_and_report {
     package T;
     like "foo", qr/oo*/;
     like "foo", "oo*";
@@ -71,7 +71,7 @@ $report = try_refute {
 is $report->get_sign, "t1NN1Nd", "like()";
 note $report->get_tap;
 
-$report = try_refute {
+$report = refute_and_report {
     package T;
     unlike "foo", qr/bar/;
     unlike "foo", qr/foo/;
@@ -82,7 +82,7 @@ $report = try_refute {
 is $report->get_sign, "t1N1NNd", "unlike()";
 note $report->get_tap;
 
-$report = try_refute {
+$report = refute_and_report {
     package T;
     ok ok 1;
     ok ok 0;
@@ -91,7 +91,7 @@ $report = try_refute {
 is $report->get_sign, "t2NNNd", "ok()";
 note $report->get_tap;
 
-$report = try_refute {
+$report = refute_and_report {
     package T;
     refute 0, "dummy";
     refute { foo => 42 }, "dummy";
@@ -99,7 +99,7 @@ $report = try_refute {
 is $report->get_sign, "t1Nd", "refute()";
 note $report->get_tap;
 
-$report = try_refute {
+$report = refute_and_report {
     package TT;
     our @ISA = 'T';
     package T;
@@ -111,7 +111,7 @@ $report = try_refute {
 is $report->get_sign, "t1N1Nd", "isa_ok()";
 note $report->get_tap;
 
-$report = try_refute {
+$report = refute_and_report {
     package T;
     can_ok current_contract, "can_ok";
     can_ok current_contract, "frobnicate";
@@ -122,7 +122,7 @@ $report = try_refute {
 is $report->get_sign, "t1N1NNd", "can_ok()";
 note $report->get_tap;
 
-$report = try_refute {
+$report = refute_and_report {
     # TODO write a better new_ok
     package T;
     new_ok "Assert::Refute::Report", [];
@@ -131,7 +131,7 @@ $report = try_refute {
 is $report->get_sign, "t1Nd", "new_ok()";
 note $report->get_tap;
 
-$report = try_refute {
+$report = refute_and_report {
     package T;
     require_ok "Assert::Refute"; # already loaded
     require_ok "No::Such::Package::_______::000";

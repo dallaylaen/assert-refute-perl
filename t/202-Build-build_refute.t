@@ -23,7 +23,7 @@ BEGIN {
     Foo->import;
 };
 
-my $report = try_refute {
+my $report = refute_and_report {
     my_is 137, 137, "TEST FAILED IS YOU SEE THIS (equal)";
     my_is  42, 137, "TEST FAILED IS YOU SEE THIS (not equal)";
 };

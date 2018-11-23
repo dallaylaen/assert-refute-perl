@@ -9,7 +9,7 @@ use Carp;
 use Assert::Refute qw(:core), {};
 use Assert::Refute::T::Errors;
 
-my $report = try_refute {
+my $report = refute_and_report {
     warns_like {
     } [], "No warnings";
 

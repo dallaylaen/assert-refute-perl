@@ -8,7 +8,7 @@ use Test::More;
 use Assert::Refute qw(:core), {};
 use Assert::Refute::T::Errors qw(dies_like);
 
-my $report = try_refute {
+my $report = refute_and_report {
     dies_like {
         +1;
     } '', "Lives ok";
