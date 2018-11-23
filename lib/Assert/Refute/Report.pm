@@ -303,11 +303,21 @@ $specification may be one of:
 =over
 
 =item * code reference - will be executed in C<eval> block, with a I<new>
-L<Assert::Refute::Report> passed as argument;
+L<Assert::Refute::Report> passed as argument.
+
+Exceptions are rethrown, leaving a failed contract behind.
+
+    $report->subcontract( "My code" => sub {
+        my $new_report = shift;
+        # run some checks here
+    } );
 
 =item * L<Assert::Refute::Contract> instance - apply() will be called;
 
-=item * L<Assert::Refute::Report> instance implying a previously executed test.
+As of v.0.15, contract swallows exceptions, leaving behind a failed
+contract report only. This MAY change in the future.
+
+=item * L<Assert::Refute::Report> instance from a previously executed test.
 
 =back
 
@@ -324,6 +334,7 @@ sub subcontract {
     $self->_croak( "Name is required for subcontract" )
         unless $msg;
 
+    my $rethrow;
     my $rep;
     if ( blessed $sub and $sub->isa( "Assert::Refute::Contract" ) ) {
         $rep = $sub->apply(@args);
@@ -335,20 +346,24 @@ sub subcontract {
         $rep = $sub;
     } elsif (UNIVERSAL::isa( $sub, 'CODE' )) {
         $rep = Assert::Refute::Report->new->set_parent($self);
-        local $Assert::Refute::DRIVER = $rep;
         eval {
+            # This is ripoff of do_run - maybe just call do_run here
+            local $Assert::Refute::DRIVER = $rep;
             $sub->($rep, @args);
             $rep->done_testing(0);
             1;
         } or do {
-            $rep->done_testing( $@ || "Execution interrupted" );
+            $rethrow = $@ || Carp::shortmess("Subcontract execution interrupted");
+            $rep->done_testing( $rethrow );
         };
     } else {
         $self->_croak("subcontract must be a contract definition or execution log");
     };
 
     $self->{subcontract}{ $self->get_count + 1 } = $rep;
-    $self->refute( !$rep->is_passing, "$msg (subtest)" );
+    my $ret = $self->refute( !$rep->is_passing, "$msg (subtest)" );
+    die $rethrow if $rethrow;
+    return $ret;
 };
 
 =head2 QUERYING PRIMITIVES
