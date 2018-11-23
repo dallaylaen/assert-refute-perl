@@ -2,10 +2,9 @@
 
 use strict;
 use warnings;
-BEGIN{ delete @ENV{qw(NDEBUG PERL_NDEBUG)} };
 use Test::More;
 
-use Assert::Refute qw(:core), {};
+use Assert::Refute qw(:core);
 use Assert::Refute::T::Errors qw(dies_like);
 
 my $report = refute_and_report {

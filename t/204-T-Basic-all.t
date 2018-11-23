@@ -2,10 +2,9 @@
 
 use strict;
 use warnings;
-BEGIN{ delete @ENV{qw(NDEBUG PERL_NDEBUG)} };
 use Test::More;
 
-use Assert::Refute qw(refute_and_report), {};
+use Assert::Refute qw(refute_and_report);
 
 {
     # Be extra careful not to pollute the main namespace

@@ -2,10 +2,9 @@
 
 use strict;
 use warnings;
-BEGIN{ delete @ENV{qw(NDEBUG PERL_NDEBUG)} };
 use Test::More tests => 2;
 
-use Assert::Refute qw(:core), {};
+use Assert::Refute qw(:core);
 
 # emulate use Foo;
 BEGIN {
