@@ -29,7 +29,3 @@ is $parent, undef, "report is not leaky";
 is $child->get_parent, undef, "parent updated";
 
 done_testing;
-
-
-
-
