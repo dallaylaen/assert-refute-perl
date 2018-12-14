@@ -844,6 +844,26 @@ sub get_parent {
     return $_[0]->{parent};
 };
 
+=head2 get_depth
+
+Returns 0 is there is no parent, or parent's depth + 1.
+This of this as "this contract's indentation level".
+
+B<EXPERIMENTAL>. Name and meaning MAY change in the future.
+
+=cut
+
+sub get_depth {
+    my $self = shift;
+
+    if (!exists $self->{depth}) {
+        my $parent = $self->get_parent;
+        $self->{depth} = $parent ? $parent->get_depth + 1 : 0;
+    };
+
+    return $self->{depth};
+};
+
 sub _croak {
     my ($self, $mess) = @_;
 
