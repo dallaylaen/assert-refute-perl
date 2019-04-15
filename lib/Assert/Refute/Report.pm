@@ -92,7 +92,7 @@ and the report will become unconditionally failing.
 =cut
 
 my %allow_plan;
-$allow_plan{$_}++ for qw( tests skip_all );
+$allow_plan{$_}++ for qw( tests skip_all title );
 
 sub plan {
     my $self = shift;
@@ -123,6 +123,10 @@ sub plan {
             unless $args{tests} =~ /^[0-9]+$/;
         # TODO should we forbid tests => 0 w/o a reason?
         $self->{plan_tests} = int $args{tests};
+    };
+
+    if ($args{title}) {
+        $self->set_title( $args{title} );
     };
 
     return $self;
