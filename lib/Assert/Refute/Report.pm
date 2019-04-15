@@ -274,6 +274,28 @@ sub set_context {
     return $self;
 };
 
+=head3 set_title
+
+Set the a contract title
+that briefly explains what we are trying to prove, and why.
+
+See also L</get_title>.
+
+B<[EXPERIMENTAL]>. Name and meaning may change in the future.
+
+=cut
+
+# TODO setter
+sub set_title {
+    my ($self, $str) = @_;
+
+    $self->_croak( $ERROR_DONE )
+        if $self->{done};
+
+    $self->{title} = $str;
+    return $self;
+};
+
 =head2 TESTING PRIMITIVES
 
 L<Assert::Refute> comes with a set of basic checks
@@ -657,6 +679,22 @@ sub get_sign {
 
     my $d = $self->get_error ? 'E' : $self->{done} ? 'd' : 'r';
     return join '', @t, $d;
+};
+
+=head3 get_title
+
+Returns the contract title
+that briefly explains what we are trying to prove, and why.
+
+See also L</set_title>.
+
+B<[EXPERIMENTAL]>. Name and meaning may change in the future.
+
+=cut
+
+# TODO Dumb getter
+sub get_title {
+    return $_[0]->{title};
 };
 
 =head2 DEVELOPMENT PRIMITIVES
