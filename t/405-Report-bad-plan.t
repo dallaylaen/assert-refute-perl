@@ -10,7 +10,12 @@ use Assert::Refute::Report;
 dies_like {
     my $report = Assert::Refute::Report->new;
     $report->plan( "garbage" );
-} qr/^Assert::Refute.*[Uu]nknown.*plan garbage/, "garbage plan doesn't work";
+} qr/^Assert::Refute.*Odd number.*\bplan\b/, "odd plan doesn't work";
+
+dies_like {
+    my $report = Assert::Refute::Report->new;
+    $report->plan( "garbage" => 42 );
+} qr/^Assert::Refute.*[Uu]nknown.*\bplan\b.*\bgarbage\b/, "garbage plan doesn't work";
 
 dies_like {
     my $report = Assert::Refute::Report->new;

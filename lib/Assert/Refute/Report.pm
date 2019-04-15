@@ -91,8 +91,20 @@ and the report will become unconditionally failing.
 
 =cut
 
+my %allow_plan;
+$allow_plan{$_}++ for qw( tests skip_all );
+
 sub plan {
-    my ($self, $todo, @args) = @_;
+    my $self = shift;
+    $self->_croak("Odd number of arguments in plan()")
+        if @_ % 2;
+    my %args = @_;
+
+    my @extra = grep { !$allow_plan{$_} } keys %args;
+    $self->_croak( "Unknown options to plan(): ".join ",", sort @extra )
+        if @extra;
+    $self->_croak( "Useless use of plan() without arguments" )
+        unless %args;
 
     $self->_croak( $ERROR_DONE )
         if $self->{done};
@@ -102,18 +114,14 @@ sub plan {
     $self->_croak( "plan(): testing already started" )
         if $self->{count} > 0;
 
-    if ($todo eq 'tests') {
-        $self->_croak( "plan(): usage: plan tests => n")
-            unless @args == 1 and defined $args[0] and $args[0] =~ /^\d+$/;
-        $self->{plan_tests} = $args[0];
-    } elsif ($todo eq 'skip_all') {
-        $self->_croak( "plan(): usage: plan skip_all => reason")
-            unless @args == 1 and defined $args[0] and length $args[0];
-        $self->{plan_skip} = $args[0];
+    if ($args{skip_all}) {
+        $self->{plan_skip} = $args{skip_all};
         $self->{plan_tests} = 0;
         # TODO should we lock report?
-    } else {
-        $self->_croak( "Unknown 'plan $todo ...' command" );
+    } elsif ($args{tests}) {
+        $self->_croak( "plan(): usage: plan tests => n")
+            unless $args{tests} =~ /^\d+$/;
+        $self->{plan_tests} = $args{tests};
     };
 
     return $self;
