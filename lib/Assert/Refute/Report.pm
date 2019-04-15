@@ -118,10 +118,11 @@ sub plan {
         $self->{plan_skip} = $args{skip_all};
         $self->{plan_tests} = 0;
         # TODO should we lock report?
-    } elsif ($args{tests}) {
+    } elsif (defined $args{tests}) {
         $self->_croak( "plan(): usage: plan tests => n")
-            unless $args{tests} =~ /^\d+$/;
-        $self->{plan_tests} = $args{tests};
+            unless $args{tests} =~ /^[0-9]+$/;
+        # TODO should we forbid tests => 0 w/o a reason?
+        $self->{plan_tests} = int $args{tests};
     };
 
     return $self;
