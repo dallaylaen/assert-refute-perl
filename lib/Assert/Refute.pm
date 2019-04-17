@@ -159,7 +159,7 @@ my @core  = qw(
     contract refute_these try_refute
     refute subcontract contract_is current_contract
 );
-my @extra = qw( refute_and_report assert_refute );
+my @extra = qw( assert_refute refute_and_report refute_invariant );
 
 our @ISA = qw(Exporter);
 our @EXPORT = @core;
@@ -314,7 +314,35 @@ or C<try_refute>.
 =cut
 
 sub assert_refute(&;@) { ## no critic # need prototype
-    my ( $block, @arg ) = @_;
+    unshift @_, '';
+
+    goto &_real_assert;
+};
+
+=head2 refute_invariant "name" => sub { ... }
+
+A named runtime assertion.
+
+Exactly as above, except that a title is added to the report object
+which will be appended to the emitted warning/error (if any).
+
+Title can be queried via C<get_title> method in report object.
+
+B<[EXPERIMENTAL]>. Name and meaning may change in the future.
+
+=cut
+
+sub refute_invariant(@) { ## no critic # need prototype
+    my ( $name, $block, @arg ) = @_;
+
+    croak q{Usage: refute_invariant "name" => sub { ... }"}
+        unless $name and ref $block eq 'CODE';
+
+    goto &_real_assert;
+};
+
+sub _real_assert {
+    my ( $name, $block ) = @_;
 
     # Should a missing config even happen? Ok, play defensively...
     my $conf = $CALLER_CONF{+caller};
@@ -324,7 +352,7 @@ sub assert_refute(&;@) { ## no critic # need prototype
     };
     return $conf->{skip_all} if exists $conf->{skip_all};
 
-    my $report = $conf->{driver}->new->do_run($block);
+    my $report = $conf->{driver}->new->set_title($name)->do_run($block);
 
     # perform whatever action is needed
     my $callback = $conf->{ $report->is_passing ? "on_pass" : "on_fail" };

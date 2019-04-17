@@ -5,15 +5,14 @@ use warnings;
 BEGIN{ delete @ENV{qw(NDEBUG PERL_NDEBUG)} };
 use Test::More tests => 3;
 
-use Assert::Refute qw(assert_refute);
+use Assert::Refute qw(refute_invariant);
 
 my @warn;
 my $alive = eval {
     local $SIG{__WARN__} = sub { push @warn, shift };
-    assert_refute {
+    refute_invariant "Foobared" => sub {
         package T;
         use Assert::Refute qw(:all);
-        plan tests => 1, title => 'Foobared';
         is 42, 137, 'life is fine';
     };
     1;
@@ -27,4 +26,5 @@ note "<REPORT>";
 note $warn[0] || '(none)';
 note "</REPORT>";
 like $warn[0], qr/not ok 1.*Contract.*\bFoobared\b.*/s, "warning as expected";
+
 
