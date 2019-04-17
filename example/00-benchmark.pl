@@ -44,7 +44,7 @@ $fail = $fail ? '-' : '';
 sub usage {
     print <<"USAGE"; exit 0;
 Usage: $0 [options]
-Benchmark the Assert::Refute using repeated like( $_, qr/.../ ) statements.
+Benchmark the Assert::Refute using repeated like( \$_, qr/.../ ) statements.
 Time::HiRes::clock() is used to measure CPU usage as opposed to wallclock time.
 Options may include:
     -c, --count   - number of refutations per contract (default 100)
