@@ -203,15 +203,24 @@ my %known_callback = (
     skip => '',
     carp => sub {
         my $report = shift;
-        carp $report->get_tap
-            .($report->is_passing ? "Contract passed" : "Contract failed");
+        warn $report->get_tap . _report_mess( $report );
     },
     croak => sub {
         my $report = shift;
-        croak $report->get_tap
-            .($report->is_passing ? "Contract passed" : "Contract failed");
+        die $report->get_tap . _report_mess( $report );
     },
 );
+
+# TODO maybe public method in Report?
+sub _report_mess {
+    my $report = shift;
+
+    my $state = $report->is_passing ? "passed" : "failed";
+    my $title = $report->get_title;
+    my $str   = $title ? "Contract '$title' $state" : "Contract $state";
+    return Carp::shortmess($str);
+};
+
 my %default_conf = (
     on_fail => 'skip',
     on_pass => 'skip',
