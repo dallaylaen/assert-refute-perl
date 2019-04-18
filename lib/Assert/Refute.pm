@@ -180,7 +180,11 @@ $NDEBUG = $ENV{NDEBUG} unless defined $NDEBUG;
 
 sub import {
     my $class = shift;
-    my (%conf, @exp, $need_conf);
+
+    # NOTE ugly hack - allow for 'use Assert::Refute {}'
+    # this should not be needed with new assert_refute / refute_and_report API
+    my %conf = ( on_fail => 'skip' );
+    my (@exp, $need_conf);
     foreach (@_) {
         if (ref $_ eq 'HASH') {
             %conf = (%conf, %$_);
@@ -222,7 +226,7 @@ sub _report_mess {
 };
 
 my %default_conf = (
-    on_fail => 'skip',
+    on_fail => 'carp',
     on_pass => 'skip',
 );
 
@@ -260,7 +264,7 @@ sub try_refute(&;@) { ## no critic # need prototype
     # Should a missing config even happen? Ok, play defensively...
     my $conf = $CALLER_CONF{+caller};
     if( !$conf ) {
-        $conf = __PACKAGE__->configure( { on_fail => 'carp' }, scalar caller );
+        $conf = __PACKAGE__->configure( {}, scalar caller );
     };
     return $conf->{skip_all} if exists $conf->{skip_all};
 
@@ -670,6 +674,31 @@ sub configure {
     };
 
     $CALLER_CONF{$caller} = $conf;
+};
+
+=head2 configure_global( \%global_defaults )
+
+Set a global configuration to be used as default.
+
+This can be used e.g. to set an assertion failure callback throughout
+a big project.
+
+=cut
+
+sub configure_global {
+    my ($class, $conf) = @_;
+
+    croak "Usage: $class->configure_global( \\%hash )"
+        unless ref $conf eq 'HASH';
+
+    my @extra = grep { !$conf_known{$_} } keys %$conf;
+    croak "$class->configure_global: unknown parameters (@extra)"
+        if @extra;
+
+    $default_conf{$_} = $conf->{$_}
+        for keys %$conf;
+
+    return $class; # oh really?
 };
 
 =head2 get_config
