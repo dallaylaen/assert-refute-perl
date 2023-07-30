@@ -116,7 +116,7 @@ $report = refute_and_report {
     can_ok current_contract, "frobnicate";
     can_ok "Assert::Refute", "import", "can_ok";
     can_ok "Assert::Refute", "unknown_subroutine";
-    can_ok "No::Exist", "can", "isa", "import";
+    can_ok "No::Exist", "can", "isa", "unknown_subroutine";
 };
 is $report->get_sign, "t1N1NNd", "can_ok()";
 note $report->get_tap;
